@@ -82,7 +82,7 @@ export default function Relatorios() {
       id: 'produtos_mais_vendidos',
       titulo: '2. Produtos Mais Vendidos',
       descricao:
-        'Ranking das peças artesanais mais vendidas por quantidade e faturamento acumulado.',
+        'Ranking dos produtos e serviços mais vendidos por quantidade e faturamento acumulado.',
       icon: Package,
       tag: 'Produtos',
     },
@@ -98,7 +98,7 @@ export default function Relatorios() {
       id: 'despesas_categoria',
       titulo: '4. Despesas por Categoria',
       descricao:
-        'Distribuição percentual dos custos do ateliê (matéria-prima, fretes, energia, etc).',
+        'Distribuição percentual dos custos da loja (filamento, papel, tinta, fretes, energia, etc).',
       icon: FolderTree,
       tag: 'Custos',
     },
@@ -296,7 +296,7 @@ export default function Relatorios() {
     if (tipo === 'produtos_mais_vendidos') {
       const cabecalhos = [
         'Posição',
-        'Produto Artesanal',
+        'Produto/Serviço',
         'Quantidade Vendida (un)',
         'Faturamento Total (R$)',
       ]
@@ -604,7 +604,7 @@ export default function Relatorios() {
           {relatorioSelecionado === 'produtos_mais_vendidos' && (
             <div className="bg-white rounded-2xl border border-[#DFC3AE]/70 shadow-xs p-5 space-y-6">
               <h3 className="font-serif text-base font-bold text-[#0C1014]">
-                Ranking das Peças Mais Vendidas
+                Ranking dos Produtos Mais Vendidos
               </h3>
 
               {/* Gráfico de barras horizontal */}

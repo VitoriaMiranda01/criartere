@@ -9,7 +9,7 @@ import {
 } from '@/types/criartere'
 
 export const SEED_CONFIG: LojaConfig = {
-  nome: 'Criartere — Ateliê e Cerâmica Artesanal',
+  nome: 'Criartere — Impressão 3D e Gráfica',
   email: 'contato@criartere.com.br',
   telefone: '(11) 98765-4321',
   whatsapp: '(11) 98765-4321',

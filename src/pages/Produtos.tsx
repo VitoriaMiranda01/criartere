@@ -67,17 +67,19 @@ export default function Produtos() {
   const [descricao, setDescricao] = useState('')
   const [precoVendaStr, setPrecoVendaStr] = useState('')
   const [custoStr, setCustoStr] = useState('')
-  const [categoria, setCategoria] = useState('Vasos e Cachepôs')
+  const [categoria, setCategoria] = useState('Impressão 3D')
   const [imagemUrl, setImagemUrl] = useState('')
   const [ativo, setAtivo] = useState(true)
   const [estoqueStr, setEstoqueStr] = useState('10')
   const [erro, setErro] = useState('')
 
   const categoriasDisponiveis = [
-    'Vasos e Cachepôs',
-    'Xícaras e Canecas',
-    'Mesa Posta',
-    'Decoração',
+    'Impressão 3D',
+    'Miniaturas e colecionáveis',
+    'Peças técnicas e protótipos',
+    'Cartões e papelaria',
+    'Banners, adesivos e placas',
+    'Brindes personalizados',
     'Outros',
   ]
 
@@ -87,8 +89,8 @@ export default function Produtos() {
     setDescricao('')
     setPrecoVendaStr('')
     setCustoStr('')
-    setCategoria('Vasos e Cachepôs')
-    setImagemUrl('https://img.usecurling.com/p/400/400?q=handmade+ceramic&color=orange')
+    setCategoria('Impressão 3D')
+    setImagemUrl('')
     setAtivo(true)
     setEstoqueStr('12')
     setErro('')
@@ -134,8 +136,7 @@ export default function Produtos() {
       precoVenda,
       custo,
       categoria,
-      imagemUrl:
-        imagemUrl.trim() || 'https://img.usecurling.com/p/400/400?q=ceramic+artisan&color=orange',
+      imagemUrl: imagemUrl.trim() || '/placeholder.svg',
       ativo,
       estoqueAproximado: estoque,
     }
@@ -182,7 +183,7 @@ export default function Produtos() {
         <div>
           <h2 className="font-serif text-2xl font-bold text-[#0C1014]">Catálogo de Produtos</h2>
           <p className="text-xs text-[#6B4B36]">
-            {state.produtos.length} peças cadastradas &bull; Prontas para preenchimento ágil nos
+            {state.produtos.length} produtos cadastrados &bull; Prontas para preenchimento ágil nos
             pedidos
           </p>
         </div>
@@ -263,7 +264,7 @@ export default function Produtos() {
             <Package className="w-8 h-8 text-[#C48864] mx-auto opacity-70" />
             <p className="text-sm font-semibold text-[#0C1014]">Nenhum produto encontrado</p>
             <p className="text-xs text-[#6B4B36]">
-              Ajuste os filtros ou cadastre um novo produto artesanal no catálogo.
+              Ajuste os filtros ou cadastre um novo produto no catálogo.
             </p>
           </div>
         ) : (
@@ -375,7 +376,7 @@ export default function Produtos() {
         <DialogContent className="sm:max-w-lg bg-white border-[#DFC3AE] p-6 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-serif text-xl font-bold text-[#0C1014]">
-              {produtoEditando ? 'Editar Produto' : 'Novo Produto Artesanal'}
+              {produtoEditando ? 'Editar Produto' : 'Novo Produto'}
             </DialogTitle>
           </DialogHeader>
 
@@ -385,11 +386,11 @@ export default function Produtos() {
                 htmlFor="nome"
                 className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
               >
-                Nome da Peça *
+                Nome do Produto *
               </Label>
               <Input
                 id="nome"
-                placeholder="Ex: Vaso Orgânico Terracota M"
+                placeholder="Ex: Chaveiro 3D personalizado ou Cartão de visita (1000 un.)"
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
                 className="h-10 text-xs border-[#DFC3AE]"
@@ -406,7 +407,7 @@ export default function Produtos() {
               </Label>
               <Textarea
                 id="desc"
-                placeholder="Detalhes sobre queima, acabamento, tamanho, argila utilizada..."
+                placeholder="Material (PLA, PETG, resina, papel), cores, dimensões, acabamento, prazo..."
                 value={descricao}
                 onChange={(e) => setDescricao(e.target.value)}
                 className="text-xs border-[#DFC3AE] min-h-[70px]"
@@ -554,7 +555,7 @@ export default function Produtos() {
           <AlertDialogHeader>
             <AlertDialogTitle className="font-serif text-lg font-bold text-[#0C1014] flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-[#B5533C]" />
-              Excluir Peça do Catálogo?
+              Excluir Produto do Catálogo?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-[#6B4B36]">
               Tem certeza que deseja remover <strong>{produtoParaExcluir?.nome}</strong>? Os pedidos

@@ -132,16 +132,20 @@ export default function Configuracoes() {
   const statusConfig = [
     { label: 'Novo pedido', cor: '#C48864', desc: 'Pedido registrado e aguardando confirmação' },
     { label: 'Aguardando pagamento', cor: '#D9A441', desc: 'Chave Pix ou link enviado ao cliente' },
-    { label: 'Em preparação', cor: '#8A5A3B', desc: 'Seleção de argila, moldagem e secagem' },
+    {
+      label: 'Em preparação',
+      cor: '#8A5A3B',
+      desc: 'Conferência do arquivo, modelagem 3D ou arte final',
+    },
     {
       label: 'Em produção',
       cor: '#B0764F',
-      desc: 'Queima em alta temperatura (1200°C) ou esmaltação',
+      desc: 'Impressão 3D ou gráfica, corte e acabamento',
     },
     {
       label: 'Pronto para envio',
       cor: '#4C8A5A',
-      desc: 'Embalado na caixa kraft com laço de juta',
+      desc: 'Embalado e pronto para retirada ou envio',
     },
     { label: 'Enviado', cor: '#5A7D8A', desc: 'Em trânsito com código de rastreio ou motoboy' },
     { label: 'Entregue', cor: '#3D6F48', desc: 'Entregue com sucesso ao cliente' },
@@ -174,7 +178,7 @@ export default function Configuracoes() {
         <CardHeader className="pb-3 border-b border-[#DFC3AE]/40">
           <CardTitle className="font-serif text-base font-bold text-[#0C1014] flex items-center gap-2">
             <Store className="w-4 h-4 text-[#C48864]" />
-            Dados Comerciais do Ateliê
+            Dados Comerciais da Loja
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
@@ -226,7 +230,7 @@ export default function Configuracoes() {
 
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
-                  Endereço do Ateliê
+                  Endereço da Loja
                 </Label>
                 <Input
                   value={enderecoLoja}
@@ -348,7 +352,7 @@ export default function Configuracoes() {
         <CardHeader className="pb-3 border-b border-[#DFC3AE]/40">
           <CardTitle className="font-serif text-base font-bold text-[#0C1014] flex items-center gap-2">
             <Palette className="w-4 h-4 text-[#C48864]" />
-            Status Operacionais do Ateliê
+            Status Operacionais da Produção
           </CardTitle>
         </CardHeader>
         <CardContent className="p-5">

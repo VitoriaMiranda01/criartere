@@ -609,7 +609,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
             </Label>
             <Textarea
               id="obs"
-              placeholder="Ex: Embalagem para presente, retirar no ateliê, gravar iniciais..."
+              placeholder="Ex: Arquivo enviado por WhatsApp, cor do filamento, papel couché 300g, retirar na loja..."
               value={observacoes}
               onChange={(e) => setObservacoes(e.target.value)}
               className="text-xs border-[#DFC3AE] min-h-[70px]"

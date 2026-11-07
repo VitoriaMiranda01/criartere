@@ -636,7 +636,7 @@ export default function Clientes() {
               </Label>
               <Textarea
                 id="obs"
-                placeholder="Preferências de peças, estilo de embalagem, histórico de presentes..."
+                placeholder="Preferências de cores e materiais, arquivos recorrentes, forma de retirada..."
                 value={observacoes}
                 onChange={(e) => setObservacoes(e.target.value)}
                 className="text-xs border-[#DFC3AE] min-h-[70px]"

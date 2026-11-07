@@ -89,7 +89,7 @@ export const DetalhePedidoDrawer: React.FC<DetalhePedidoDrawerProps> = ({
       type: 'CANCELAR_PEDIDO',
       payload: {
         pedidoId: pedido.id,
-        motivo: motivoCancelamento || 'Solicitado pelo cliente/ateliê',
+        motivo: motivoCancelamento || 'Solicitado pelo cliente/loja',
       },
     })
     toast.error(`Pedido ${pedido.codigo} foi cancelado.`)

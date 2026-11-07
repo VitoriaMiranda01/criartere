@@ -126,7 +126,7 @@ export const FormDespesaModal: React.FC<FormDespesaModalProps> = ({
             </Label>
             <Input
               id="desc"
-              placeholder="Ex: Sacos de argila terracota (50kg)"
+              placeholder="Ex: Filamento PLA preto (1kg) ou resma de papel couché"
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
               className="h-10 text-xs border-[#DFC3AE]"

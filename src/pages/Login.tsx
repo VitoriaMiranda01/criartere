@@ -95,7 +95,7 @@ export default function Login() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#C48864] inline-block animate-pulse" />
             </div>
             <p className="text-xs uppercase tracking-widest text-[#6B4B36] font-medium">
-              Ateliê &amp; Cerâmica Artesanal
+              Impressão 3D &amp; Gráfica
             </p>
             <div className="mt-4 pt-4 border-t border-[#DFC3AE]/40">
               <h1 className="font-serif text-xl font-semibold text-[#0C1014]">Sistema de Gestão</h1>

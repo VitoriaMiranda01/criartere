@@ -337,7 +337,7 @@ export default function Layout() {
             <h1 className="font-serif text-2xl font-semibold text-[#0C1014]">
               {getTituloPagina()}
             </h1>
-            <p className="text-xs text-[#6B4B36]">Ateliê Criartere &bull; Painel de Controle</p>
+            <p className="text-xs text-[#6B4B36]">Criartere &bull; Painel de Controle</p>
           </div>
 
           <div className="flex items-center gap-4">
