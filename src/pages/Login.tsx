@@ -42,7 +42,7 @@ export default function Login() {
       if (error) {
         setErro(
           error.message.includes('Email not confirmed')
-            ? 'Confirme seu e-mail pelo link que enviamos antes de entrar.'
+            ? 'Conta ainda não liberada. Fale com a administradora.'
             : 'E-mail ou senha incorretos.',
         )
       }
@@ -62,10 +62,21 @@ export default function Login() {
         },
       })
       if (error) {
-        setErro(`Não foi possível criar a conta: ${error.message}`)
+        setErro(
+          error.message.toLowerCase().includes('already registered')
+            ? 'Este e-mail já tem conta. Use "Já tenho conta. Entrar".'
+            : `Não foi possível criar a conta: ${error.message}`,
+        )
       } else if (!data.session) {
-        setAviso('Conta criada! Enviamos um link de confirmação para o seu e-mail.')
-        setModo('entrar')
+        // A conta é confirmada automaticamente no banco: entra direto
+        const { error: erroLogin } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password: senha,
+        })
+        if (erroLogin) {
+          setAviso('Conta criada! Agora é só entrar com seu e-mail e senha.')
+          setModo('entrar')
+        }
       }
     }
     setCarregando(false)
