@@ -1,0 +1,436 @@
+import React, { createContext, useContext, useReducer, useEffect } from 'react'
+import { CriartereState } from './types'
+import {
+  SEED_CLIENTES,
+  SEED_PRODUTOS,
+  SEED_PEDIDOS,
+  SEED_PAGAMENTOS,
+  SEED_DESPESAS,
+  SEED_CATEGORIAS_DESPESA,
+  SEED_FORMAS_PAGAMENTO,
+  SEED_HISTORICO,
+  SEED_CONFIG,
+} from '@/data/seed'
+import {
+  Cliente,
+  Produto,
+  Pedido,
+  Despesa,
+  Pagamento,
+  OrderStatus,
+  PaymentStatus,
+  PaymentMethod,
+  LojaConfig,
+} from '@/types/criartere'
+
+const initialState: CriartereState = {
+  autenticado: true, // Inicialmente autenticado para a demo carregar direto ou via login
+  usuarioAtual: {
+    nome: 'Mariana Duarte (Proprietária)',
+    email: 'demonstracao@criartere.com',
+    papel: 'Administradora',
+    avatarUrl: 'https://img.usecurling.com/ppl/medium?gender=female&seed=42',
+  },
+  clientes: SEED_CLIENTES,
+  produtos: SEED_PRODUTOS,
+  pedidos: SEED_PEDIDOS,
+  pagamentos: SEED_PAGAMENTOS,
+  despesas: SEED_DESPESAS,
+  categoriasDespesa: SEED_CATEGORIAS_DESPESA,
+  formasPagamento: [...SEED_FORMAS_PAGAMENTO],
+  historico: SEED_HISTORICO,
+  config: SEED_CONFIG,
+}
+
+type Action =
+  | { type: 'LOGIN'; payload?: { email: string } }
+  | { type: 'LOGOUT' }
+  // Pedidos
+  | { type: 'CRIAR_PEDIDO'; payload: Omit<Pedido, 'id' | 'codigo' | 'dataCriacao'> }
+  | { type: 'ATUALIZAR_PEDIDO'; payload: Pedido }
+  | { type: 'ALTERAR_STATUS_PEDIDO'; payload: { pedidoId: string; novoStatus: OrderStatus } }
+  | { type: 'CANCELAR_PEDIDO'; payload: { pedidoId: string; motivo?: string } }
+  // Pagamentos
+  | {
+      type: 'REGISTRAR_PAGAMENTO'
+      payload: {
+        pedidoId: string
+        valor: number
+        formaPagamento: PaymentMethod
+        data: string
+        observacoes?: string
+      }
+    }
+  // Clientes
+  | { type: 'SALVAR_CLIENTE'; payload: Cliente }
+  | { type: 'EXCLUIR_CLIENTE'; payload: string }
+  // Produtos
+  | { type: 'SALVAR_PRODUTO'; payload: Produto }
+  | { type: 'EXCLUIR_PRODUTO'; payload: string }
+  // Despesas
+  | { type: 'SALVAR_DESPESA'; payload: Despesa }
+  | { type: 'ALTERNAR_STATUS_DESPESA'; payload: string }
+  | { type: 'EXCLUIR_DESPESA'; payload: string }
+  // Categorias
+  | { type: 'ADICIONAR_CATEGORIA'; payload: string }
+  | { type: 'RENOMEAR_CATEGORIA'; payload: { antiga: string; nova: string } }
+  | { type: 'EXCLUIR_CATEGORIA'; payload: string }
+  // Formas de Pagamento
+  | { type: 'ADICIONAR_FORMA_PAGAMENTO'; payload: PaymentMethod }
+  | { type: 'REMOVER_FORMA_PAGAMENTO'; payload: PaymentMethod }
+  // Config
+  | { type: 'ATUALIZAR_CONFIG'; payload: Partial<LojaConfig> }
+  | { type: 'RESTAURAR_DEMO' }
+
+function agoraFormatado(): string {
+  const d = new Date()
+  const data = d.toISOString().slice(0, 10)
+  const hora = d.toTimeString().slice(0, 5)
+  return `${data} ${hora}`
+}
+
+function dataHoje(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
+function criartereReducer(state: CriartereState, action: Action): CriartereState {
+  switch (action.type) {
+    case 'LOGIN':
+      return {
+        ...state,
+        autenticado: true,
+      }
+
+    case 'LOGOUT':
+      return {
+        ...state,
+        autenticado: false,
+      }
+
+    case 'CRIAR_PEDIDO': {
+      // Gerar próximo código sequencial
+      const numeros = state.pedidos
+        .map((p) => {
+          const match = p.codigo.match(/#CR-(\d+)/)
+          return match ? parseInt(match[1], 10) : 0
+        })
+        .filter((n) => !isNaN(n))
+      const maxNum = numeros.length > 0 ? Math.max(...numeros) : 0
+      const proximoNum = (maxNum + 1).toString().padStart(4, '0')
+      const codigo = `#CR-${proximoNum}`
+      const id = `ped-${Date.now()}`
+
+      const novoPedido: Pedido = {
+        ...action.payload,
+        id,
+        codigo,
+        dataCriacao: dataHoje(),
+      }
+
+      const eventoHistorico = {
+        id: `h-${Date.now()}`,
+        pedidoId: id,
+        dataHora: agoraFormatado(),
+        tipo: 'criacao' as const,
+        descricao: `Pedido cadastrado no valor de R$ ${novoPedido.valorTotal.toFixed(2)}`,
+      }
+
+      return {
+        ...state,
+        pedidos: [novoPedido, ...state.pedidos],
+        historico: [eventoHistorico, ...state.historico],
+      }
+    }
+
+    case 'ATUALIZAR_PEDIDO': {
+      const atualizado = action.payload
+      const eventoHistorico = {
+        id: `h-${Date.now()}`,
+        pedidoId: atualizado.id,
+        dataHora: agoraFormatado(),
+        tipo: 'edicao' as const,
+        descricao: 'Dados do pedido foram atualizados',
+      }
+
+      return {
+        ...state,
+        pedidos: state.pedidos.map((p) => (p.id === atualizado.id ? atualizado : p)),
+        historico: [eventoHistorico, ...state.historico],
+      }
+    }
+
+    case 'ALTERAR_STATUS_PEDIDO': {
+      const { pedidoId, novoStatus } = action.payload
+      const pedido = state.pedidos.find((p) => p.id === pedidoId)
+      if (!pedido || pedido.status === novoStatus) return state
+
+      const nomesStatus: Record<OrderStatus, string> = {
+        novo: 'Novo pedido',
+        aguardando_pagamento: 'Aguardando pagamento',
+        em_preparacao: 'Em preparação',
+        em_producao: 'Em produção',
+        pronto_envio: 'Pronto para envio',
+        enviado: 'Enviado',
+        entregue: 'Entregue',
+        cancelado: 'Cancelado',
+      }
+
+      const eventoHistorico = {
+        id: `h-${Date.now()}`,
+        pedidoId,
+        dataHora: agoraFormatado(),
+        tipo: 'status' as const,
+        descricao: `Status alterado de "${nomesStatus[pedido.status]}" para "${nomesStatus[novoStatus]}"`,
+      }
+
+      return {
+        ...state,
+        pedidos: state.pedidos.map((p) => (p.id === pedidoId ? { ...p, status: novoStatus } : p)),
+        historico: [eventoHistorico, ...state.historico],
+      }
+    }
+
+    case 'CANCELAR_PEDIDO': {
+      const { pedidoId, motivo } = action.payload
+      const pedido = state.pedidos.find((p) => p.id === pedidoId)
+      if (!pedido) return state
+
+      const eventoHistorico = {
+        id: `h-${Date.now()}`,
+        pedidoId,
+        dataHora: agoraFormatado(),
+        tipo: 'cancelamento' as const,
+        descricao: `Pedido cancelado${motivo ? `: ${motivo}` : ''}. Valores previstos removidos do faturamento.`,
+      }
+
+      return {
+        ...state,
+        pedidos: state.pedidos.map((p) => (p.id === pedidoId ? { ...p, status: 'cancelado' } : p)),
+        historico: [eventoHistorico, ...state.historico],
+      }
+    }
+
+    case 'REGISTRAR_PAGAMENTO': {
+      const { pedidoId, valor, formaPagamento, data, observacoes } = action.payload
+      const pedido = state.pedidos.find((p) => p.id === pedidoId)
+      if (!pedido) return state
+
+      const jaPago = state.pagamentos
+        .filter((p) => p.pedidoId === pedidoId)
+        .reduce((s, p) => s + p.valor, 0)
+
+      const novoTotalPago = jaPago + valor
+      const quitado = novoTotalPago >= pedido.valorTotal - 0.01
+      const novoStatusPagamento: PaymentStatus = quitado
+        ? 'pago'
+        : novoTotalPago > 0
+          ? 'parcial'
+          : 'pendente'
+
+      const novoPagamento: Pagamento = {
+        id: `pag-${Date.now()}`,
+        pedidoId,
+        valor,
+        data,
+        formaPagamento,
+        observacoes,
+      }
+
+      const restante = Math.max(0, pedido.valorTotal - novoTotalPago)
+      const descPagamento = quitado
+        ? `Pagamento final de R$ ${valor.toFixed(2)} registrado (${formaPagamento}). Pedido quitado com sucesso!`
+        : `Pagamento parcial de R$ ${valor.toFixed(2)} registrado (${formaPagamento}). Saldo restante: R$ ${restante.toFixed(2)}`
+
+      const eventoHistorico = {
+        id: `h-${Date.now()}`,
+        pedidoId,
+        dataHora: agoraFormatado(),
+        tipo: 'pagamento' as const,
+        descricao: descPagamento,
+      }
+
+      return {
+        ...state,
+        pedidos: state.pedidos.map((p) =>
+          p.id === pedidoId ? { ...p, statusPagamento: novoStatusPagamento } : p,
+        ),
+        pagamentos: [novoPagamento, ...state.pagamentos],
+        historico: [eventoHistorico, ...state.historico],
+      }
+    }
+
+    case 'SALVAR_CLIENTE': {
+      const cli = action.payload
+      const existe = state.clientes.some((c) => c.id === cli.id)
+      return {
+        ...state,
+        clientes: existe
+          ? state.clientes.map((c) => (c.id === cli.id ? cli : c))
+          : [cli, ...state.clientes],
+      }
+    }
+
+    case 'EXCLUIR_CLIENTE': {
+      const clienteId = action.payload
+      return {
+        ...state,
+        clientes: state.clientes.filter((c) => c.id !== clienteId),
+      }
+    }
+
+    case 'SALVAR_PRODUTO': {
+      const prod = action.payload
+      const existe = state.produtos.some((p) => p.id === prod.id)
+      return {
+        ...state,
+        produtos: existe
+          ? state.produtos.map((p) => (p.id === prod.id ? prod : p))
+          : [prod, ...state.produtos],
+      }
+    }
+
+    case 'EXCLUIR_PRODUTO': {
+      const produtoId = action.payload
+      return {
+        ...state,
+        produtos: state.produtos.filter((p) => p.id !== produtoId),
+      }
+    }
+
+    case 'SALVAR_DESPESA': {
+      const desp = action.payload
+      const existe = state.despesas.some((d) => d.id === desp.id)
+      return {
+        ...state,
+        despesas: existe
+          ? state.despesas.map((d) => (d.id === desp.id ? desp : d))
+          : [desp, ...state.despesas],
+      }
+    }
+
+    case 'ALTERNAR_STATUS_DESPESA': {
+      const id = action.payload
+      return {
+        ...state,
+        despesas: state.despesas.map((d) =>
+          d.id === id ? { ...d, status: d.status === 'pago' ? 'pendente' : 'pago' } : d,
+        ),
+      }
+    }
+
+    case 'EXCLUIR_DESPESA': {
+      const id = action.payload
+      return {
+        ...state,
+        despesas: state.despesas.filter((d) => d.id !== id),
+      }
+    }
+
+    case 'ADICIONAR_CATEGORIA': {
+      const nova = action.payload.trim()
+      if (!nova || state.categoriasDespesa.includes(nova)) return state
+      return {
+        ...state,
+        categoriasDespesa: [...state.categoriasDespesa, nova],
+      }
+    }
+
+    case 'RENOMEAR_CATEGORIA': {
+      const { antiga, nova } = action.payload
+      if (!nova.trim() || antiga === nova) return state
+      return {
+        ...state,
+        categoriasDespesa: state.categoriasDespesa.map((c) => (c === antiga ? nova.trim() : c)),
+        despesas: state.despesas.map((d) =>
+          d.categoria === antiga ? { ...d, categoria: nova.trim() } : d,
+        ),
+      }
+    }
+
+    case 'EXCLUIR_CATEGORIA': {
+      const categoria = action.payload
+      return {
+        ...state,
+        categoriasDespesa: state.categoriasDespesa.filter((c) => c !== categoria),
+      }
+    }
+
+    case 'ADICIONAR_FORMA_PAGAMENTO': {
+      const nova = action.payload
+      if (state.formasPagamento.includes(nova)) return state
+      return {
+        ...state,
+        formasPagamento: [...state.formasPagamento, nova],
+      }
+    }
+
+    case 'REMOVER_FORMA_PAGAMENTO': {
+      const forma = action.payload
+      return {
+        ...state,
+        formasPagamento: state.formasPagamento.filter((f) => f !== forma),
+      }
+    }
+
+    case 'ATUALIZAR_CONFIG': {
+      return {
+        ...state,
+        config: { ...state.config, ...action.payload },
+      }
+    }
+
+    case 'RESTAURAR_DEMO': {
+      return {
+        ...initialState,
+        autenticado: true,
+      }
+    }
+
+    default:
+      return state
+  }
+}
+
+interface CriartereContextType {
+  state: CriartereState
+  dispatch: React.Dispatch<Action>
+}
+
+const CriartereContext = createContext<CriartereContextType | undefined>(undefined)
+
+const LOCAL_STORAGE_KEY = 'criartere_demo_store_v1'
+
+export function CriartereProvider({ children }: { children: React.ReactNode }) {
+  const [state, dispatch] = useReducer(criartereReducer, initialState, (init) => {
+    try {
+      const salvo = localStorage.getItem(LOCAL_STORAGE_KEY)
+      if (salvo) {
+        const parsed = JSON.parse(salvo)
+        return { ...init, ...parsed, autenticado: true }
+      }
+    } catch {
+      // Ignora erro de parse e usa initialState
+    }
+    return init
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state))
+    } catch {
+      // Ignora erro de quota
+    }
+  }, [state])
+
+  return (
+    <CriartereContext.Provider value={{ state, dispatch }}>{children}</CriartereContext.Provider>
+  )
+}
+
+export function useCriartere() {
+  const context = useContext(CriartereContext)
+  if (!context) {
+    throw new Error('useCriartere deve ser usado dentro de um CriartereProvider')
+  }
+  return context
+}
