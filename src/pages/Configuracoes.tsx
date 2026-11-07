@@ -8,17 +8,7 @@ import { useCriartere } from '@/store/CriartereContext'
 import { supabase } from '@/lib/supabase'
 import { PaymentMethod, PeriodoFiltro } from '@/types/criartere'
 import { ModalCategorias } from '@/components/financeiro/ModalCategorias'
-import {
-  Store,
-  CreditCard,
-  Palette,
-  Shield,
-  Sliders,
-  FolderTree,
-  Plus,
-  Trash2,
-  RotateCcw,
-} from 'lucide-react'
+import { Store, CreditCard, Palette, Shield, Sliders, FolderTree, Plus, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -35,7 +25,7 @@ import {
 import { toast } from 'sonner'
 
 export default function Configuracoes() {
-  const { state, dispatch, recarregar } = useCriartere()
+  const { state, dispatch } = useCriartere()
 
   // Dados da loja
   const [nomeLoja, setNomeLoja] = useState(state.config.nome)
@@ -132,11 +122,6 @@ export default function Configuracoes() {
     setNovaSenha('')
   }
 
-  const handleRecarregar = async () => {
-    await recarregar()
-    toast.success('Dados sincronizados com o servidor.')
-  }
-
   return (
     <div className="space-y-6 max-w-5xl">
       {/* HEADER */}
@@ -147,15 +132,6 @@ export default function Configuracoes() {
             Parâmetros da loja, preferências operacionais, formas de pagamento e categorias
           </p>
         </div>
-
-        <Button
-          variant="outline"
-          onClick={handleRecarregar}
-          className="border-[#DFC3AE] text-[#6B4B36] hover:text-[#0C1014] text-xs h-9 self-start sm:self-auto flex items-center gap-1.5"
-        >
-          <RotateCcw className="w-3.5 h-3.5 text-[#C48864]" />
-          <span>Sincronizar Dados</span>
-        </Button>
       </div>
 
       {/* MEU PERFIL */}
