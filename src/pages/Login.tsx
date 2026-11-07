@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label'
 import { ArrowRight, ShieldCheck } from 'lucide-react'
 
 export default function Login() {
-  const { state } = useCriartere()
+  const { state, dispatch } = useCriartere()
 
   const [modo, setModo] = useState<'entrar' | 'cadastrar'>('entrar')
   const [nome, setNome] = useState('')
@@ -32,6 +32,7 @@ export default function Login() {
     e.preventDefault()
     setErro('')
     setAviso('')
+    if (state.acessoNegado) dispatch({ type: '__MESCLAR', payload: { acessoNegado: false } })
 
     if (!email || !senha) {
       setErro('Por favor, preencha o e-mail e a senha.')
@@ -47,7 +48,7 @@ export default function Login() {
       if (error) {
         setErro(
           error.message.includes('Email not confirmed')
-            ? 'Conta ainda não liberada. Fale com a administradora.'
+            ? 'Não foi possível entrar com esta conta. Fale com um administrador.'
             : 'E-mail ou senha incorretos.',
         )
       }
@@ -70,9 +71,7 @@ export default function Login() {
         setErro(
           error.message.toLowerCase().includes('already registered')
             ? 'Este e-mail já tem conta. Use "Já tenho conta. Entrar".'
-            : /database error|não está autorizado/i.test(error.message)
-              ? 'Este e-mail não está autorizado. Peça à administradora para liberar seu acesso.'
-              : 'Não foi possível criar a conta. Tente novamente em instantes.',
+            : 'Não foi possível criar a conta. Tente novamente em instantes.',
         )
       } else if (!data.session) {
         // A conta é confirmada automaticamente no banco: entra direto
@@ -84,6 +83,9 @@ export default function Login() {
           setAviso('Conta criada! Agora é só entrar com seu e-mail e senha.')
           setModo('entrar')
         }
+      } else {
+        setAviso('Conta criada com sucesso!')
+        setModo('entrar')
       }
     }
     setCarregando(false)
@@ -189,6 +191,15 @@ export default function Login() {
               </div>
             )}
 
+            {state.acessoNegado && !erro && (
+              <div
+                role="alert"
+                className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 font-medium"
+              >
+                Somente administradores podem acessar este site.
+              </div>
+            )}
+
             {erro && (
               <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 font-medium">
                 {erro}
@@ -225,7 +236,7 @@ export default function Login() {
             </button>
             <p className="text-[11px] text-[#6B4B36]/80 mt-2 flex items-center justify-center gap-1">
               <ShieldCheck className="w-3 h-3 text-[#4C8A5A]" />
-              <span>Somente e-mails autorizados acessam os dados da loja</span>
+              <span>Área restrita a administradores da loja</span>
             </p>
           </div>
         </div>

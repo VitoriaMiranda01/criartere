@@ -55,23 +55,9 @@ export default function Layout() {
     return <Navigate to="/login" replace />
   }
 
-  // Logado, mas o e-mail não está na lista de membros da loja
-  if (!state.carregando && !state.autorizado) {
-    return (
-      <div className="min-h-screen bg-[#F7F3EA] flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white rounded-2xl border border-[#DFC3AE]/60 p-8 text-center space-y-4">
-          <h1 className="font-serif text-2xl font-bold text-[#0C1014]">Acesso pendente</h1>
-          <p className="text-sm text-[#6B4B36]">
-            O e-mail <strong>{state.usuarioAtual.email}</strong> ainda não foi autorizado a acessar
-            os dados da loja. Peça à administradora para incluí-lo na lista de membros.
-          </p>
-          <Button variant="outline" onClick={() => dispatch({ type: 'LOGOUT' })}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Sair
-          </Button>
-        </div>
-      </div>
-    )
+  // Logado, mas ainda verificando se é administrador (ou saindo, se não for)
+  if (!state.autorizado) {
+    return <TelaCarregando mensagem="Verificando permissões..." />
   }
 
   if (state.carregando && state.pedidos.length === 0 && state.clientes.length === 0) {

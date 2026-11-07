@@ -24,16 +24,15 @@ Os dados ficam no projeto Supabase **Criartere** (`kitarrykwoaxlrydethm`).
   `src/store/CriartereContext.tsx` aplica as mudanças na tela na hora e salva em seguida.
 - **Banco:** as tabelas, políticas de segurança (RLS) e funções estão em `supabase/migrations/`.
   Regras como número do pedido (0001, 0002…), status de pagamento e histórico são calculadas no banco.
-- **Quem acessa:** só e-mails cadastrados na tabela `membros` conseguem criar conta e ver/editar os dados.
-  Para liberar alguém (antes de a pessoa criar a conta), no SQL Editor do Supabase:
-
-  ```sql
-  insert into public.membros (email, nome) values ('pessoa@email.com', 'Nome da Pessoa');
-  ```
+- **Quem acessa:** qualquer pessoa pode criar conta (papel `cliente`), mas só contas com papel
+  `admin` (tabela `perfis`) entram no sistema de gestão; as demais voltam ao login com a mensagem
+  "Somente administradores podem acessar este site.". Administradores liberam outras contas em
+  **Configurações → Usuários e permissões** (o sistema não deixa remover o último administrador).
+  Pensado para um futuro e-commerce: clientes usam o mesmo login, com acesso só aos próprios dados.
 
 ## 🔒 Segurança
 
-- RLS em todas as tabelas: só membros autenticados acessam; visitantes (anon) não têm permissão alguma.
+- RLS em todas as tabelas: só administradores acessam os dados da loja; visitantes (anon) não têm permissão alguma.
 - Histórico de pedidos e pagamentos não podem ser alterados nem apagados pela API (auditoria).
 - Regras de negócio (código do pedido, pagamentos, conversão de orçamento) rodam no banco.
 - Cabeçalhos HTTP de segurança e Content-Security-Policy em `public/.htaccess`.

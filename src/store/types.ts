@@ -15,7 +15,8 @@ export interface CriartereState {
   autenticado: boolean
   sessaoVerificada: boolean // já sabemos se há sessão ativa
   carregando: boolean // carregando dados do servidor
-  autorizado: boolean // e-mail consta na lista de membros da loja
+  autorizado: boolean // usuário logado é administrador
+  acessoNegado: boolean // tentou entrar sem ser administrador (mensagem no login)
   usuarioAtual: {
     nome: string
     email: string

@@ -1,3 +1,4 @@
+import { UsuariosPermissoes } from '@/components/configuracoes/UsuariosPermissoes'
 import { todasEtapas } from '@/store/etapas'
 import { CampoSenha } from '@/components/common/CampoSenha'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
@@ -386,6 +387,9 @@ export default function Configuracoes() {
           </div>
         </CardContent>
       </Card>
+
+      {/* USUÁRIOS E PERMISSÕES */}
+      <UsuariosPermissoes />
 
       {/* SEÇÃO 4: DADOS DE ACESSO E PREFERÊNCIAS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

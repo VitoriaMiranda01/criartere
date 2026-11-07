@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 import {
   carregarFatias,
   persistirAcao,
-  buscarMembro,
+  buscarPerfil,
   mensagemErro,
   TODAS_FATIAS,
   Fatia,
@@ -33,6 +33,7 @@ const initialState: CriartereState = {
   sessaoVerificada: false,
   carregando: false,
   autorizado: false,
+  acessoNegado: false,
   usuarioAtual: {
     nome: '',
     email: '',
@@ -480,26 +481,41 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
 
   // Sessão do Supabase Auth
   useEffect(() => {
-    const aplicarSessao = async (email: string | undefined, nomeMeta?: string) => {
-      if (!email) {
+    // Marca que a última tentativa de entrar foi de alguém que não é administrador
+    let negarAcesso = false
+
+    const aplicarSessao = async (
+      userId: string | undefined,
+      email: string | undefined,
+      nomeMeta?: string,
+    ) => {
+      if (!userId || !email) {
         mesclar({
           ...initialState,
           sessaoVerificada: true,
+          acessoNegado: negarAcesso,
         })
+        negarAcesso = false
         return
       }
-      mesclar({ autenticado: true, carregando: true, sessaoVerificada: true })
+      mesclar({ autenticado: true, carregando: true, sessaoVerificada: true, acessoNegado: false })
       try {
-        const membro = await buscarMembro()
+        const perfil = await buscarPerfil(userId)
+        if (perfil?.papel !== 'admin') {
+          // Conta existe, mas não é administradora: encerra a sessão e avisa no login
+          negarAcesso = true
+          await supabase.auth.signOut()
+          return
+        }
         mesclar({
-          autorizado: !!membro,
+          autorizado: true,
           usuarioAtual: {
-            nome: membro?.nome || nomeMeta || email.split('@')[0],
+            nome: perfil.nome || nomeMeta || email.split('@')[0],
             email,
-            papel: membro?.papel || '',
+            papel: 'Administrador(a)',
           },
         })
-        if (membro) await recarregarFatias(TODAS_FATIAS)
+        await recarregarFatias(TODAS_FATIAS)
       } catch (e) {
         toast.error(`Não foi possível carregar os dados. ${mensagemErro(e)}`)
       } finally {
@@ -507,13 +523,16 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    let emailAtual: string | undefined
+    let usuarioAtualId: string | undefined
     const { data } = supabase.auth.onAuthStateChange((evento, sessao) => {
-      const email = sessao?.user?.email
-      if (evento !== 'INITIAL_SESSION' && email === emailAtual) return
-      emailAtual = email
+      const userId = sessao?.user?.id
+      if (evento !== 'INITIAL_SESSION' && userId === usuarioAtualId) return
+      usuarioAtualId = userId
       // Executa fora do callback para não travar o cliente de autenticação
-      setTimeout(() => aplicarSessao(email, sessao?.user?.user_metadata?.nome), 0)
+      setTimeout(
+        () => aplicarSessao(userId, sessao?.user?.email, sessao?.user?.user_metadata?.nome),
+        0,
+      )
     })
     return () => data.subscription.unsubscribe()
   }, [mesclar, recarregarFatias])

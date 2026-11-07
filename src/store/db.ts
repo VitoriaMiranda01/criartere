@@ -327,11 +327,49 @@ export async function carregarFatias(fatias: Fatia[]): Promise<Partial<Criartere
   return Object.assign({}, ...partes)
 }
 
-/** Retorna o cadastro do usuário na lista de membros (ou null se não autorizado). */
-export async function buscarMembro(): Promise<{ nome: string | null; papel: string } | null> {
-  const { data, error } = await supabase.from('membros').select('nome, papel').maybeSingle()
+export type PapelUsuario = 'admin' | 'cliente'
+
+/** Perfil (nome e papel) do usuário logado. */
+export async function buscarPerfil(
+  userId: string,
+): Promise<{ nome: string | null; papel: PapelUsuario } | null> {
+  const { data, error } = await supabase
+    .from('perfis')
+    .select('nome, papel')
+    .eq('user_id', userId)
+    .maybeSingle()
   if (error) throw new Error(error.message)
-  return data
+  return data as { nome: string | null; papel: PapelUsuario } | null
+}
+
+export interface UsuarioSistema {
+  userId: string
+  email: string
+  nome: string | null
+  papel: PapelUsuario
+  criadoEm: string
+}
+
+/** Lista todas as contas (somente administradores conseguem ler). */
+export async function listarUsuarios(): Promise<UsuarioSistema[]> {
+  const rows = check(
+    await supabase
+      .from('perfis')
+      .select('user_id, email, nome, papel, criado_em')
+      .order('criado_em'),
+  ) as Row[]
+  return rows.map((r) => ({
+    userId: r.user_id,
+    email: r.email,
+    nome: r.nome,
+    papel: r.papel,
+    criadoEm: r.criado_em,
+  }))
+}
+
+/** Torna um usuário administrador ou cliente (somente administradores). */
+export async function definirPapel(userId: string, papel: PapelUsuario): Promise<void> {
+  check(await supabase.rpc('definir_papel', { p_user_id: userId, p_papel: papel }))
 }
 
 // ---------------- Persistência ----------------
