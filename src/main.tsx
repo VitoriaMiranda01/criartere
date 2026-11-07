@@ -5,3 +5,12 @@ import './main.css'
 
 // @skip-protected: Do not remove. Required for React rendering.
 createRoot(document.getElementById('root')!).render(<App />)
+
+// PWA: registra o service worker (somente no build de produção)
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {
+      // Sem service worker o app continua funcionando normalmente
+    })
+  })
+}
