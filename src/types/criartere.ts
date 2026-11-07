@@ -110,8 +110,41 @@ export interface MovimentacaoCaixa {
   formaPagamento?: PaymentMethod
 }
 
+export type OrcamentoStatus = 'aguardando' | 'aprovado' | 'recusado' | 'expirado'
+
+export interface OrcamentoItem {
+  id: string
+  produtoId?: string
+  nome: string
+  quantidade: number
+  valorUnitario: number
+  subtotal: number
+}
+
+export interface Orcamento {
+  id: string
+  numero: string // gerado pelo banco a partir da data: DDMMAA (ex.: 051126, 051126-2)
+  data: string // YYYY-MM-DD
+  clienteId?: string
+  clienteNome: string
+  clienteTelefone: string
+  disponibilidade: string // ex.: Pronta entrega, Sob encomenda (7 dias úteis)
+  formasPagamento: string // ex.: Pix • Cartão • Dinheiro
+  tipoPagamento: 'integral' | 'sinal'
+  percentualSinal: number
+  itens: OrcamentoItem[]
+  valorProdutos: number
+  valorFrete: number
+  valorDesconto: number
+  valorTotal: number
+  observacoes: string // uma observação por linha
+  status: OrcamentoStatus
+  pedidoId?: string
+}
+
 export interface LojaConfig {
   nome: string
+  chavePix: string
   email: string
   telefone: string
   whatsapp: string

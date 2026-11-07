@@ -4,6 +4,7 @@ import { useCriartere } from '@/store/CriartereContext'
 import {
   LayoutDashboard,
   ShoppingBag,
+  FileText,
   Users,
   Package,
   Wallet,
@@ -68,6 +69,8 @@ export default function Layout() {
     (p) => p.status === 'aguardando_pagamento' && p.statusPagamento !== 'pago',
   ).length
 
+  const orcamentosAguardando = state.orcamentos.filter((o) => o.status === 'aguardando').length
+
   const handleLogout = () => {
     dispatch({ type: 'LOGOUT' })
   }
@@ -81,6 +84,12 @@ export default function Layout() {
       path: '/pedidos',
       icon: ShoppingBag,
       badge: pedidosAguardando > 0 ? pedidosAguardando : undefined,
+    },
+    {
+      label: 'Orçamentos',
+      path: '/orcamentos',
+      icon: FileText,
+      badge: orcamentosAguardando > 0 ? orcamentosAguardando : undefined,
     },
     { label: 'Clientes', path: '/clientes', icon: Users },
     { label: 'Produtos', path: '/produtos', icon: Package },

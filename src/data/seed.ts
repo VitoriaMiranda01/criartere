@@ -10,6 +10,7 @@ import {
 
 export const SEED_CONFIG: LojaConfig = {
   nome: 'Criartere — Impressão 3D e Gráfica',
+  chavePix: 'criarterepapelaria3d@gmail.com',
   email: 'contato@criartere.com.br',
   telefone: '(11) 98765-4321',
   whatsapp: '(11) 98765-4321',

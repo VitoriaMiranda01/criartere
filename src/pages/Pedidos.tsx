@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useCriartere } from '@/store/CriartereContext'
 import { Pedido, OrderStatus, PaymentStatus } from '@/types/criartere'
 import { selectTotalPagoDoPedido } from '@/store/selectors'
@@ -21,6 +21,7 @@ import {
   MoreVertical,
   X,
   Package,
+  FileText,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -37,6 +38,7 @@ import { toast } from 'sonner'
 export default function Pedidos() {
   const { state, dispatch } = useCriartere()
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
 
   // Modo de visualização: kanban | lista
   const [modoView, setModoView] = useState<'kanban' | 'lista'>('kanban')
@@ -193,6 +195,16 @@ export default function Pedidos() {
               <span>Lista</span>
             </button>
           </div>
+
+          {/* Atalho para Orçamentos */}
+          <Button
+            variant="outline"
+            onClick={() => navigate('/orcamentos')}
+            className="border-[#DFC3AE] text-[#6B4B36] text-xs h-10 px-4 rounded-xl flex items-center gap-1.5"
+          >
+            <FileText className="w-4 h-4" />
+            <span>Orçamentos</span>
+          </Button>
 
           {/* Botão Novo Pedido */}
           <Button

@@ -6,6 +6,7 @@ import type {
   Produto,
   Pedido,
   PedidoItem,
+  Orcamento,
   Pagamento,
   Despesa,
   OrderHistoryEvent,
@@ -21,6 +22,7 @@ export type Fatia =
   | 'clientes'
   | 'produtos'
   | 'pedidos'
+  | 'orcamentos'
   | 'pagamentos'
   | 'despesas'
   | 'categoriasDespesa'
@@ -32,6 +34,7 @@ export const TODAS_FATIAS: Fatia[] = [
   'clientes',
   'produtos',
   'pedidos',
+  'orcamentos',
   'pagamentos',
   'despesas',
   'categoriasDespesa',
@@ -106,6 +109,27 @@ const mapPedido = (r: Row): Pedido => ({
   observacoes: opt(r.observacoes),
 })
 
+const mapOrcamento = (r: Row): Orcamento => ({
+  id: r.id,
+  numero: r.numero,
+  data: r.data,
+  clienteId: opt(r.cliente_id),
+  clienteNome: r.cliente_nome,
+  clienteTelefone: r.cliente_telefone,
+  disponibilidade: r.disponibilidade,
+  formasPagamento: r.formas_pagamento,
+  tipoPagamento: r.tipo_pagamento,
+  percentualSinal: num(r.percentual_sinal),
+  itens: [...(r.orcamento_itens ?? [])].sort((a: Row, b: Row) => a.ordem - b.ordem).map(mapItem),
+  valorProdutos: num(r.valor_produtos),
+  valorFrete: num(r.valor_frete),
+  valorDesconto: num(r.valor_desconto),
+  valorTotal: num(r.valor_total),
+  observacoes: r.observacoes,
+  status: r.status,
+  pedidoId: opt(r.pedido_id),
+})
+
 const mapPagamento = (r: Row): Pagamento => ({
   id: r.id,
   pedidoId: r.pedido_id,
@@ -137,6 +161,7 @@ const mapHistorico = (r: Row): OrderHistoryEvent => ({
 
 const mapConfig = (r: Row): LojaConfig => ({
   nome: r.nome,
+  chavePix: r.chave_pix ?? '',
   email: r.email,
   telefone: r.telefone,
   whatsapp: r.whatsapp,
@@ -186,6 +211,7 @@ const despesaParaRow = (d: Despesa) => ({
 
 const configParaRow = (c: LojaConfig) => ({
   nome: c.nome,
+  chave_pix: c.chavePix ?? '',
   email: c.email,
   telefone: c.telefone,
   whatsapp: c.whatsapp,
@@ -222,6 +248,15 @@ export async function carregarFatias(fatias: Fatia[]): Promise<Partial<Criartere
                 .select('*, pedido_itens(*)')
                 .order('numero', { ascending: false }),
             ).map(mapPedido),
+          }
+        case 'orcamentos':
+          return {
+            orcamentos: check(
+              await supabase
+                .from('orcamentos')
+                .select('*, orcamento_itens(*)')
+                .order('criado_em', { ascending: false }),
+            ).map(mapOrcamento),
           }
         case 'pagamentos':
           return {
@@ -331,6 +366,27 @@ export async function persistirAcao(
         }),
       )
       return ['pedidos', 'pagamentos', 'historico']
+
+    case 'SALVAR_ORCAMENTO':
+      check(await supabase.rpc('salvar_orcamento', { p }))
+      return ['orcamentos']
+
+    case 'ALTERAR_STATUS_ORCAMENTO':
+      check(await supabase.from('orcamentos').update({ status: p.status }).eq('id', p.id))
+      return []
+
+    case 'EXCLUIR_ORCAMENTO':
+      check(await supabase.from('orcamentos').delete().eq('id', p))
+      return []
+
+    case 'CONVERTER_ORCAMENTO':
+      check(
+        await supabase.rpc('converter_orcamento_em_pedido', {
+          p_orcamento_id: p.id,
+          p_prazo: p.prazoEntrega || null,
+        }),
+      )
+      return ['orcamentos', 'pedidos', 'historico', 'clientes']
 
     case 'SALVAR_CLIENTE':
       check(await supabase.from('clientes').upsert(clienteParaRow(p)))

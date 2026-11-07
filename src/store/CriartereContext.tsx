@@ -8,6 +8,8 @@ import {
   Cliente,
   Produto,
   Pedido,
+  Orcamento,
+  OrcamentoStatus,
   Despesa,
   Pagamento,
   OrderStatus,
@@ -29,6 +31,7 @@ const initialState: CriartereState = {
   clientes: [],
   produtos: [],
   pedidos: [],
+  orcamentos: [],
   pagamentos: [],
   despesas: [],
   categoriasDespesa: SEED_CATEGORIAS_DESPESA,
@@ -49,6 +52,11 @@ export type Action =
   | { type: 'ATUALIZAR_PEDIDO'; payload: Pedido }
   | { type: 'ALTERAR_STATUS_PEDIDO'; payload: { pedidoId: string; novoStatus: OrderStatus } }
   | { type: 'CANCELAR_PEDIDO'; payload: { pedidoId: string; motivo?: string } }
+  // Orçamentos
+  | { type: 'SALVAR_ORCAMENTO'; payload: Orcamento }
+  | { type: 'ALTERAR_STATUS_ORCAMENTO'; payload: { id: string; status: OrcamentoStatus } }
+  | { type: 'EXCLUIR_ORCAMENTO'; payload: string }
+  | { type: 'CONVERTER_ORCAMENTO'; payload: { id: string; prazoEntrega?: string } }
   // Pagamentos
   | {
       type: 'REGISTRAR_PAGAMENTO'
@@ -252,6 +260,36 @@ function criartereReducer(state: CriartereState, action: Action): CriartereState
         historico: [eventoHistorico, ...state.historico],
       }
     }
+
+    case 'SALVAR_ORCAMENTO': {
+      const orc = action.payload
+      const existe = state.orcamentos.some((o) => o.id === orc.id)
+      return {
+        ...state,
+        orcamentos: existe
+          ? state.orcamentos.map((o) => (o.id === orc.id ? orc : o))
+          : [orc, ...state.orcamentos],
+      }
+    }
+
+    case 'ALTERAR_STATUS_ORCAMENTO': {
+      const { id, status } = action.payload
+      return {
+        ...state,
+        orcamentos: state.orcamentos.map((o) => (o.id === id ? { ...o, status } : o)),
+      }
+    }
+
+    case 'EXCLUIR_ORCAMENTO':
+      return { ...state, orcamentos: state.orcamentos.filter((o) => o.id !== action.payload) }
+
+    case 'CONVERTER_ORCAMENTO':
+      return {
+        ...state,
+        orcamentos: state.orcamentos.map((o) =>
+          o.id === action.payload.id ? { ...o, status: 'aprovado' } : o,
+        ),
+      }
 
     case 'SALVAR_CLIENTE': {
       const cli = action.payload

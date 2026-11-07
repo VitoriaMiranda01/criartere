@@ -42,6 +42,7 @@ export default function Configuracoes() {
   const [whatsappLoja, setWhatsappLoja] = useState(state.config.whatsapp)
   const [enderecoLoja, setEnderecoLoja] = useState(state.config.endereco)
   const [instagramLoja, setInstagramLoja] = useState(state.config.instagram)
+  const [chavePix, setChavePix] = useState(state.config.chavePix)
 
   // Preferências
   const [incluirAguardando, setIncluirAguardando] = useState(
@@ -70,6 +71,7 @@ export default function Configuracoes() {
         whatsapp: whatsappLoja,
         endereco: enderecoLoja,
         instagram: instagramLoja,
+        chavePix: chavePix.trim(),
         incluirAguardandoNoFaturamento: incluirAguardando,
         periodoPadraoDashboard: periodoPadrao,
       },
@@ -246,6 +248,18 @@ export default function Configuracoes() {
                 <Input
                   value={instagramLoja}
                   onChange={(e) => setInstagramLoja(e.target.value)}
+                  className="h-10 text-xs border-[#DFC3AE]"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
+                  Chave Pix (usada nos orçamentos)
+                </Label>
+                <Input
+                  value={chavePix}
+                  onChange={(e) => setChavePix(e.target.value)}
+                  placeholder="E-mail, telefone, CPF/CNPJ ou chave aleatória"
                   className="h-10 text-xs border-[#DFC3AE]"
                 />
               </div>

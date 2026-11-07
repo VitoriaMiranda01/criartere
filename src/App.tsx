@@ -9,6 +9,7 @@ import Layout from './components/Layout'
 import Login from './pages/Login'
 import Index from './pages/Index'
 import Pedidos from './pages/Pedidos'
+import Orcamentos from './pages/Orcamentos'
 import Clientes from './pages/Clientes'
 import Produtos from './pages/Produtos'
 import Financeiro from './pages/Financeiro'
@@ -31,6 +32,7 @@ const App = () => (
           <Route element={<Layout />}>
             <Route path="/" element={<Index />} />
             <Route path="/pedidos" element={<Pedidos />} />
+            <Route path="/orcamentos" element={<Orcamentos />} />
             <Route path="/clientes" element={<Clientes />} />
             <Route path="/produtos" element={<Produtos />} />
             <Route path="/financeiro" element={<Financeiro />} />
