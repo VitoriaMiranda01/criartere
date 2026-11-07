@@ -215,7 +215,7 @@ export default function Pedidos() {
           <div className="sm:col-span-5 relative">
             <Search className="w-4 h-4 text-[#6B4B36]/60 absolute left-3 top-1/2 -translate-y-1/2" />
             <Input
-              placeholder="Buscar por código (#CR-00...) ou nome do cliente..."
+              placeholder="Buscar por número do pedido ou nome do cliente..."
               value={busca}
               onChange={(e) => {
                 setBusca(e.target.value)

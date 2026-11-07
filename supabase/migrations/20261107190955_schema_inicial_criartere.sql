@@ -57,7 +57,7 @@ create sequence public.pedidos_numero_seq;
 create table public.pedidos (
   id uuid primary key default gen_random_uuid(),
   numero integer not null unique default nextval('public.pedidos_numero_seq'),
-  codigo text generated always as ('#CR-' || lpad(numero::text, 4, '0')) stored,
+  codigo text generated always as (lpad(numero::text, 4, '0')) stored,
   cliente_id uuid not null references public.clientes(id) on delete restrict,
   valor_produtos numeric(12,2) not null default 0,
   valor_frete numeric(12,2) not null default 0,

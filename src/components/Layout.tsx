@@ -347,7 +347,7 @@ export default function Layout() {
                 <Search className="w-4 h-4 text-[#6B4B36]/60 absolute left-3 top-1/2 -translate-y-1/2" />
                 <Input
                   type="text"
-                  placeholder="Buscar pedidos (#CR-...) ou clientes..."
+                  placeholder="Buscar pedidos (nº) ou clientes..."
                   value={buscaGlobal}
                   onChange={(e) => setBuscaGlobal(e.target.value)}
                   onFocus={() => setBuscaFocada(true)}

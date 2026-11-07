@@ -107,13 +107,11 @@ function criartereReducer(state: CriartereState, action: Action): CriartereState
       // Gerar próximo código sequencial
       const numeros = state.pedidos
         .map((p) => {
-          const match = p.codigo.match(/#CR-(\d+)/)
-          return match ? parseInt(match[1], 10) : 0
+          return parseInt(p.codigo.replace(/\D/g, ''), 10) || 0
         })
         .filter((n) => !isNaN(n))
       const maxNum = numeros.length > 0 ? Math.max(...numeros) : 0
-      const proximoNum = (maxNum + 1).toString().padStart(4, '0')
-      const codigo = `#CR-${proximoNum}`
+      const codigo = String(maxNum + 1).padStart(4, '0')
       const id = action.payload.id ?? crypto.randomUUID()
 
       const novoPedido: Pedido = {

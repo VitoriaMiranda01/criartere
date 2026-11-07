@@ -316,7 +316,7 @@ export default function Financeiro() {
             <div className="relative flex-1 w-full sm:max-w-xs">
               <Search className="w-4 h-4 text-[#6B4B36]/60 absolute left-3 top-1/2 -translate-y-1/2" />
               <Input
-                placeholder="Buscar pedido (#CR-...) ou cliente..."
+                placeholder="Buscar pedido (nº) ou cliente..."
                 value={buscaReceita}
                 onChange={(e) => setBuscaReceita(e.target.value)}
                 className="pl-9 h-9 text-xs border-[#DFC3AE]"

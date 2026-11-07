@@ -23,7 +23,7 @@ Os dados ficam no projeto Supabase **Criartere** (`kitarrykwoaxlrydethm`).
 - **Acesso a dados:** `src/store/db.ts` carrega as tabelas e grava cada ação do store;
   `src/store/CriartereContext.tsx` aplica as mudanças na tela na hora e salva em seguida.
 - **Banco:** as tabelas, políticas de segurança (RLS) e funções estão em `supabase/migrations/`.
-  Regras como código do pedido (`#CR-0001`), status de pagamento e histórico são calculadas no banco.
+  Regras como número do pedido (0001, 0002…), status de pagamento e histórico são calculadas no banco.
 - **Quem acessa:** só e-mails cadastrados na tabela `membros` veem e editam os dados.
   Para liberar alguém, no SQL Editor do Supabase:
 

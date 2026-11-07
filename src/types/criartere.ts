@@ -70,7 +70,7 @@ export interface OrderHistoryEvent {
 
 export interface Pedido {
   id: string
-  codigo: string // ex: #CR-0024
+  codigo: string // número sequencial, ex: 0024
   clienteId: string
   itens: PedidoItem[]
   valorProdutos: number
