@@ -1,3 +1,4 @@
+import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { novoId } from '@/lib/supabase'
 import React, { useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
@@ -386,7 +387,8 @@ export default function Produtos() {
                 htmlFor="nome"
                 className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
               >
-                Nome do Produto *
+                Nome do Produto
+                <Obrigatorio />
               </Label>
               <Input
                 id="nome"
@@ -404,6 +406,7 @@ export default function Produtos() {
                 className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
               >
                 Descrição Detalhada
+                <Opcional />
               </Label>
               <Textarea
                 id="desc"
@@ -420,7 +423,8 @@ export default function Produtos() {
                   htmlFor="preco"
                   className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
                 >
-                  Preço de Venda (R$) *
+                  Preço de Venda (R$)
+                  <Obrigatorio />
                 </Label>
                 <Input
                   id="preco"
@@ -441,6 +445,7 @@ export default function Produtos() {
                   className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
                 >
                   Custo de Fabricação (R$)
+                  <Opcional />
                 </Label>
                 <Input
                   id="custo"
@@ -459,6 +464,7 @@ export default function Produtos() {
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
                   Categoria
+                  <Obrigatorio />
                 </Label>
                 <Select value={categoria} onValueChange={setCategoria}>
                   <SelectTrigger className="h-10 text-xs border-[#DFC3AE]">
@@ -480,6 +486,7 @@ export default function Produtos() {
                   className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
                 >
                   Estoque Aproximado (un)
+                  <Opcional />
                 </Label>
                 <Input
                   id="est"
@@ -497,7 +504,8 @@ export default function Produtos() {
                 htmlFor="img"
                 className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
               >
-                URL da Imagem (opcional)
+                URL da Imagem
+                <Opcional />
               </Label>
               <Input
                 id="img"

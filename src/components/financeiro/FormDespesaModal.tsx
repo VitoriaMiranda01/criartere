@@ -1,3 +1,4 @@
+import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { novoId } from '@/lib/supabase'
 import React, { useState } from 'react'
 import { Despesa, PaymentMethod } from '@/types/criartere'
@@ -122,7 +123,8 @@ export const FormDespesaModal: React.FC<FormDespesaModalProps> = ({
               htmlFor="desc"
               className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
             >
-              Descrição da Despesa *
+              Descrição da Despesa
+              <Obrigatorio />
             </Label>
             <Input
               id="desc"
@@ -137,7 +139,8 @@ export const FormDespesaModal: React.FC<FormDespesaModalProps> = ({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
-                Categoria *
+                Categoria
+                <Obrigatorio />
               </Label>
               <Select value={categoria} onValueChange={setCategoria}>
                 <SelectTrigger className="h-10 text-xs border-[#DFC3AE]">
@@ -158,7 +161,8 @@ export const FormDespesaModal: React.FC<FormDespesaModalProps> = ({
                 htmlFor="val"
                 className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
               >
-                Valor (R$) *
+                Valor (R$)
+                <Obrigatorio />
               </Label>
               <Input
                 id="val"
@@ -180,7 +184,8 @@ export const FormDespesaModal: React.FC<FormDespesaModalProps> = ({
                 htmlFor="data"
                 className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
               >
-                Data da Despesa *
+                Data da Despesa
+                <Obrigatorio />
               </Label>
               <Input
                 id="data"
@@ -197,7 +202,8 @@ export const FormDespesaModal: React.FC<FormDespesaModalProps> = ({
                 htmlFor="venc"
                 className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
               >
-                Vencimento (opcional)
+                Vencimento
+                <Opcional />
               </Label>
               <Input
                 id="venc"
@@ -213,6 +219,7 @@ export const FormDespesaModal: React.FC<FormDespesaModalProps> = ({
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
                 Forma de Pagamento
+                <Obrigatorio />
               </Label>
               <Select value={formaPagamento} onValueChange={(val: any) => setFormaPagamento(val)}>
                 <SelectTrigger className="h-10 text-xs border-[#DFC3AE]">
@@ -231,6 +238,7 @@ export const FormDespesaModal: React.FC<FormDespesaModalProps> = ({
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
                 Status da Despesa
+                <Obrigatorio />
               </Label>
               <Select value={status} onValueChange={(val: any) => setStatus(val)}>
                 <SelectTrigger className="h-10 text-xs border-[#DFC3AE]">
@@ -253,7 +261,8 @@ export const FormDespesaModal: React.FC<FormDespesaModalProps> = ({
               htmlFor="obs"
               className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
             >
-              Observações (opcional)
+              Observações
+              <Opcional />
             </Label>
             <Textarea
               id="obs"

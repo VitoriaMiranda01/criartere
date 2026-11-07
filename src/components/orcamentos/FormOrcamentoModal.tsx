@@ -1,3 +1,4 @@
+import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import React, { useEffect, useState } from 'react'
 import { novoId } from '@/lib/supabase'
 import { Orcamento, OrcamentoItem, OrcamentoStatus } from '@/types/criartere'
@@ -135,6 +136,10 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
       setErro('Informe o nome do cliente.')
       return
     }
+    if (!data) {
+      setErro('Informe a data do orçamento.')
+      return
+    }
     const itensValidos = itens.filter((i) => i.nome.trim())
     if (itensValidos.length === 0 || itensValidos.some((i) => i.valorUnitario <= 0)) {
       setErro('Adicione ao menos um item com nome e valor unitário maior que zero.')
@@ -178,7 +183,10 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
         <form onSubmit={handleSalvar} className="space-y-6 pt-2">
           {/* CLIENTE */}
           <div className="space-y-2">
-            <Label className={lbl}>Cliente *</Label>
+            <Label className={lbl}>
+              Cliente
+              <Obrigatorio />
+            </Label>
             <Select value={clienteId} onValueChange={escolherCliente}>
               <SelectTrigger className="h-10 text-xs border-[#DFC3AE] bg-[#F7F3EA]/30">
                 <SelectValue />
@@ -219,7 +227,10 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
           {/* DADOS */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <Label className={lbl}>Data</Label>
+              <Label className={lbl}>
+                Data
+                <Obrigatorio />
+              </Label>
               <Input
                 type="date"
                 value={data}
@@ -228,7 +239,10 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label className={lbl}>Disponibilidade</Label>
+              <Label className={lbl}>
+                Disponibilidade
+                <Opcional />
+              </Label>
               <Input
                 list="disponibilidades-orcamento"
                 value={disponibilidade}
@@ -247,7 +261,10 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
           {/* ITENS */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className={lbl}>Itens do orçamento *</Label>
+              <Label className={lbl}>
+                Itens do orçamento
+                <Obrigatorio />
+              </Label>
               <button
                 type="button"
                 onClick={() => setItens((p) => [...p, itemVazio()])}
@@ -299,7 +316,10 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
                   />
                 </div>
                 <div className="col-span-3 sm:col-span-2 space-y-1">
-                  <span className="text-[10px] uppercase font-semibold text-[#6B4B36]">Qtd</span>
+                  <span className="text-[10px] uppercase font-semibold text-[#6B4B36]">
+                    Qtd
+                    <Obrigatorio />
+                  </span>
                   <Input
                     type="number"
                     min="1"
@@ -316,6 +336,7 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
                 <div className="col-span-4 sm:col-span-2 space-y-1">
                   <span className="text-[10px] uppercase font-semibold text-[#6B4B36]">
                     Unit. (R$)
+                    <Obrigatorio />
                   </span>
                   <Input
                     type="number"
@@ -352,7 +373,10 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className={lbl}>Frete (R$)</Label>
+                  <Label className={lbl}>
+                    Frete (R$)
+                    <Opcional />
+                  </Label>
                   <Input
                     type="number"
                     min="0"
@@ -363,7 +387,10 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className={lbl}>Desconto (R$)</Label>
+                  <Label className={lbl}>
+                    Desconto (R$)
+                    <Opcional />
+                  </Label>
                   <Input
                     type="number"
                     min="0"
@@ -375,7 +402,10 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label className={lbl}>Formas de pagamento aceitas</Label>
+                <Label className={lbl}>
+                  Formas de pagamento aceitas
+                  <Opcional />
+                </Label>
                 <div className="flex flex-wrap gap-1.5">
                   {[...FORMAS_RAPIDAS, ...formas.filter((f) => !FORMAS_RAPIDAS.includes(f))].map(
                     (f) => (
@@ -399,7 +429,10 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
 
             <div className="space-y-3">
               <div className="space-y-1.5">
-                <Label className={lbl}>Condição de pagamento</Label>
+                <Label className={lbl}>
+                  Condição de pagamento
+                  <Obrigatorio />
+                </Label>
                 <div className="grid grid-cols-2 gap-1.5">
                   {(
                     [
@@ -424,7 +457,10 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
               </div>
               {tipoPagamento === 'sinal' && (
                 <div className="flex items-center gap-2">
-                  <Label className="text-xs text-[#6B4B36] whitespace-nowrap">Sinal de</Label>
+                  <Label className="text-xs text-[#6B4B36] whitespace-nowrap">
+                    Sinal de
+                    <Obrigatorio />
+                  </Label>
                   <Input
                     type="number"
                     min="1"
@@ -466,7 +502,10 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
           {/* OBSERVAÇÕES E STATUS */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5 sm:col-span-2">
-              <Label className={lbl}>Observações</Label>
+              <Label className={lbl}>
+                Observações
+                <Opcional />
+              </Label>
               <Textarea
                 value={observacoes}
                 onChange={(e) => setObservacoes(e.target.value)}
@@ -483,7 +522,10 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
             </div>
             {o && (
               <div className="space-y-1.5">
-                <Label className={lbl}>Status</Label>
+                <Label className={lbl}>
+                  Status
+                  <Obrigatorio />
+                </Label>
                 <Select value={status} onValueChange={(v) => setStatus(v as OrcamentoStatus)}>
                   <SelectTrigger className={inp}>
                     <SelectValue />

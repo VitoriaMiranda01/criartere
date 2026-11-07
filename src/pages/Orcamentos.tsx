@@ -1,3 +1,4 @@
+import { Obrigatorio } from '@/components/common/MarcadorCampo'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCriartere } from '@/store/CriartereContext'
@@ -122,6 +123,10 @@ export default function Orcamentos() {
 
   const handleConverter = () => {
     if (!paraConverter) return
+    if (!prazoConversao) {
+      toast.error('Informe o prazo de entrega do pedido.')
+      return
+    }
     dispatch({
       type: 'CONVERTER_ORCAMENTO',
       payload: { id: paraConverter.id, prazoEntrega: prazoConversao },
@@ -375,6 +380,7 @@ export default function Orcamentos() {
           <div className="space-y-1.5">
             <Label className="text-xs font-bold text-[#6B4B36] uppercase tracking-wider">
               Prazo de entrega do pedido
+              <Obrigatorio />
             </Label>
             <Input
               type="date"

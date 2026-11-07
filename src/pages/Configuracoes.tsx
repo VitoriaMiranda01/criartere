@@ -1,3 +1,5 @@
+import { CampoSenha } from '@/components/common/CampoSenha'
+import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import React, { useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
 import { supabase } from '@/lib/supabase'
@@ -62,6 +64,10 @@ export default function Configuracoes() {
 
   const handleSalvarDadosLoja = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!nomeLoja.trim()) {
+      toast.error('Informe o nome da loja.')
+      return
+    }
     dispatch({
       type: 'ATUALIZAR_CONFIG',
       payload: {
@@ -189,6 +195,7 @@ export default function Configuracoes() {
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
                   Nome da Loja
+                  <Obrigatorio />
                 </Label>
                 <Input
                   value={nomeLoja}
@@ -200,6 +207,7 @@ export default function Configuracoes() {
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
                   E-mail de Contato
+                  <Opcional />
                 </Label>
                 <Input
                   value={emailLoja}
@@ -211,6 +219,7 @@ export default function Configuracoes() {
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
                   Telefone Comercial
+                  <Opcional />
                 </Label>
                 <Input
                   value={telefoneLoja}
@@ -222,6 +231,7 @@ export default function Configuracoes() {
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
                   WhatsApp Oficial
+                  <Opcional />
                 </Label>
                 <Input
                   value={whatsappLoja}
@@ -233,6 +243,7 @@ export default function Configuracoes() {
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
                   Endereço da Loja
+                  <Opcional />
                 </Label>
                 <Input
                   value={enderecoLoja}
@@ -244,6 +255,7 @@ export default function Configuracoes() {
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
                   Instagram
+                  <Opcional />
                 </Label>
                 <Input
                   value={instagramLoja}
@@ -255,6 +267,7 @@ export default function Configuracoes() {
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
                   Chave Pix (usada nos orçamentos)
+                  <Opcional />
                 </Label>
                 <Input
                   value={chavePix}
@@ -416,9 +429,11 @@ export default function Configuracoes() {
 
             <form onSubmit={handleAlterarSenha} className="space-y-3">
               <div className="space-y-1">
-                <Label className="text-xs text-[#6B4B36]">Senha Atual</Label>
-                <Input
-                  type="password"
+                <Label className="text-xs text-[#6B4B36]">
+                  Senha Atual
+                  <Obrigatorio />
+                </Label>
+                <CampoSenha
                   value={senhaAtual}
                   onChange={(e) => setSenhaAtual(e.target.value)}
                   placeholder="••••••••"
@@ -427,9 +442,11 @@ export default function Configuracoes() {
               </div>
 
               <div className="space-y-1">
-                <Label className="text-xs text-[#6B4B36]">Nova Senha</Label>
-                <Input
-                  type="password"
+                <Label className="text-xs text-[#6B4B36]">
+                  Nova Senha
+                  <Obrigatorio />
+                </Label>
+                <CampoSenha
                   value={novaSenha}
                   onChange={(e) => setNovaSenha(e.target.value)}
                   placeholder="••••••••"
@@ -458,7 +475,10 @@ export default function Configuracoes() {
           </CardHeader>
           <CardContent className="p-5 space-y-4 text-xs">
             <div className="space-y-1.5">
-              <Label className="text-xs text-[#6B4B36]">Período Padrão do Dashboard</Label>
+              <Label className="text-xs text-[#6B4B36]">
+                Período Padrão do Dashboard
+                <Obrigatorio />
+              </Label>
               <Select value={periodoPadrao} onValueChange={(val: any) => setPeriodoPadrao(val)}>
                 <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
                   <SelectValue />

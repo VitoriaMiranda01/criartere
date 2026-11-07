@@ -1,3 +1,4 @@
+import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import React, { useState } from 'react'
 import { Pedido, PaymentMethod } from '@/types/criartere'
 import { useCriartere } from '@/store/CriartereContext'
@@ -123,7 +124,8 @@ export const ModalPagamento: React.FC<ModalPagamentoProps> = ({ pedido, aberto, 
               htmlFor="valor"
               className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
             >
-              Valor a Receber (R$) *
+              Valor a Receber (R$)
+              <Obrigatorio />
             </Label>
             <Input
               id="valor"
@@ -162,7 +164,8 @@ export const ModalPagamento: React.FC<ModalPagamentoProps> = ({ pedido, aberto, 
                 htmlFor="data"
                 className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
               >
-                Data do Recebimento *
+                Data do Recebimento
+                <Obrigatorio />
               </Label>
               <Input
                 id="data"
@@ -179,7 +182,8 @@ export const ModalPagamento: React.FC<ModalPagamentoProps> = ({ pedido, aberto, 
                 htmlFor="forma"
                 className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
               >
-                Forma de Pagamento *
+                Forma de Pagamento
+                <Obrigatorio />
               </Label>
               <Select value={forma} onValueChange={(val: any) => setForma(val)}>
                 <SelectTrigger className="h-10 text-xs border-[#DFC3AE]">
@@ -201,7 +205,8 @@ export const ModalPagamento: React.FC<ModalPagamentoProps> = ({ pedido, aberto, 
               htmlFor="obs"
               className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
             >
-              Observações (opcional)
+              Observações
+              <Opcional />
             </Label>
             <Input
               id="obs"

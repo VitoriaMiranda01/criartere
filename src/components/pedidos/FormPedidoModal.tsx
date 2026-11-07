@@ -1,3 +1,4 @@
+import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { novoId } from '@/lib/supabase'
 import React, { useState } from 'react'
 import { Pedido, PedidoItem, PaymentMethod, OrderStatus } from '@/types/criartere'
@@ -200,6 +201,11 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
       return
     }
 
+    if (!prazoEntrega) {
+      setErro('Informe o prazo de entrega do pedido.')
+      return
+    }
+
     if (valorTotalFinal <= 0) {
       setErro('O valor total do pedido deve ser maior que zero.')
       return
@@ -263,7 +269,8 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label className="text-xs font-bold text-[#6B4B36] uppercase tracking-wider">
-                Cliente *
+                Cliente
+                <Obrigatorio />
               </Label>
               {!cadastrandoClienteInline ? (
                 <button
@@ -320,7 +327,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                     className="h-9 text-xs border-[#DFC3AE]"
                   />
                   <Input
-                    placeholder="Endereço de entrega"
+                    placeholder="Endereço de entrega (opcional)"
                     value={novoClienteEndereco}
                     onChange={(e) => setNovoClienteEndereco(e.target.value)}
                     className="h-9 text-xs border-[#DFC3AE]"
@@ -353,7 +360,8 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-xs font-bold text-[#6B4B36] uppercase tracking-wider">
-                Itens do Pedido *
+                Itens do Pedido
+                <Obrigatorio />
               </Label>
               <Button
                 type="button"
@@ -379,6 +387,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] uppercase font-semibold text-[#6B4B36]">
                           Produto do Catálogo
+                          <Opcional />
                         </span>
                       </div>
                       <Select
@@ -419,6 +428,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                     <div className="col-span-4 sm:col-span-2 space-y-1">
                       <span className="text-[10px] uppercase font-semibold text-[#6B4B36]">
                         Qtd
+                        <Obrigatorio />
                       </span>
                       <Input
                         type="number"
@@ -435,6 +445,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                     <div className="col-span-4 sm:col-span-2 space-y-1">
                       <span className="text-[10px] uppercase font-semibold text-[#6B4B36]">
                         Unit. (R$)
+                        <Obrigatorio />
                       </span>
                       <Input
                         type="number"
@@ -484,6 +495,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
               <div>
                 <Label htmlFor="frete" className="text-[11px] font-semibold text-[#6B4B36]">
                   Frete de Envio (R$)
+                  <Opcional />
                 </Label>
                 <Input
                   id="frete"
@@ -499,6 +511,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
               <div>
                 <Label htmlFor="desconto" className="text-[11px] font-semibold text-[#6B4B36]">
                   Desconto (R$)
+                  <Opcional />
                 </Label>
                 <Input
                   id="desconto"
@@ -532,6 +545,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
                 Forma de Pagamento
+                <Obrigatorio />
               </Label>
               <Select value={formaPagamento} onValueChange={(val: any) => setFormaPagamento(val)}>
                 <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
@@ -550,6 +564,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
                 Status Operacional
+                <Obrigatorio />
               </Label>
               <Select value={status} onValueChange={(val: any) => setStatus(val)}>
                 <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
@@ -587,6 +602,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                 className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
               >
                 Prazo de Entrega
+                <Obrigatorio />
               </Label>
               <Input
                 id="prazo"
@@ -605,7 +621,8 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
               htmlFor="obs"
               className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
             >
-              Observações Internas (opcional)
+              Observações Internas
+              <Opcional />
             </Label>
             <Textarea
               id="obs"

@@ -1,3 +1,5 @@
+import { CampoSenha } from '@/components/common/CampoSenha'
+import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import React, { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useCriartere } from '@/store/CriartereContext'
@@ -124,6 +126,7 @@ export default function Login() {
                   className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
                 >
                   Nome
+                  <Opcional />
                 </Label>
                 <Input
                   id="nome"
@@ -142,6 +145,7 @@ export default function Login() {
                 className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
               >
                 E-mail
+                <Obrigatorio />
               </Label>
               <Input
                 id="email"
@@ -161,11 +165,11 @@ export default function Login() {
                   className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
                 >
                   Senha
+                  <Obrigatorio />
                 </Label>
               </div>
-              <Input
+              <CampoSenha
                 id="senha"
-                type="password"
                 autoComplete={modo === 'entrar' ? 'current-password' : 'new-password'}
                 placeholder="••••••••"
                 value={senha}

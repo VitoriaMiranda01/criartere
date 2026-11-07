@@ -1,3 +1,4 @@
+import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { novoId } from '@/lib/supabase'
 import React, { useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
@@ -529,7 +530,8 @@ export default function Clientes() {
                 htmlFor="nome"
                 className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
               >
-                Nome Completo *
+                Nome Completo
+                <Obrigatorio />
               </Label>
               <Input
                 id="nome"
@@ -547,7 +549,8 @@ export default function Clientes() {
                   htmlFor="tel"
                   className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
                 >
-                  Telefone *
+                  Telefone
+                  <Obrigatorio />
                 </Label>
                 <Input
                   id="tel"
@@ -565,6 +568,7 @@ export default function Clientes() {
                   className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
                 >
                   WhatsApp
+                  <Opcional />
                 </Label>
                 <Input
                   id="wpp"
@@ -581,7 +585,8 @@ export default function Clientes() {
                 htmlFor="email"
                 className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
               >
-                E-mail (opcional)
+                E-mail
+                <Opcional />
               </Label>
               <Input
                 id="email"
@@ -600,6 +605,7 @@ export default function Clientes() {
                   className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
                 >
                   Endereço
+                  <Opcional />
                 </Label>
                 <Input
                   id="end"
@@ -616,6 +622,7 @@ export default function Clientes() {
                   className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
                 >
                   Cidade - UF
+                  <Opcional />
                 </Label>
                 <Input
                   id="cidade"
@@ -633,6 +640,7 @@ export default function Clientes() {
                 className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
               >
                 Observações / Preferências
+                <Opcional />
               </Label>
               <Textarea
                 id="obs"
