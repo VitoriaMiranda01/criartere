@@ -1,3 +1,4 @@
+import { novoId } from '@/lib/supabase'
 import React, { useState } from 'react'
 import { Pedido, PedidoItem, PaymentMethod, OrderStatus } from '@/types/criartere'
 import { useCriartere } from '@/store/CriartereContext'
@@ -166,9 +167,9 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
       return
     }
 
-    const novoId = `cli-${Date.now()}`
+    const novoClienteId = novoId()
     const novoCliente = {
-      id: novoId,
+      id: novoClienteId,
       nome: novoClienteNome.trim(),
       telefone: novoClienteTelefone.trim(),
       whatsapp: novoClienteTelefone.trim(),
@@ -179,7 +180,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
     }
 
     dispatch({ type: 'SALVAR_CLIENTE', payload: novoCliente })
-    setClienteId(novoId)
+    setClienteId(novoClienteId)
     setCadastrandoClienteInline(false)
     toast.success(`Cliente ${novoCliente.nome} cadastrado com sucesso!`)
   }

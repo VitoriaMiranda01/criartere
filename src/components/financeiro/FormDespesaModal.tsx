@@ -1,3 +1,4 @@
+import { novoId } from '@/lib/supabase'
 import React, { useState } from 'react'
 import { Despesa, PaymentMethod } from '@/types/criartere'
 import { useCriartere } from '@/store/CriartereContext'
@@ -83,7 +84,7 @@ export const FormDespesaModal: React.FC<FormDespesaModalProps> = ({
     }
 
     const payload: Despesa = {
-      id: despesaParaEditar ? despesaParaEditar.id : `desp-${Date.now()}`,
+      id: despesaParaEditar ? despesaParaEditar.id : novoId(),
       descricao: descricao.trim(),
       categoria,
       valor: valorNum,

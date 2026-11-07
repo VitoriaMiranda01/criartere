@@ -1,16 +1,9 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useReducer, useRef } from 'react'
+import { toast } from 'sonner'
+import { supabase } from '@/lib/supabase'
+import { carregarFatias, persistirAcao, buscarMembro, TODAS_FATIAS, Fatia } from './db'
 import { CriartereState } from './types'
-import {
-  SEED_CLIENTES,
-  SEED_PRODUTOS,
-  SEED_PEDIDOS,
-  SEED_PAGAMENTOS,
-  SEED_DESPESAS,
-  SEED_CATEGORIAS_DESPESA,
-  SEED_FORMAS_PAGAMENTO,
-  SEED_HISTORICO,
-  SEED_CONFIG,
-} from '@/data/seed'
+import { SEED_CATEGORIAS_DESPESA, SEED_FORMAS_PAGAMENTO, SEED_CONFIG } from '@/data/seed'
 import {
   Cliente,
   Produto,
@@ -24,29 +17,35 @@ import {
 } from '@/types/criartere'
 
 const initialState: CriartereState = {
-  autenticado: true, // Inicialmente autenticado para a demo carregar direto ou via login
+  autenticado: false,
+  sessaoVerificada: false,
+  carregando: false,
+  autorizado: false,
   usuarioAtual: {
-    nome: 'Mariana Duarte (Proprietária)',
-    email: 'demonstracao@criartere.com',
-    papel: 'Administradora',
-    avatarUrl: 'https://img.usecurling.com/ppl/medium?gender=female&seed=42',
+    nome: '',
+    email: '',
+    papel: '',
   },
-  clientes: SEED_CLIENTES,
-  produtos: SEED_PRODUTOS,
-  pedidos: SEED_PEDIDOS,
-  pagamentos: SEED_PAGAMENTOS,
-  despesas: SEED_DESPESAS,
+  clientes: [],
+  produtos: [],
+  pedidos: [],
+  pagamentos: [],
+  despesas: [],
   categoriasDespesa: SEED_CATEGORIAS_DESPESA,
   formasPagamento: [...SEED_FORMAS_PAGAMENTO],
-  historico: SEED_HISTORICO,
+  historico: [],
   config: SEED_CONFIG,
 }
 
-type Action =
+export type Action =
   | { type: 'LOGIN'; payload?: { email: string } }
+  | { type: '__MESCLAR'; payload: Partial<CriartereState> }
   | { type: 'LOGOUT' }
   // Pedidos
-  | { type: 'CRIAR_PEDIDO'; payload: Omit<Pedido, 'id' | 'codigo' | 'dataCriacao'> }
+  | {
+      type: 'CRIAR_PEDIDO'
+      payload: Omit<Pedido, 'id' | 'codigo' | 'dataCriacao'> & { id?: string }
+    }
   | { type: 'ATUALIZAR_PEDIDO'; payload: Pedido }
   | { type: 'ALTERAR_STATUS_PEDIDO'; payload: { pedidoId: string; novoStatus: OrderStatus } }
   | { type: 'CANCELAR_PEDIDO'; payload: { pedidoId: string; motivo?: string } }
@@ -95,17 +94,14 @@ function dataHoje(): string {
 
 function criartereReducer(state: CriartereState, action: Action): CriartereState {
   switch (action.type) {
+    case '__MESCLAR':
+      return { ...state, ...action.payload }
+
     case 'LOGIN':
-      return {
-        ...state,
-        autenticado: true,
-      }
+      return state
 
     case 'LOGOUT':
-      return {
-        ...state,
-        autenticado: false,
-      }
+      return state
 
     case 'CRIAR_PEDIDO': {
       // Gerar próximo código sequencial
@@ -118,7 +114,7 @@ function criartereReducer(state: CriartereState, action: Action): CriartereState
       const maxNum = numeros.length > 0 ? Math.max(...numeros) : 0
       const proximoNum = (maxNum + 1).toString().padStart(4, '0')
       const codigo = `#CR-${proximoNum}`
-      const id = `ped-${Date.now()}`
+      const id = action.payload.id ?? crypto.randomUUID()
 
       const novoPedido: Pedido = {
         ...action.payload,
@@ -379,12 +375,8 @@ function criartereReducer(state: CriartereState, action: Action): CriartereState
       }
     }
 
-    case 'RESTAURAR_DEMO': {
-      return {
-        ...initialState,
-        autenticado: true,
-      }
-    }
+    case 'RESTAURAR_DEMO':
+      return state
 
     default:
       return state
@@ -393,37 +385,125 @@ function criartereReducer(state: CriartereState, action: Action): CriartereState
 
 interface CriartereContextType {
   state: CriartereState
-  dispatch: React.Dispatch<Action>
+  dispatch: (action: Action) => void
+  recarregar: () => Promise<void>
 }
 
 const CriartereContext = createContext<CriartereContextType | undefined>(undefined)
 
-const LOCAL_STORAGE_KEY = 'criartere_demo_store_v1'
-
 export function CriartereProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(criartereReducer, initialState, (init) => {
-    try {
-      const salvo = localStorage.getItem(LOCAL_STORAGE_KEY)
-      if (salvo) {
-        const parsed = JSON.parse(salvo)
-        return { ...init, ...parsed, autenticado: true }
-      }
-    } catch {
-      // Ignora erro de parse e usa initialState
-    }
-    return init
-  })
+  const [state, baseDispatch] = useReducer(criartereReducer, initialState)
+  const stateRef = useRef(state)
+  stateRef.current = state
+  // Fila para gravar as ações no banco na mesma ordem em que aconteceram
+  const filaRef = useRef<Promise<unknown>>(Promise.resolve())
 
-  useEffect(() => {
+  const mesclar = useCallback((payload: Partial<CriartereState>) => {
+    stateRef.current = { ...stateRef.current, ...payload }
+    baseDispatch({ type: '__MESCLAR', payload })
+  }, [])
+
+  const recarregarFatias = useCallback(
+    async (fatias: Fatia[]) => {
+      if (fatias.length === 0) return
+      mesclar(await carregarFatias(fatias))
+    },
+    [mesclar],
+  )
+
+  const recarregar = useCallback(async () => {
+    mesclar({ carregando: true })
     try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state))
-    } catch {
-      // Ignora erro de quota
+      await recarregarFatias(TODAS_FATIAS)
+    } catch (e) {
+      toast.error(`Não foi possível carregar os dados: ${(e as Error).message}`)
+    } finally {
+      mesclar({ carregando: false })
     }
-  }, [state])
+  }, [mesclar, recarregarFatias])
+
+  // Sessão do Supabase Auth
+  useEffect(() => {
+    const aplicarSessao = async (email: string | undefined, nomeMeta?: string) => {
+      if (!email) {
+        mesclar({
+          ...initialState,
+          sessaoVerificada: true,
+        })
+        return
+      }
+      mesclar({ autenticado: true, carregando: true, sessaoVerificada: true })
+      try {
+        const membro = await buscarMembro()
+        mesclar({
+          autorizado: !!membro,
+          usuarioAtual: {
+            nome: membro?.nome || nomeMeta || email.split('@')[0],
+            email,
+            papel: membro?.papel || '',
+          },
+        })
+        if (membro) await recarregarFatias(TODAS_FATIAS)
+      } catch (e) {
+        toast.error(`Não foi possível carregar os dados: ${(e as Error).message}`)
+      } finally {
+        mesclar({ carregando: false })
+      }
+    }
+
+    let emailAtual: string | undefined
+    const { data } = supabase.auth.onAuthStateChange((evento, sessao) => {
+      const email = sessao?.user?.email
+      if (evento !== 'INITIAL_SESSION' && email === emailAtual) return
+      emailAtual = email
+      // Executa fora do callback para não travar o cliente de autenticação
+      setTimeout(() => aplicarSessao(email, sessao?.user?.user_metadata?.nome), 0)
+    })
+    return () => data.subscription.unsubscribe()
+  }, [mesclar, recarregarFatias])
+
+  const dispatch = useCallback(
+    (actionOriginal: Action) => {
+      let action = actionOriginal
+
+      if (action.type === 'LOGOUT') {
+        supabase.auth.signOut()
+        return
+      }
+      if (action.type === 'RESTAURAR_DEMO') {
+        recarregar()
+        return
+      }
+      // Novo pedido recebe o id definitivo já no cliente
+      if (action.type === 'CRIAR_PEDIDO' && !action.payload.id) {
+        action = { ...action, payload: { ...action.payload, id: crypto.randomUUID() } }
+      }
+
+      const anterior = stateRef.current
+      const proximo = criartereReducer(anterior, action)
+      if (proximo === anterior) return
+
+      // Atualização otimista: a tela responde na hora
+      stateRef.current = proximo
+      baseDispatch(action)
+
+      filaRef.current = filaRef.current.then(async () => {
+        try {
+          const fatias = await persistirAcao(action, anterior, proximo)
+          await recarregarFatias(fatias)
+        } catch (e) {
+          toast.error(`Erro ao salvar no servidor: ${(e as Error).message}`)
+          await recarregarFatias(TODAS_FATIAS).catch(() => undefined)
+        }
+      })
+    },
+    [recarregar, recarregarFatias],
+  )
 
   return (
-    <CriartereContext.Provider value={{ state, dispatch }}>{children}</CriartereContext.Provider>
+    <CriartereContext.Provider value={{ state, dispatch, recarregar }}>
+      {children}
+    </CriartereContext.Provider>
   )
 }
 

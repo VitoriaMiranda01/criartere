@@ -14,6 +14,23 @@ Este projeto foi criado de ponta a ponta com o [Skip](https://goskip.dev).
 - **Zod** - Validação de schemas TypeScript-first
 - **Recharts** - Biblioteca de gráficos para React
 
+## 🗄️ Backend (Supabase)
+
+Os dados ficam no projeto Supabase **Criartere** (`kitarrykwoaxlrydethm`).
+
+- **Conexão:** `src/lib/supabase.ts`, configurada pelas variáveis do arquivo `.env`
+  (`VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`, que são públicas).
+- **Acesso a dados:** `src/store/db.ts` carrega as tabelas e grava cada ação do store;
+  `src/store/CriartereContext.tsx` aplica as mudanças na tela na hora e salva em seguida.
+- **Banco:** as tabelas, políticas de segurança (RLS) e funções estão em `supabase/migrations/`.
+  Regras como código do pedido (`#CR-0001`), status de pagamento e histórico são calculadas no banco.
+- **Quem acessa:** só e-mails cadastrados na tabela `membros` veem e editam os dados.
+  Para liberar alguém, no SQL Editor do Supabase:
+
+  ```sql
+  insert into public.membros (email, nome) values ('pessoa@email.com', 'Nome da Pessoa');
+  ```
+
 ## 📋 Pré-requisitos
 
 - Node.js 18+

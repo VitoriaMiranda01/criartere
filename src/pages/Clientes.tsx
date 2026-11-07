@@ -1,3 +1,4 @@
+import { novoId } from '@/lib/supabase'
 import React, { useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useCriartere } from '@/store/CriartereContext'
@@ -128,7 +129,7 @@ export default function Clientes() {
     }
 
     const payload: Cliente = {
-      id: clienteEditando ? clienteEditando.id : `cli-${Date.now()}`,
+      id: clienteEditando ? clienteEditando.id : novoId(),
       nome: nome.trim(),
       telefone: telefone.trim(),
       whatsapp: (whatsapp || telefone).trim(),
@@ -708,7 +709,7 @@ export default function Clientes() {
                 setAvisoDuplicidadeAberto(false)
                 // Força o salvamento
                 const payload: Cliente = {
-                  id: `cli-${Date.now()}`,
+                  id: novoId(),
                   nome: nome.trim(),
                   telefone: telefone.trim(),
                   whatsapp: (whatsapp || telefone).trim(),

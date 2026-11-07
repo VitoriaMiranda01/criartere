@@ -1,3 +1,4 @@
+import { novoId } from '@/lib/supabase'
 import React, { useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
 import { Produto } from '@/types/criartere'
@@ -127,7 +128,7 @@ export default function Produtos() {
     }
 
     const payload: Produto = {
-      id: produtoEditando ? produtoEditando.id : `prod-${Date.now()}`,
+      id: produtoEditando ? produtoEditando.id : novoId(),
       nome: nome.trim(),
       descricao: descricao.trim(),
       precoVenda,

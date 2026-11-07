@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { NavLink, useNavigate, useLocation, Outlet } from 'react-router-dom'
+import { NavLink, Navigate, useNavigate, useLocation, Outlet } from 'react-router-dom'
 import { useCriartere } from '@/store/CriartereContext'
 import {
   LayoutDashboard,
@@ -15,7 +15,6 @@ import {
   Menu,
   X,
   Clock,
-  Sparkles,
   ArrowUpRight,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
@@ -31,10 +30,37 @@ export default function Layout() {
   const [buscaGlobal, setBuscaGlobal] = useState('')
   const [buscaFocada, setBuscaFocada] = useState(false)
 
+  // Aguarda a verificação da sessão
+  if (!state.sessaoVerificada) {
+    return <TelaCarregando mensagem="Verificando sessão..." />
+  }
+
   // Redireciona se não autenticado
   if (!state.autenticado) {
-    navigate('/login')
-    return null
+    return <Navigate to="/login" replace />
+  }
+
+  // Logado, mas o e-mail não está na lista de membros da loja
+  if (!state.carregando && !state.autorizado) {
+    return (
+      <div className="min-h-screen bg-[#F7F3EA] flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-white rounded-2xl border border-[#DFC3AE]/60 p-8 text-center space-y-4">
+          <h1 className="font-serif text-2xl font-bold text-[#0C1014]">Acesso pendente</h1>
+          <p className="text-sm text-[#6B4B36]">
+            O e-mail <strong>{state.usuarioAtual.email}</strong> ainda não foi autorizado a acessar
+            os dados da loja. Peça à administradora para incluí-lo na lista de membros.
+          </p>
+          <Button variant="outline" onClick={() => dispatch({ type: 'LOGOUT' })}>
+            <LogOut className="w-4 h-4 mr-2" />
+            Sair
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (state.carregando && state.pedidos.length === 0 && state.clientes.length === 0) {
+    return <TelaCarregando mensagem="Carregando dados da loja..." />
   }
 
   // Contagem de pedidos aguardando pagamento para o badge
@@ -44,7 +70,6 @@ export default function Layout() {
 
   const handleLogout = () => {
     dispatch({ type: 'LOGOUT' })
-    navigate('/login')
   }
 
   // Itens do menu lateral rigorosamente na ordem do briefing:
@@ -170,26 +195,17 @@ export default function Layout() {
 
         {/* Rodapé da Sidebar */}
         <div className="p-4 border-t border-[#DFC3AE]/50 bg-[#F7F3EA]/30 space-y-3">
-          {/* Badge Modo Demonstração */}
-          <div className="flex items-center justify-between px-2.5 py-1.5 bg-white rounded-md border border-[#DFC3AE]/70 shadow-xs">
-            <span className="flex items-center gap-1.5 text-[11px] font-medium text-[#6B4B36]">
-              <Sparkles className="w-3 h-3 text-[#C48864]" />
-              Modo Demonstração
-            </span>
-            <span className="w-2 h-2 rounded-full bg-[#4C8A5A]" title="Ativo" />
-          </div>
-
           {/* User Block */}
           <div className="flex items-center justify-between pt-1">
             <div className="flex items-center gap-2.5 min-w-0">
-              <img
-                src={state.usuarioAtual.avatarUrl}
-                alt="Avatar"
-                className="w-8 h-8 rounded-full border border-[#DFC3AE] object-cover shrink-0"
-              />
+              <Avatar nome={state.usuarioAtual.nome} className="w-8 h-8" />
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-[#0C1014] truncate">Mariana Duarte</p>
-                <p className="text-[10px] text-[#6B4B36] truncate">Proprietária</p>
+                <p className="text-xs font-semibold text-[#0C1014] truncate">
+                  {state.usuarioAtual.nome}
+                </p>
+                <p className="text-[10px] text-[#6B4B36] truncate">
+                  {state.usuarioAtual.papel || state.usuarioAtual.email}
+                </p>
               </div>
             </div>
             <Button
@@ -225,17 +241,7 @@ export default function Layout() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Badge
-            variant="outline"
-            className="border-[#DFC3AE] bg-[#F7F3EA] text-[#6B4B36] text-[10px]"
-          >
-            Demo
-          </Badge>
-          <img
-            src={state.usuarioAtual.avatarUrl}
-            alt="Avatar"
-            className="w-7 h-7 rounded-full border border-[#DFC3AE] object-cover"
-          />
+          <Avatar nome={state.usuarioAtual.nome} className="w-7 h-7" />
         </div>
       </header>
 
@@ -303,14 +309,10 @@ export default function Layout() {
 
             <div className="p-4 border-t border-[#DFC3AE]/50 space-y-2 bg-[#F7F3EA]/30">
               <div className="flex items-center gap-2.5">
-                <img
-                  src={state.usuarioAtual.avatarUrl}
-                  alt="Avatar"
-                  className="w-8 h-8 rounded-full border border-[#DFC3AE] object-cover shrink-0"
-                />
+                <Avatar nome={state.usuarioAtual.nome} className="w-8 h-8" />
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold text-[#0C1014]">Mariana Duarte</p>
-                  <p className="text-[10px] text-[#6B4B36]">demonstracao@criartere.com</p>
+                  <p className="text-xs font-semibold text-[#0C1014]">{state.usuarioAtual.nome}</p>
+                  <p className="text-[10px] text-[#6B4B36]">{state.usuarioAtual.email}</p>
                 </div>
               </div>
               <Button
@@ -451,5 +453,31 @@ export default function Layout() {
         </main>
       </div>
     </div>
+  )
+}
+
+function TelaCarregando({ mensagem }: { mensagem: string }) {
+  return (
+    <div className="min-h-screen bg-[#F7F3EA] flex flex-col items-center justify-center gap-3">
+      <span className="w-8 h-8 rounded-full border-2 border-[#DFC3AE] border-t-[#C48864] animate-spin" />
+      <p className="text-sm text-[#6B4B36]">{mensagem}</p>
+    </div>
+  )
+}
+
+function Avatar({ nome, className }: { nome: string; className: string }) {
+  const iniciais =
+    nome
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase())
+      .join('') || '?'
+  return (
+    <span
+      className={`${className} rounded-full border border-[#DFC3AE] bg-[#F7F3EA] text-[#6B4B36] text-[11px] font-semibold flex items-center justify-center shrink-0`}
+    >
+      {iniciais}
+    </span>
   )
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
+import { supabase } from '@/lib/supabase'
 import { PaymentMethod, PeriodoFiltro } from '@/types/criartere'
 import { ModalCategorias } from '@/components/financeiro/ModalCategorias'
 import {
@@ -32,7 +33,7 @@ import {
 import { toast } from 'sonner'
 
 export default function Configuracoes() {
-  const { state, dispatch } = useCriartere()
+  const { state, dispatch, recarregar } = useCriartere()
 
   // Dados da loja
   const [nomeLoja, setNomeLoja] = useState(state.config.nome)
@@ -94,20 +95,38 @@ export default function Configuracoes() {
     toast.success(`Forma de pagamento "${forma}" removida.`)
   }
 
-  const handleAlterarSenhaSimulado = (e: React.FormEvent) => {
+  const handleAlterarSenha = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!senhaAtual || !novaSenha) {
       toast.error('Preencha a senha atual e a nova senha.')
       return
     }
-    toast.info('Funcionalidade completa disponível na versão final integrada.')
+    if (novaSenha.length < 6) {
+      toast.error('A nova senha precisa ter pelo menos 6 caracteres.')
+      return
+    }
+    // Confirma a senha atual antes de trocar
+    const { error: erroLogin } = await supabase.auth.signInWithPassword({
+      email: state.usuarioAtual.email,
+      password: senhaAtual,
+    })
+    if (erroLogin) {
+      toast.error('Senha atual incorreta.')
+      return
+    }
+    const { error } = await supabase.auth.updateUser({ password: novaSenha })
+    if (error) {
+      toast.error(`Não foi possível alterar a senha: ${error.message}`)
+      return
+    }
+    toast.success('Senha alterada com sucesso!')
     setSenhaAtual('')
     setNovaSenha('')
   }
 
-  const handleRestaurarDemo = () => {
-    dispatch({ type: 'RESTAURAR_DEMO' })
-    toast.success('Dados de demonstração restaurados com sucesso!')
+  const handleRecarregar = async () => {
+    await recarregar()
+    toast.success('Dados sincronizados com o servidor.')
   }
 
   const statusConfig = [
@@ -142,11 +161,11 @@ export default function Configuracoes() {
 
         <Button
           variant="outline"
-          onClick={handleRestaurarDemo}
+          onClick={handleRecarregar}
           className="border-[#DFC3AE] text-[#6B4B36] hover:text-[#0C1014] text-xs h-9 self-start sm:self-auto flex items-center gap-1.5"
         >
           <RotateCcw className="w-3.5 h-3.5 text-[#C48864]" />
-          <span>Restaurar Dados da Demo</span>
+          <span>Sincronizar Dados</span>
         </Button>
       </div>
 
@@ -360,23 +379,24 @@ export default function Configuracoes() {
 
       {/* SEÇÃO 4: DADOS DE ACESSO E PREFERÊNCIAS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Dados de acesso simulado */}
+        {/* Dados de acesso */}
         <Card className="border-[#DFC3AE]/70 bg-white shadow-xs">
           <CardHeader className="pb-3 border-b border-[#DFC3AE]/40">
             <CardTitle className="font-serif text-base font-bold text-[#0C1014] flex items-center gap-2">
               <Shield className="w-4 h-4 text-[#C48864]" />
-              Dados de Acesso (Simulação)
+              Dados de Acesso
             </CardTitle>
           </CardHeader>
           <CardContent className="p-5 space-y-4">
             <div className="p-3 bg-[#F7F3EA] rounded-xl border border-[#DFC3AE]/60 text-xs space-y-1">
               <p className="font-bold text-[#0C1014]">
-                Usuária Atual: Mariana Duarte (Proprietária)
+                Usuária Atual: {state.usuarioAtual.nome}
+                {state.usuarioAtual.papel ? ` (${state.usuarioAtual.papel})` : ''}
               </p>
-              <p className="text-[#6B4B36]">E-mail de acesso: demonstracao@criartere.com</p>
+              <p className="text-[#6B4B36]">E-mail de acesso: {state.usuarioAtual.email}</p>
             </div>
 
-            <form onSubmit={handleAlterarSenhaSimulado} className="space-y-3">
+            <form onSubmit={handleAlterarSenha} className="space-y-3">
               <div className="space-y-1">
                 <Label className="text-xs text-[#6B4B36]">Senha Atual</Label>
                 <Input
