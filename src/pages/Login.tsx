@@ -88,11 +88,11 @@ export default function Login() {
         <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(12,16,20,0.06)] border border-[#DFC3AE]/60 p-8 sm:p-10">
           {/* Wordmark Criartere */}
           <div className="text-center mb-8">
+            <img src="/logo.png" alt="Logo Criartere" className="w-20 h-20 mx-auto mb-3" />
             <div className="inline-flex items-center justify-center gap-2 mb-2">
               <span className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-[#0C1014]">
                 Criartere
               </span>
-              <span className="w-2.5 h-2.5 rounded-full bg-[#C48864] inline-block animate-pulse" />
             </div>
             <p className="text-xs uppercase tracking-widest text-[#6B4B36] font-medium">
               Impressão 3D &amp; Gráfica

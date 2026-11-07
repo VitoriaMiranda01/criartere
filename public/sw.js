@@ -2,7 +2,7 @@
    - Páginas: rede primeiro; sem conexão, usa o index.html salvo (o app abre offline).
    - Arquivos do build (/assets/*, com hash no nome) e ícones: cache primeiro.
    - Supabase e qualquer outro domínio: nunca passam pelo cache (dados sempre atuais). */
-const VERSAO = 'criartere-v1'
+const VERSAO = 'criartere-v2'
 const ESSENCIAIS = [
   '/',
   '/index.html',

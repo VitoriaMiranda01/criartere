@@ -147,11 +147,11 @@ export default function Layout() {
       <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-[#DFC3AE]/60 shrink-0 sticky top-0 h-screen z-30">
         {/* Brand Block */}
         <div className="p-6 pb-4 border-b border-[#DFC3AE]/40">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.png" alt="" className="w-9 h-9 shrink-0" />
             <span className="font-serif text-2xl font-bold tracking-tight text-[#0C1014]">
               Criartere
             </span>
-            <span className="w-2 h-2 rounded-full bg-[#C48864]" />
           </div>
           <p className="text-[10px] uppercase tracking-widest text-[#6B4B36] font-semibold mt-0.5">
             Sistema de Gestão
@@ -241,11 +241,11 @@ export default function Layout() {
           >
             <Menu className="w-5 h-5" />
           </Button>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="" className="w-7 h-7 shrink-0" />
             <span className="font-serif text-xl font-bold tracking-tight text-[#0C1014]">
               Criartere
             </span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#C48864]" />
           </div>
         </div>
 
@@ -267,8 +267,8 @@ export default function Layout() {
           <div className="relative flex flex-col w-4/5 max-w-xs bg-white h-full z-10 shadow-xl border-r border-[#DFC3AE]/70">
             <div className="p-4 flex items-center justify-between border-b border-[#DFC3AE]/50">
               <div className="flex items-center gap-2">
+                <img src="/logo.png" alt="" className="w-8 h-8 shrink-0" />
                 <span className="font-serif text-xl font-bold text-[#0C1014]">Criartere</span>
-                <span className="w-2 h-2 rounded-full bg-[#C48864]" />
               </div>
               <Button
                 variant="ghost"
