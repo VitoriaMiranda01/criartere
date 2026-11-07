@@ -1,3 +1,4 @@
+import { MeuPerfil } from '@/components/configuracoes/MeuPerfil'
 import { UsuariosPermissoes } from '@/components/configuracoes/UsuariosPermissoes'
 import { todasEtapas } from '@/store/etapas'
 import { CampoSenha } from '@/components/common/CampoSenha'
@@ -156,6 +157,9 @@ export default function Configuracoes() {
           <span>Sincronizar Dados</span>
         </Button>
       </div>
+
+      {/* MEU PERFIL */}
+      <MeuPerfil />
 
       {/* SEÇÃO 1: DADOS DA LOJA */}
       <Card className="border-[#DFC3AE]/70 bg-white shadow-xs">

@@ -35,6 +35,7 @@ const initialState: CriartereState = {
   autorizado: false,
   acessoNegado: false,
   usuarioAtual: {
+    id: '',
     nome: '',
     email: '',
     papel: '',
@@ -510,9 +511,11 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
         mesclar({
           autorizado: true,
           usuarioAtual: {
+            id: userId,
             nome: perfil.nome || nomeMeta || email.split('@')[0],
             email,
             papel: 'Administrador(a)',
+            avatarUrl: perfil.avatarUrl ?? undefined,
           },
         })
         await recarregarFatias(TODAS_FATIAS)

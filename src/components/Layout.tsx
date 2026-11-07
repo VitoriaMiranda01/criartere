@@ -206,8 +206,17 @@ export default function Layout() {
         <div className="p-4 border-t border-[#DFC3AE]/50 bg-[#F7F3EA]/30 space-y-3">
           {/* User Block */}
           <div className="flex items-center justify-between pt-1">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <Avatar nome={state.usuarioAtual.nome} className="w-8 h-8" />
+            <button
+              type="button"
+              onClick={() => navigate('/configuracoes#meu-perfil')}
+              title="Editar meu perfil"
+              className="flex items-center gap-2.5 min-w-0 text-left rounded-lg p-1 -m-1 hover:bg-[#F7F3EA]"
+            >
+              <Avatar
+                nome={state.usuarioAtual.nome}
+                src={state.usuarioAtual.avatarUrl}
+                className="w-8 h-8"
+              />
               <div className="min-w-0">
                 <p className="text-xs font-semibold text-[#0C1014] truncate">
                   {state.usuarioAtual.nome}
@@ -216,7 +225,7 @@ export default function Layout() {
                   {state.usuarioAtual.papel || state.usuarioAtual.email}
                 </p>
               </div>
-            </div>
+            </button>
             <Button
               variant="ghost"
               size="icon"
@@ -249,9 +258,18 @@ export default function Layout() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Avatar nome={state.usuarioAtual.nome} className="w-7 h-7" />
-        </div>
+        <button
+          type="button"
+          onClick={() => navigate('/configuracoes#meu-perfil')}
+          aria-label="Editar meu perfil"
+          className="rounded-full"
+        >
+          <Avatar
+            nome={state.usuarioAtual.nome}
+            src={state.usuarioAtual.avatarUrl}
+            className="w-7 h-7"
+          />
+        </button>
       </header>
 
       {/* DRAWER MOBILE */}
@@ -317,13 +335,24 @@ export default function Layout() {
             </nav>
 
             <div className="p-4 border-t border-[#DFC3AE]/50 space-y-2 bg-[#F7F3EA]/30">
-              <div className="flex items-center gap-2.5">
-                <Avatar nome={state.usuarioAtual.nome} className="w-8 h-8" />
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuAberto(false)
+                  navigate('/configuracoes#meu-perfil')
+                }}
+                className="flex items-center gap-2.5 w-full text-left rounded-lg p-1 -m-1 hover:bg-white"
+              >
+                <Avatar
+                  nome={state.usuarioAtual.nome}
+                  src={state.usuarioAtual.avatarUrl}
+                  className="w-8 h-8"
+                />
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-[#0C1014]">{state.usuarioAtual.nome}</p>
                   <p className="text-[10px] text-[#6B4B36]">{state.usuarioAtual.email}</p>
                 </div>
-              </div>
+              </button>
               <Button
                 variant="outline"
                 size="sm"
@@ -482,7 +511,7 @@ function TelaCarregando({ mensagem }: { mensagem: string }) {
   )
 }
 
-function Avatar({ nome, className }: { nome: string; className: string }) {
+function Avatar({ nome, src, className }: { nome: string; src?: string; className: string }) {
   const iniciais =
     nome
       .split(/\s+/)
@@ -490,6 +519,15 @@ function Avatar({ nome, className }: { nome: string; className: string }) {
       .slice(0, 2)
       .map((p) => p[0]?.toUpperCase())
       .join('') || '?'
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt={`Foto de ${nome}`}
+        className={`${className} rounded-full border border-[#DFC3AE] object-cover shrink-0`}
+      />
+    )
+  }
   return (
     <span
       className={`${className} rounded-full border border-[#DFC3AE] bg-[#F7F3EA] text-[#6B4B36] text-[11px] font-semibold flex items-center justify-center shrink-0`}

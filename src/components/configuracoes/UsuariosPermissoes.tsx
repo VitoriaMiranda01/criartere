@@ -125,18 +125,31 @@ export function UsuariosPermissoes() {
                   key={u.userId}
                   className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-white"
                 >
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-[#0C1014] truncate">
-                      {u.nome || u.email.split('@')[0]}
-                      {ehVoce(u) && (
-                        <span className="ml-1.5 text-[10px] font-normal text-[#6B4B36]">
-                          (você)
-                        </span>
-                      )}
-                    </p>
-                    <p className="text-[11px] text-[#6B4B36] truncate">
-                      {u.email} &bull; desde {formatDataBR(u.criadoEm.slice(0, 10))}
-                    </p>
+                  <div className="flex items-center gap-3 min-w-0">
+                    {u.avatarUrl ? (
+                      <img
+                        src={u.avatarUrl}
+                        alt=""
+                        className="w-9 h-9 rounded-full object-cover border border-[#DFC3AE] shrink-0"
+                      />
+                    ) : (
+                      <span className="w-9 h-9 rounded-full bg-[#F7F3EA] border border-[#DFC3AE] text-[#6B4B36] text-xs font-semibold flex items-center justify-center shrink-0">
+                        {(u.nome || u.email)[0]?.toUpperCase()}
+                      </span>
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-[#0C1014] truncate">
+                        {u.nome || u.email.split('@')[0]}
+                        {ehVoce(u) && (
+                          <span className="ml-1.5 text-[10px] font-normal text-[#6B4B36]">
+                            (você)
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-[11px] text-[#6B4B36] truncate">
+                        {u.email} &bull; desde {formatDataBR(u.criadoEm.slice(0, 10))}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <span

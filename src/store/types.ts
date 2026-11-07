@@ -18,6 +18,7 @@ export interface CriartereState {
   autorizado: boolean // usuário logado é administrador
   acessoNegado: boolean // tentou entrar sem ser administrador (mensagem no login)
   usuarioAtual: {
+    id: string
     nome: string
     email: string
     papel: string

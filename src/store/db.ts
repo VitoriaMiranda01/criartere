@@ -332,14 +332,15 @@ export type PapelUsuario = 'admin' | 'cliente'
 /** Perfil (nome e papel) do usuário logado. */
 export async function buscarPerfil(
   userId: string,
-): Promise<{ nome: string | null; papel: PapelUsuario } | null> {
+): Promise<{ nome: string | null; papel: PapelUsuario; avatarUrl: string | null } | null> {
   const { data, error } = await supabase
     .from('perfis')
-    .select('nome, papel')
+    .select('nome, papel, avatar_url')
     .eq('user_id', userId)
     .maybeSingle()
   if (error) throw new Error(error.message)
-  return data as { nome: string | null; papel: PapelUsuario } | null
+  if (!data) return null
+  return { nome: data.nome, papel: data.papel as PapelUsuario, avatarUrl: data.avatar_url }
 }
 
 export interface UsuarioSistema {
@@ -347,6 +348,7 @@ export interface UsuarioSistema {
   email: string
   nome: string | null
   papel: PapelUsuario
+  avatarUrl: string | null
   criadoEm: string
 }
 
@@ -363,8 +365,38 @@ export async function listarUsuarios(): Promise<UsuarioSistema[]> {
     email: r.email,
     nome: r.nome,
     papel: r.papel,
+    avatarUrl: r.avatar_url,
     criadoEm: r.criado_em,
   }))
+}
+
+/** Envia a foto de perfil (já preparada) para a pasta do usuário e devolve o endereço público. */
+export async function enviarFotoPerfil(
+  userId: string,
+  foto: { blob: Blob; extensao: string },
+): Promise<string> {
+  const caminho = `${userId}/${Date.now()}.${foto.extensao}`
+  const { error } = await supabase.storage.from('avatares').upload(caminho, foto.blob, {
+    contentType: foto.blob.type,
+    cacheControl: '31536000',
+    upsert: false,
+  })
+  if (error) throw new Error(error.message)
+  return supabase.storage.from('avatares').getPublicUrl(caminho).data.publicUrl
+}
+
+/** Apaga as fotos antigas do usuário, mantendo só a atual (se houver). */
+export async function limparFotosAntigas(userId: string, urlAtual: string | null): Promise<void> {
+  const { data } = await supabase.storage.from('avatares').list(userId, { limit: 100 })
+  const apagar = (data ?? [])
+    .map((f) => `${userId}/${f.name}`)
+    .filter((caminho) => !urlAtual || !urlAtual.endsWith(caminho))
+  if (apagar.length) await supabase.storage.from('avatares').remove(apagar)
+}
+
+/** Atualiza nome e foto do próprio usuário. */
+export async function atualizarMeuPerfil(nome: string, avatarUrl: string | null): Promise<void> {
+  check(await supabase.rpc('atualizar_meu_perfil', { p_nome: nome, p_avatar_url: avatarUrl ?? '' }))
 }
 
 /** Torna um usuário administrador ou cliente (somente administradores). */
