@@ -13,4 +13,4 @@ Disallow: /fluxo-de-caixa
 Disallow: /relatorios
 Disallow: /configuracoes
 
-Sitemap: https://darkslategray-cassowary-275549.hostingersite.com/sitemap.xml
+Sitemap: https://criartere.com.br/sitemap.xml

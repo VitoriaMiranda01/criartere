@@ -2,6 +2,15 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+
+  # Endereço único: https://criartere.com.br (sem www e sempre com HTTPS)
+  RewriteCond %{HTTP_HOST} ^www\.criartere\.com\.br$ [NC]
+  RewriteRule ^(.*)$ https://criartere.com.br/$1 [R=301,L]
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+  RewriteCond %{HTTP_HOST} ^criartere\.com\.br$ [NC]
+  RewriteRule ^(.*)$ https://criartere.com.br/$1 [R=301,L]
+
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
