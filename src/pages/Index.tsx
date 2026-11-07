@@ -1,3 +1,4 @@
+import { etapasDoKanban } from '@/store/etapas'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCriartere } from '@/store/CriartereContext'
@@ -50,15 +51,9 @@ export default function Index() {
   const resumo = selectFinancialSummary(state, periodo, personalizado)
 
   // Status operacionais com suas cores e contagens
-  const statusChips: { id: OrderStatus; label: string; cor: string; bg: string }[] = [
-    { id: 'novo', label: 'Novos pedidos', cor: '#C48864', bg: '#FDF7F3' },
-    { id: 'aguardando_pagamento', label: 'Aguardando pagamento', cor: '#D9A441', bg: '#FEF9EE' },
-    { id: 'em_preparacao', label: 'Em preparação', cor: '#8A5A3B', bg: '#F7F1EC' },
-    { id: 'em_producao', label: 'Em produção', cor: '#C48864', bg: '#FDF7F3' },
-    { id: 'pronto_envio', label: 'Prontos para envio', cor: '#4C8A5A', bg: '#F0F7F2' },
-    { id: 'enviado', label: 'Enviados', cor: '#5A7D8A', bg: '#F1F6F8' },
-    { id: 'entregue', label: 'Entregues', cor: '#4C8A5A', bg: '#F0F7F2' },
-  ]
+  const statusChips: { id: OrderStatus; label: string; cor: string; bg: string }[] = etapasDoKanban(
+    state,
+  ).map((e) => ({ id: e.chave, label: e.nome, cor: e.cor, bg: `${e.cor}14` }))
 
   const contagemPorStatus = statusChips.reduce(
     (acc, chip) => {
@@ -123,35 +118,16 @@ export default function Index() {
   }
 
   // Distribuição de pedidos por status (gráfico Donut)
-  const donutCores: Record<string, string> = {
-    Novo: '#C48864',
-    'Aguardando Pagamento': '#D9A441',
-    'Em Preparação': '#8A5A3B',
-    'Em Produção': '#B0764F',
-    'Pronto p/ Envio': '#4C8A5A',
-    Enviado: '#5A7D8A',
-    Entregue: '#3D6F48',
-    Cancelado: '#B5533C',
-  }
+  const donutCores: Record<string, string> = Object.fromEntries(
+    state.etapas.map((e) => [e.nome, e.cor]),
+  )
 
-  const dadosDonut = [
-    { name: 'Novo', value: state.pedidos.filter((p) => p.status === 'novo').length },
-    {
-      name: 'Aguardando Pagamento',
-      value: state.pedidos.filter((p) => p.status === 'aguardando_pagamento').length,
-    },
-    {
-      name: 'Em Preparação',
-      value: state.pedidos.filter((p) => p.status === 'em_preparacao').length,
-    },
-    { name: 'Em Produção', value: state.pedidos.filter((p) => p.status === 'em_producao').length },
-    {
-      name: 'Pronto p/ Envio',
-      value: state.pedidos.filter((p) => p.status === 'pronto_envio').length,
-    },
-    { name: 'Enviado', value: state.pedidos.filter((p) => p.status === 'enviado').length },
-    { name: 'Entregue', value: state.pedidos.filter((p) => p.status === 'entregue').length },
-  ].filter((item) => item.value > 0)
+  const dadosDonut = etapasDoKanban(state)
+    .map((e) => ({
+      name: e.nome,
+      value: state.pedidos.filter((p) => p.status === e.chave).length,
+    }))
+    .filter((item) => item.value > 0)
 
   // Pedidos Recentes (últimos 5)
   const pedidosRecentes = [...state.pedidos]
@@ -326,7 +302,7 @@ export default function Index() {
             Clique para filtrar na tela de pedidos
           </span>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-2">
           {statusChips.map((chip) => {
             const count = contagemPorStatus[chip.id] || 0
             return (

@@ -1,12 +1,14 @@
-export type OrderStatus =
-  | 'novo'
-  | 'aguardando_pagamento'
-  | 'em_preparacao'
-  | 'em_producao'
-  | 'pronto_envio'
-  | 'enviado'
-  | 'entregue'
-  | 'cancelado'
+/** Chave da etapa do pedido (coluna do Kanban). Etapas usadas pelas regras do sistema:
+ *  'novo', 'aguardando_pagamento', 'entregue' e 'cancelado'. As demais são criadas pela loja. */
+export type OrderStatus = string
+
+export interface EtapaPedido {
+  chave: string
+  nome: string
+  cor: string // #RRGGBB
+  ordem: number
+  fixa: boolean // usada pelas regras do sistema: não pode ser excluída
+}
 
 export type PaymentStatus = 'pendente' | 'parcial' | 'pago'
 

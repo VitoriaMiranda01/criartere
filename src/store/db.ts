@@ -6,6 +6,7 @@ import type {
   Produto,
   Pedido,
   PedidoItem,
+  EtapaPedido,
   Orcamento,
   Pagamento,
   Despesa,
@@ -22,6 +23,7 @@ export type Fatia =
   | 'clientes'
   | 'produtos'
   | 'pedidos'
+  | 'etapas'
   | 'orcamentos'
   | 'pagamentos'
   | 'despesas'
@@ -34,6 +36,7 @@ export const TODAS_FATIAS: Fatia[] = [
   'clientes',
   'produtos',
   'pedidos',
+  'etapas',
   'orcamentos',
   'pagamentos',
   'despesas',
@@ -249,6 +252,23 @@ export async function carregarFatias(fatias: Fatia[]): Promise<Partial<Criartere
                 .order('numero', { ascending: false }),
             ).map(mapPedido),
           }
+        case 'etapas':
+          return {
+            etapas: check(
+              await supabase
+                .from('etapas_pedido')
+                .select('chave, nome, cor, ordem, fixa')
+                .order('ordem'),
+            ).map(
+              (r: Row): EtapaPedido => ({
+                chave: r.chave,
+                nome: r.nome,
+                cor: r.cor,
+                ordem: r.ordem,
+                fixa: r.fixa,
+              }),
+            ),
+          }
         case 'orcamentos':
           return {
             orcamentos: check(
@@ -366,6 +386,29 @@ export async function persistirAcao(
         }),
       )
       return ['pedidos', 'pagamentos', 'historico']
+
+    case 'SALVAR_ETAPA': {
+      const e = p as EtapaPedido
+      check(
+        await supabase
+          .from('etapas_pedido')
+          .upsert({ chave: e.chave, nome: e.nome, cor: e.cor, ordem: e.ordem, fixa: e.fixa }),
+      )
+      return ['etapas']
+    }
+
+    case 'REORDENAR_ETAPAS':
+      check(await supabase.rpc('reordenar_etapas', { p_chaves: p }))
+      return ['etapas']
+
+    case 'EXCLUIR_ETAPA':
+      check(
+        await supabase.rpc('excluir_etapa', {
+          p_chave: p.chave,
+          p_mover_para: p.moverPara ?? null,
+        }),
+      )
+      return ['etapas', 'pedidos', 'historico']
 
     case 'SALVAR_ORCAMENTO':
       check(await supabase.rpc('salvar_orcamento', { p }))

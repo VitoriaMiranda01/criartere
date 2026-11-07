@@ -2,6 +2,7 @@ import {
   Cliente,
   Produto,
   Pedido,
+  EtapaPedido,
   Orcamento,
   Despesa,
   Pagamento,
@@ -29,6 +30,7 @@ export interface CriartereState {
   clientes: Cliente[]
   produtos: Produto[]
   pedidos: Pedido[]
+  etapas: EtapaPedido[]
   orcamentos: Orcamento[]
   pagamentos: Pagamento[]
   despesas: Despesa[]

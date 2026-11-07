@@ -3,11 +3,13 @@ import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { carregarFatias, persistirAcao, buscarMembro, TODAS_FATIAS, Fatia } from './db'
 import { CriartereState } from './types'
+import { ETAPAS_PADRAO } from './etapas'
 import { SEED_CATEGORIAS_DESPESA, SEED_FORMAS_PAGAMENTO, SEED_CONFIG } from '@/data/seed'
 import {
   Cliente,
   Produto,
   Pedido,
+  EtapaPedido,
   Orcamento,
   OrcamentoStatus,
   Despesa,
@@ -31,6 +33,7 @@ const initialState: CriartereState = {
   clientes: [],
   produtos: [],
   pedidos: [],
+  etapas: ETAPAS_PADRAO,
   orcamentos: [],
   pagamentos: [],
   despesas: [],
@@ -52,6 +55,10 @@ export type Action =
   | { type: 'ATUALIZAR_PEDIDO'; payload: Pedido }
   | { type: 'ALTERAR_STATUS_PEDIDO'; payload: { pedidoId: string; novoStatus: OrderStatus } }
   | { type: 'CANCELAR_PEDIDO'; payload: { pedidoId: string; motivo?: string } }
+  // Etapas (colunas do Kanban)
+  | { type: 'SALVAR_ETAPA'; payload: EtapaPedido }
+  | { type: 'REORDENAR_ETAPAS'; payload: string[] }
+  | { type: 'EXCLUIR_ETAPA'; payload: { chave: string; moverPara?: string } }
   // Orçamentos
   | { type: 'SALVAR_ORCAMENTO'; payload: Orcamento }
   | { type: 'ALTERAR_STATUS_ORCAMENTO'; payload: { id: string; status: OrcamentoStatus } }
@@ -166,23 +173,15 @@ function criartereReducer(state: CriartereState, action: Action): CriartereState
       const pedido = state.pedidos.find((p) => p.id === pedidoId)
       if (!pedido || pedido.status === novoStatus) return state
 
-      const nomesStatus: Record<OrderStatus, string> = {
-        novo: 'Novo pedido',
-        aguardando_pagamento: 'Aguardando pagamento',
-        em_preparacao: 'Em preparação',
-        em_producao: 'Em produção',
-        pronto_envio: 'Pronto para envio',
-        enviado: 'Enviado',
-        entregue: 'Entregue',
-        cancelado: 'Cancelado',
-      }
+      const nomeEtapa = (chave: string) =>
+        state.etapas.find((e) => e.chave === chave)?.nome || chave
 
       const eventoHistorico = {
         id: `h-${Date.now()}`,
         pedidoId,
         dataHora: agoraFormatado(),
         tipo: 'status' as const,
-        descricao: `Status alterado de "${nomesStatus[pedido.status]}" para "${nomesStatus[novoStatus]}"`,
+        descricao: `Status alterado de "${nomeEtapa(pedido.status)}" para "${nomeEtapa(novoStatus)}"`,
       }
 
       return {
@@ -258,6 +257,38 @@ function criartereReducer(state: CriartereState, action: Action): CriartereState
         ),
         pagamentos: [novoPagamento, ...state.pagamentos],
         historico: [eventoHistorico, ...state.historico],
+      }
+    }
+
+    case 'SALVAR_ETAPA': {
+      const etapa = action.payload
+      const existe = state.etapas.some((e) => e.chave === etapa.chave)
+      return {
+        ...state,
+        etapas: existe
+          ? state.etapas.map((e) => (e.chave === etapa.chave ? etapa : e))
+          : [...state.etapas, etapa],
+      }
+    }
+
+    case 'REORDENAR_ETAPAS': {
+      const ordem = action.payload
+      return {
+        ...state,
+        etapas: state.etapas.map((e) =>
+          ordem.includes(e.chave) ? { ...e, ordem: ordem.indexOf(e.chave) + 1 } : e,
+        ),
+      }
+    }
+
+    case 'EXCLUIR_ETAPA': {
+      const { chave, moverPara } = action.payload
+      return {
+        ...state,
+        etapas: state.etapas.filter((e) => e.chave !== chave),
+        pedidos: moverPara
+          ? state.pedidos.map((p) => (p.status === chave ? { ...p, status: moverPara } : p))
+          : state.pedidos,
       }
     }
 

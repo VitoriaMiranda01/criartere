@@ -1,3 +1,4 @@
+import { infoEtapa } from '@/store/etapas'
 import React, { useState } from 'react'
 import { Pedido } from '@/types/criartere'
 import { useCriartere } from '@/store/CriartereContext'
@@ -67,22 +68,8 @@ export const DetalhePedidoDrawer: React.FC<DetalhePedidoDrawerProps> = ({
   const totalPago = selectTotalPagoDoPedido(state, pedido.id)
   const saldoRestante = Math.max(0, pedido.valorTotal - totalPago)
 
-  const statusMap: Record<string, { label: string; cor: string; bg: string }> = {
-    novo: { label: 'Novo pedido', cor: '#C48864', bg: '#FDF7F3' },
-    aguardando_pagamento: { label: 'Aguardando pagamento', cor: '#D9A441', bg: '#FEF9EE' },
-    em_preparacao: { label: 'Em preparação', cor: '#8A5A3B', bg: '#F7F1EC' },
-    em_producao: { label: 'Em produção', cor: '#C48864', bg: '#FDF7F3' },
-    pronto_envio: { label: 'Pronto p/ envio', cor: '#4C8A5A', bg: '#F0F7F2' },
-    enviado: { label: 'Enviado', cor: '#5A7D8A', bg: '#F1F6F8' },
-    entregue: { label: 'Entregue', cor: '#4C8A5A', bg: '#F0F7F2' },
-    cancelado: { label: 'Cancelado', cor: '#B5533C', bg: '#FDF2F2' },
-  }
-
-  const statusInfo = statusMap[pedido.status] || {
-    label: pedido.status,
-    cor: '#6B4B36',
-    bg: '#F7F3EA',
-  }
+  const etapa = infoEtapa(state, pedido.status)
+  const statusInfo = { label: etapa.nome, cor: etapa.cor, bg: etapa.bg }
 
   const handleConfirmarCancelamento = () => {
     dispatch({

@@ -7,6 +7,9 @@ import { formatBRL, formatDataBR } from '@/store/periodUtils'
 import { DetalhePedidoDrawer } from '@/components/pedidos/DetalhePedidoDrawer'
 import { FormPedidoModal } from '@/components/pedidos/FormPedidoModal'
 import { ModalPagamento } from '@/components/pedidos/ModalPagamento'
+import { DialogEtapa, DialogExcluirEtapa, MenuColuna } from '@/components/pedidos/GerenciarColunas'
+import { etapasDoKanban, infoEtapa, todasEtapas } from '@/store/etapas'
+import { EtapaPedido } from '@/types/criartere'
 import {
   LayoutGrid,
   List as ListIcon,
@@ -22,6 +25,7 @@ import {
   X,
   Package,
   FileText,
+  Columns3,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -64,22 +68,24 @@ export default function Pedidos() {
   const [arrastandoId, setArrastandoId] = useState<string | null>(null)
   const [colunaHover, setColunaHover] = useState<OrderStatus | null>(null)
 
-  // Colunas do Kanban rigorosamente conforme especificação:
-  // Novo pedido, Aguardando pagamento, Em preparação, Em produção, Pronto para envio, Enviado, Entregue
-  const colunasKanban: { id: OrderStatus; label: string; cor: string; bgHeader: string }[] = [
-    { id: 'novo', label: 'Novo pedido', cor: '#C48864', bgHeader: '#FDF7F3' },
-    {
-      id: 'aguardando_pagamento',
-      label: 'Aguardando pagamento',
-      cor: '#D9A441',
-      bgHeader: '#FEF9EE',
-    },
-    { id: 'em_preparacao', label: 'Em preparação', cor: '#8A5A3B', bgHeader: '#F7F1EC' },
-    { id: 'em_producao', label: 'Em produção', cor: '#B0764F', bgHeader: '#FDF7F3' },
-    { id: 'pronto_envio', label: 'Pronto p/ envio', cor: '#4C8A5A', bgHeader: '#F0F7F2' },
-    { id: 'enviado', label: 'Enviado', cor: '#5A7D8A', bgHeader: '#F1F6F8' },
-    { id: 'entregue', label: 'Entregue', cor: '#3D6F48', bgHeader: '#F0F7F2' },
-  ]
+  // Colunas do Kanban: etapas cadastradas pela loja (editáveis)
+  const etapasKanban = etapasDoKanban(state)
+  const colunasKanban = etapasKanban.map((e) => ({
+    id: e.chave,
+    label: e.nome,
+    cor: e.cor,
+    bgHeader: `${e.cor}14`,
+    etapa: e,
+  }))
+
+  // Gerenciamento de colunas
+  const [dialogEtapaAberto, setDialogEtapaAberto] = useState(false)
+  const [etapaEmEdicao, setEtapaEmEdicao] = useState<EtapaPedido | null>(null)
+  const [etapaParaExcluir, setEtapaParaExcluir] = useState<EtapaPedido | null>(null)
+  const abrirNovaColuna = () => {
+    setEtapaEmEdicao(null)
+    setDialogEtapaAberto(true)
+  }
 
   // Drag and drop handlers
   const handleDragStart = (e: React.DragEvent, id: string) => {
@@ -111,18 +117,7 @@ export default function Pedidos() {
       payload: { pedidoId: id, novoStatus: statusCol },
     })
 
-    const nomesColunas: Record<OrderStatus, string> = {
-      novo: 'Novo pedido',
-      aguardando_pagamento: 'Aguardando pagamento',
-      em_preparacao: 'Em preparação',
-      em_producao: 'Em produção',
-      pronto_envio: 'Pronto para envio',
-      enviado: 'Enviado',
-      entregue: 'Entregue',
-      cancelado: 'Cancelado',
-    }
-
-    toast.success(`Pedido ${pedido.codigo} movido para "${nomesColunas[statusCol]}"!`)
+    toast.success(`Pedido ${pedido.codigo} movido para "${infoEtapa(state, statusCol).nome}"!`)
   }
 
   // Filtragem dos pedidos
@@ -169,7 +164,7 @@ export default function Pedidos() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Alternador Kanban / Lista */}
           <div className="flex items-center bg-white p-1 rounded-xl border border-[#DFC3AE]/70 shadow-xs">
             <button
@@ -195,6 +190,19 @@ export default function Pedidos() {
               <span>Lista</span>
             </button>
           </div>
+
+          {/* Nova coluna do Kanban */}
+          {modoView === 'kanban' && (
+            <Button
+              variant="outline"
+              onClick={abrirNovaColuna}
+              className="border-[#DFC3AE] text-[#6B4B36] text-xs h-10 px-4 rounded-xl flex items-center gap-1.5"
+              title="Criar uma nova coluna no Kanban"
+            >
+              <Columns3 className="w-4 h-4" />
+              <span>Nova coluna</span>
+            </Button>
+          )}
 
           {/* Atalho para Orçamentos */}
           <Button
@@ -275,30 +283,11 @@ export default function Pedidos() {
                 <SelectItem value="todos" className="text-xs">
                   Todos os Status
                 </SelectItem>
-                <SelectItem value="novo" className="text-xs">
-                  Novos pedidos
-                </SelectItem>
-                <SelectItem value="aguardando_pagamento" className="text-xs">
-                  Aguardando pagamento
-                </SelectItem>
-                <SelectItem value="em_preparacao" className="text-xs">
-                  Em preparação
-                </SelectItem>
-                <SelectItem value="em_producao" className="text-xs">
-                  Em produção
-                </SelectItem>
-                <SelectItem value="pronto_envio" className="text-xs">
-                  Prontos p/ envio
-                </SelectItem>
-                <SelectItem value="enviado" className="text-xs">
-                  Enviados
-                </SelectItem>
-                <SelectItem value="entregue" className="text-xs">
-                  Entregues
-                </SelectItem>
-                <SelectItem value="cancelado" className="text-xs">
-                  Cancelados
-                </SelectItem>
+                {todasEtapas(state).map((e) => (
+                  <SelectItem key={e.chave} value={e.chave} className="text-xs">
+                    {e.nome}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -354,8 +343,8 @@ export default function Pedidos() {
       {/* VISUALIZAÇÃO KANBAN */}
       {modoView === 'kanban' && (
         <div className="overflow-x-auto pb-4">
-          <div className="flex gap-4 min-w-[1300px]">
-            {colunasKanban.map((coluna) => {
+          <div className="flex gap-4 w-max">
+            {colunasKanban.map((coluna, indiceColuna) => {
               const pedidosDaColuna = pedidosOrdenados.filter((p) => p.status === coluna.id)
               const isHoverTarget = colunaHover === coluna.id
 
@@ -385,12 +374,24 @@ export default function Pedidos() {
                         {coluna.label}
                       </h3>
                     </div>
-                    <Badge
-                      style={{ backgroundColor: coluna.cor }}
-                      className="text-white text-xs font-bold px-2 py-0 border-none h-5"
-                    >
-                      {pedidosDaColuna.length}
-                    </Badge>
+                    <div className="flex items-center gap-1">
+                      <Badge
+                        style={{ backgroundColor: coluna.cor }}
+                        className="text-white text-xs font-bold px-2 py-0 border-none h-5"
+                      >
+                        {pedidosDaColuna.length}
+                      </Badge>
+                      <MenuColuna
+                        etapa={coluna.etapa}
+                        posicao={indiceColuna}
+                        total={colunasKanban.length}
+                        onEditar={() => {
+                          setEtapaEmEdicao(coluna.etapa)
+                          setDialogEtapaAberto(true)
+                        }}
+                        onExcluir={() => setEtapaParaExcluir(coluna.etapa)}
+                      />
+                    </div>
                   </div>
 
                   {/* Lista de Cartões Arrasta-e-Solta */}
@@ -478,6 +479,13 @@ export default function Pedidos() {
                 </div>
               )
             })}
+            <button
+              onClick={abrirNovaColuna}
+              className="w-60 shrink-0 min-h-[200px] rounded-2xl border-2 border-dashed border-[#DFC3AE] text-[#6B4B36] hover:border-[#C48864] hover:text-[#C48864] hover:bg-white/60 transition-colors flex flex-col items-center justify-center gap-2 text-xs font-semibold"
+            >
+              <Plus className="w-5 h-5" />
+              Nova coluna
+            </button>
           </div>
         </div>
       )}
@@ -552,9 +560,14 @@ export default function Pedidos() {
                         <td className="py-3 px-4">
                           <Badge
                             variant="secondary"
-                            className="text-[10px] font-semibold capitalize bg-[#F7F3EA] border border-[#DFC3AE]/70 text-[#6B4B36]"
+                            style={{
+                              backgroundColor: infoEtapa(state, ped.status).bg,
+                              color: infoEtapa(state, ped.status).cor,
+                              borderColor: `${infoEtapa(state, ped.status).cor}55`,
+                            }}
+                            className="text-[10px] font-semibold border"
                           >
-                            {ped.status.replace('_', ' ')}
+                            {infoEtapa(state, ped.status).nome}
                           </Badge>
                         </td>
                         <td className="py-3 px-4 text-[#6B4B36]">
@@ -623,6 +636,13 @@ export default function Pedidos() {
         aberto={Boolean(pedidoParaPagamento)}
         onFechar={() => setPedidoParaPagamento(null)}
       />
+
+      <DialogEtapa
+        aberto={dialogEtapaAberto}
+        etapa={etapaEmEdicao}
+        onFechar={() => setDialogEtapaAberto(false)}
+      />
+      <DialogExcluirEtapa etapa={etapaParaExcluir} onFechar={() => setEtapaParaExcluir(null)} />
     </div>
   )
 }

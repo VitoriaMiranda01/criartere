@@ -1,3 +1,4 @@
+import { todasEtapas } from '@/store/etapas'
 import { CampoSenha } from '@/components/common/CampoSenha'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import React, { useState } from 'react'
@@ -136,29 +137,6 @@ export default function Configuracoes() {
     await recarregar()
     toast.success('Dados sincronizados com o servidor.')
   }
-
-  const statusConfig = [
-    { label: 'Novo pedido', cor: '#C48864', desc: 'Pedido registrado e aguardando confirmação' },
-    { label: 'Aguardando pagamento', cor: '#D9A441', desc: 'Chave Pix ou link enviado ao cliente' },
-    {
-      label: 'Em preparação',
-      cor: '#8A5A3B',
-      desc: 'Conferência do arquivo, modelagem 3D ou arte final',
-    },
-    {
-      label: 'Em produção',
-      cor: '#B0764F',
-      desc: 'Impressão 3D ou gráfica, corte e acabamento',
-    },
-    {
-      label: 'Pronto para envio',
-      cor: '#4C8A5A',
-      desc: 'Embalado e pronto para retirada ou envio',
-    },
-    { label: 'Enviado', cor: '#5A7D8A', desc: 'Em trânsito com código de rastreio ou motoboy' },
-    { label: 'Entregue', cor: '#3D6F48', desc: 'Entregue com sucesso ao cliente' },
-    { label: 'Cancelado', cor: '#B5533C', desc: 'Pedido cancelado e estornado' },
-  ]
 
   return (
     <div className="space-y-6 max-w-5xl">
@@ -384,14 +362,14 @@ export default function Configuracoes() {
         </CardHeader>
         <CardContent className="p-5">
           <p className="text-xs text-[#6B4B36] mb-4">
-            Ciclo de vida dos pedidos da Criartere. Personalização de etapas estará disponível na
-            versão final.
+            Etapas (colunas do Kanban) dos pedidos. Para criar, renomear, mudar a cor, reordenar ou
+            excluir, use a tela Pedidos → botão "Gerenciar colunas" ou o menu de cada coluna.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {statusConfig.map((st) => (
+            {todasEtapas(state).map((st) => (
               <div
-                key={st.label}
+                key={st.chave}
                 className="p-3 rounded-xl border border-[#DFC3AE]/60 bg-[#F7F3EA]/30 space-y-1.5"
               >
                 <div className="flex items-center gap-2">
@@ -399,9 +377,13 @@ export default function Configuracoes() {
                     className="w-3 h-3 rounded-full shrink-0"
                     style={{ backgroundColor: st.cor }}
                   />
-                  <span className="font-serif font-bold text-xs text-[#0C1014]">{st.label}</span>
+                  <span className="font-serif font-bold text-xs text-[#0C1014]">{st.nome}</span>
                 </div>
-                <p className="text-[11px] text-[#6B4B36] leading-relaxed">{st.desc}</p>
+                <p className="text-[11px] text-[#6B4B36] leading-relaxed">
+                  {st.fixa
+                    ? 'Etapa usada pelo sistema (não pode ser excluída)'
+                    : 'Etapa personalizada'}
+                </p>
               </div>
             ))}
           </div>

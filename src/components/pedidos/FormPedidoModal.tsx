@@ -1,3 +1,4 @@
+import { etapasDoKanban } from '@/store/etapas'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { novoId } from '@/lib/supabase'
 import React, { useState } from 'react'
@@ -571,27 +572,11 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="novo" className="text-xs">
-                    Novo pedido
-                  </SelectItem>
-                  <SelectItem value="aguardando_pagamento" className="text-xs">
-                    Aguardando pagamento
-                  </SelectItem>
-                  <SelectItem value="em_preparacao" className="text-xs">
-                    Em preparação
-                  </SelectItem>
-                  <SelectItem value="em_producao" className="text-xs">
-                    Em produção
-                  </SelectItem>
-                  <SelectItem value="pronto_envio" className="text-xs">
-                    Pronto para envio
-                  </SelectItem>
-                  <SelectItem value="enviado" className="text-xs">
-                    Enviado
-                  </SelectItem>
-                  <SelectItem value="entregue" className="text-xs">
-                    Entregue
-                  </SelectItem>
+                  {etapasDoKanban(state).map((e) => (
+                    <SelectItem key={e.chave} value={e.chave} className="text-xs">
+                      {e.nome}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
