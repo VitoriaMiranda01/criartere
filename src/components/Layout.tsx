@@ -1,3 +1,4 @@
+import { useTituloPagina } from '@/hooks/use-titulo-pagina'
 import React, { useState } from 'react'
 import { NavLink, Navigate, useNavigate, useLocation, Outlet } from 'react-router-dom'
 import { useCriartere } from '@/store/CriartereContext'
@@ -30,6 +31,20 @@ export default function Layout() {
   const [mobileMenuAberto, setMobileMenuAberto] = useState(false)
   const [buscaGlobal, setBuscaGlobal] = useState('')
   const [buscaFocada, setBuscaFocada] = useState(false)
+
+  // Título da aba conforme a tela
+  const titulos: Record<string, string> = {
+    '/': 'Dashboard',
+    '/pedidos': 'Pedidos',
+    '/orcamentos': 'Orçamentos',
+    '/clientes': 'Clientes',
+    '/produtos': 'Produtos',
+    '/financeiro': 'Financeiro',
+    '/fluxo-de-caixa': 'Fluxo de Caixa',
+    '/relatorios': 'Relatórios',
+    '/configuracoes': 'Configurações',
+  }
+  useTituloPagina(titulos[location.pathname] ?? 'Sistema de Gestão')
 
   // Aguarda a verificação da sessão
   if (!state.sessaoVerificada) {

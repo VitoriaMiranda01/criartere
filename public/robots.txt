@@ -1,0 +1,16 @@
+# Criartere — apenas a tela de entrada é pública; as telas internas exigem login.
+User-agent: *
+Allow: /$
+Allow: /login
+Allow: /logo.png
+Allow: /og-image.png
+Disallow: /pedidos
+Disallow: /orcamentos
+Disallow: /clientes
+Disallow: /produtos
+Disallow: /financeiro
+Disallow: /fluxo-de-caixa
+Disallow: /relatorios
+Disallow: /configuracoes
+
+Sitemap: https://darkslategray-cassowary-275549.hostingersite.com/sitemap.xml

@@ -1,3 +1,4 @@
+import { useTituloPagina } from '@/hooks/use-titulo-pagina'
 import { CampoSenha } from '@/components/common/CampoSenha'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import React, { useState } from 'react'
@@ -19,6 +20,8 @@ export default function Login() {
   const [erro, setErro] = useState('')
   const [aviso, setAviso] = useState('')
   const [carregando, setCarregando] = useState(false)
+
+  useTituloPagina(modo === 'entrar' ? 'Entrar' : 'Criar conta', { indexar: true })
 
   // Já logado: vai direto para o painel
   if (state.autenticado) {

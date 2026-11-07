@@ -1,14 +1,77 @@
-<!-- HTML template for the frontend react app: https://developer.mozilla.org/en-US/docs/Web/HTML -->
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" translate="no" class="notranslate">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Criartere — Sistema de Gestão</title>
-    <meta name="description" content="Sistema de gestão da Criartere — impressão 3D e gráfica" />
-    <meta name="author" content="Skip (https://goskip.dev)" />
-    <meta property="og:image" content="/og-image.png" />
-    <!-- PWA -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Idioma: o site é todo em português; impede a tradução automática do navegador -->
+    <meta http-equiv="content-language" content="pt-BR" />
+    <meta name="google" content="notranslate" />
+
+    <!-- SEO -->
+    <title>Criartere — Impressão 3D e Gráfica | Sistema de Gestão</title>
+    <meta
+      name="description"
+      content="Criartere: impressão 3D, papelaria e personalizados. Sistema de gestão de pedidos, orçamentos, clientes e finanças da loja."
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Criartere" />
+    <meta name="application-name" content="Criartere" />
+    <link rel="canonical" href="https://darkslategray-cassowary-275549.hostingersite.com/" />
+
+    <!-- Compartilhamento (WhatsApp, Facebook, Instagram, LinkedIn...) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Criartere" />
+    <meta property="og:title" content="Criartere — Impressão 3D e Gráfica" />
+    <meta
+      property="og:description"
+      content="Impressão 3D, papelaria e personalizados. Sistema de gestão da Criartere."
+    />
+    <meta property="og:url" content="https://darkslategray-cassowary-275549.hostingersite.com/" />
+    <meta
+      property="og:image"
+      content="https://darkslategray-cassowary-275549.hostingersite.com/og-image.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Logo da Criartere — Impressão 3D e Gráfica" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Criartere — Impressão 3D e Gráfica" />
+    <meta
+      name="twitter:description"
+      content="Impressão 3D, papelaria e personalizados. Sistema de gestão da Criartere."
+    />
+    <meta
+      name="twitter:image"
+      content="https://darkslategray-cassowary-275549.hostingersite.com/og-image.png"
+    />
+
+    <!-- Dados estruturados para buscadores -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "name": "Criartere",
+            "description": "Impressão 3D, papelaria e personalizados.",
+            "url": "https://darkslategray-cassowary-275549.hostingersite.com/",
+            "logo": "https://darkslategray-cassowary-275549.hostingersite.com/logo.png"
+          },
+          {
+            "@type": "WebApplication",
+            "name": "Criartere — Sistema de Gestão",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Web",
+            "inLanguage": "pt-BR",
+            "url": "https://darkslategray-cassowary-275549.hostingersite.com/"
+          }
+        ]
+      }
+    </script>
+
+    <!-- PWA e ícones -->
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#C48864" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
@@ -19,9 +82,17 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Criartere" />
+
+    <!-- Desempenho: conexões antecipadas -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://kitarrykwoaxlrydethm.supabase.co" crossorigin />
   </head>
 
   <body>
+    <noscript>
+      Para usar o sistema da Criartere, ative o JavaScript no seu navegador.
+    </noscript>
     <div id="root"></div>
     <!-- @skip-protected: Do not remove. Required for app features. -->
     <script src="https://goskip.dev/skip.js"></script>
