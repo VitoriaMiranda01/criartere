@@ -1,10 +1,18 @@
 import React, { createContext, useCallback, useContext, useEffect, useReducer, useRef } from 'react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
-import { carregarFatias, persistirAcao, buscarMembro, TODAS_FATIAS, Fatia } from './db'
+import {
+  carregarFatias,
+  persistirAcao,
+  buscarMembro,
+  mensagemErro,
+  TODAS_FATIAS,
+  Fatia,
+} from './db'
 import { CriartereState } from './types'
 import { ETAPAS_PADRAO } from './etapas'
-import { SEED_CATEGORIAS_DESPESA, SEED_FORMAS_PAGAMENTO, SEED_CONFIG } from '@/data/seed'
+import { CATEGORIAS_DESPESA_PADRAO, CONFIG_PADRAO, FORMAS_PAGAMENTO_PADRAO } from './padroes'
+import { agoraFormatado, hojeISO } from '@/lib/datas'
 import {
   Cliente,
   Produto,
@@ -37,14 +45,13 @@ const initialState: CriartereState = {
   orcamentos: [],
   pagamentos: [],
   despesas: [],
-  categoriasDespesa: SEED_CATEGORIAS_DESPESA,
-  formasPagamento: [...SEED_FORMAS_PAGAMENTO],
+  categoriasDespesa: CATEGORIAS_DESPESA_PADRAO,
+  formasPagamento: [...FORMAS_PAGAMENTO_PADRAO],
   historico: [],
-  config: SEED_CONFIG,
+  config: CONFIG_PADRAO,
 }
 
 export type Action =
-  | { type: 'LOGIN'; payload?: { email: string } }
   | { type: '__MESCLAR'; payload: Partial<CriartereState> }
   | { type: 'LOGOUT' }
   // Pedidos
@@ -94,26 +101,11 @@ export type Action =
   | { type: 'REMOVER_FORMA_PAGAMENTO'; payload: PaymentMethod }
   // Config
   | { type: 'ATUALIZAR_CONFIG'; payload: Partial<LojaConfig> }
-  | { type: 'RESTAURAR_DEMO' }
-
-function agoraFormatado(): string {
-  const d = new Date()
-  const data = d.toISOString().slice(0, 10)
-  const hora = d.toTimeString().slice(0, 5)
-  return `${data} ${hora}`
-}
-
-function dataHoje(): string {
-  return new Date().toISOString().slice(0, 10)
-}
 
 function criartereReducer(state: CriartereState, action: Action): CriartereState {
   switch (action.type) {
     case '__MESCLAR':
       return { ...state, ...action.payload }
-
-    case 'LOGIN':
-      return state
 
     case 'LOGOUT':
       return state
@@ -133,7 +125,7 @@ function criartereReducer(state: CriartereState, action: Action): CriartereState
         ...action.payload,
         id,
         codigo,
-        dataCriacao: dataHoje(),
+        dataCriacao: hojeISO(),
       }
 
       const eventoHistorico = {
@@ -442,9 +434,6 @@ function criartereReducer(state: CriartereState, action: Action): CriartereState
       }
     }
 
-    case 'RESTAURAR_DEMO':
-      return state
-
     default:
       return state
   }
@@ -483,7 +472,7 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
     try {
       await recarregarFatias(TODAS_FATIAS)
     } catch (e) {
-      toast.error(`Não foi possível carregar os dados: ${(e as Error).message}`)
+      toast.error(`Não foi possível carregar os dados. ${mensagemErro(e)}`)
     } finally {
       mesclar({ carregando: false })
     }
@@ -512,7 +501,7 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
         })
         if (membro) await recarregarFatias(TODAS_FATIAS)
       } catch (e) {
-        toast.error(`Não foi possível carregar os dados: ${(e as Error).message}`)
+        toast.error(`Não foi possível carregar os dados. ${mensagemErro(e)}`)
       } finally {
         mesclar({ carregando: false })
       }
@@ -529,16 +518,38 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
     return () => data.subscription.unsubscribe()
   }, [mesclar, recarregarFatias])
 
+  // Mantém os dados atualizados quando o sistema é usado em mais de um aparelho:
+  // ao voltar para a aba (após 2 min) ou quando a internet volta, busca tudo de novo.
+  useEffect(() => {
+    let ultimaSincronizacao = Date.now()
+    const sincronizar = (forcar = false) => {
+      const s = stateRef.current
+      if (!s.autenticado || !s.autorizado || s.carregando) return
+      if (!forcar && Date.now() - ultimaSincronizacao < 2 * 60 * 1000) return
+      ultimaSincronizacao = Date.now()
+      // Espera as gravações pendentes antes de recarregar
+      filaRef.current = filaRef.current.then(() =>
+        recarregarFatias(TODAS_FATIAS).catch(() => undefined),
+      )
+    }
+    const aoMudarVisibilidade = () => {
+      if (document.visibilityState === 'visible') sincronizar()
+    }
+    const aoReconectar = () => sincronizar(true)
+    document.addEventListener('visibilitychange', aoMudarVisibilidade)
+    window.addEventListener('online', aoReconectar)
+    return () => {
+      document.removeEventListener('visibilitychange', aoMudarVisibilidade)
+      window.removeEventListener('online', aoReconectar)
+    }
+  }, [recarregarFatias])
+
   const dispatch = useCallback(
     (actionOriginal: Action) => {
       let action = actionOriginal
 
       if (action.type === 'LOGOUT') {
         supabase.auth.signOut()
-        return
-      }
-      if (action.type === 'RESTAURAR_DEMO') {
-        recarregar()
         return
       }
       // Novo pedido recebe o id definitivo já no cliente
@@ -559,12 +570,12 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
           const fatias = await persistirAcao(action, anterior, proximo)
           await recarregarFatias(fatias)
         } catch (e) {
-          toast.error(`Erro ao salvar no servidor: ${(e as Error).message}`)
+          toast.error(`Não foi salvo: ${mensagemErro(e)}`)
           await recarregarFatias(TODAS_FATIAS).catch(() => undefined)
         }
       })
     },
-    [recarregar, recarregarFatias],
+    [recarregarFatias],
   )
 
   return (

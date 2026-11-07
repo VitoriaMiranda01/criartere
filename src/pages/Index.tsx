@@ -1,3 +1,4 @@
+import { hojeISO, inicioDoMesISO } from '@/lib/datas'
 import { etapasDoKanban } from '@/store/etapas'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -12,13 +13,10 @@ import {
   CreditCard,
   Clock,
   ArrowDownRight,
-  ArrowUpRight,
   Receipt,
   ShoppingBag,
   ChevronRight,
   Sparkles,
-  ArrowRight,
-  AlertCircle,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -44,8 +42,8 @@ export default function Index() {
 
   const [periodo, setPeriodo] = useState<PeriodoFiltro>(state.config.periodoPadraoDashboard)
   const [personalizado, setPersonalizado] = useState<DataRange>({
-    inicio: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10),
-    fim: new Date().toISOString().slice(0, 10),
+    inicio: inicioDoMesISO(),
+    fim: hojeISO(),
   })
 
   const resumo = selectFinancialSummary(state, periodo, personalizado)

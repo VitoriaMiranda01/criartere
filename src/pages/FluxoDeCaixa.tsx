@@ -1,24 +1,12 @@
+import { hojeISO, inicioDoMesISO } from '@/lib/datas'
 import React, { useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
 import { selectFluxoCaixa } from '@/store/selectors'
-import { PeriodoFiltro, DataRange, MovimentacaoCaixa } from '@/types/criartere'
+import { PeriodoFiltro, DataRange } from '@/types/criartere'
 import { PeriodFilterBar } from '@/components/common/PeriodFilterBar'
 import { CountUpNumber } from '@/components/common/CountUpNumber'
 import { formatBRL, formatDataBR } from '@/store/periodUtils'
-import {
-  ArrowLeftRight,
-  ArrowUpRight,
-  ArrowDownRight,
-  Calendar,
-  Filter,
-  Search,
-  Info,
-  Clock,
-  Sparkles,
-  CheckCircle2,
-  AlertCircle,
-  ExternalLink,
-} from 'lucide-react'
+import { ArrowUpRight, ArrowDownRight, Search, Info, Clock, ExternalLink } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -37,8 +25,8 @@ export default function FluxoDeCaixa() {
 
   const [periodo, setPeriodo] = useState<PeriodoFiltro>('mes_atual')
   const [personalizado, setPersonalizado] = useState<DataRange>({
-    inicio: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10),
-    fim: new Date().toISOString().slice(0, 10),
+    inicio: inicioDoMesISO(),
+    fim: hojeISO(),
   })
 
   const { resumo, movimentacoes } = selectFluxoCaixa(state, periodo, personalizado)

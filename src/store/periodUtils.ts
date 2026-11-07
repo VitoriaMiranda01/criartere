@@ -1,3 +1,4 @@
+import { dataISO } from '@/lib/datas'
 import { PeriodoFiltro, DataRange } from '@/types/criartere'
 
 /**
@@ -8,7 +9,7 @@ export function getIntervaloPeriodo(
   personalizado?: DataRange,
 ): { inicio: string; fim: string } {
   const agora = new Date()
-  const format = (d: Date) => d.toISOString().slice(0, 10)
+  const format = dataISO
 
   if (periodo === 'personalizado' && personalizado) {
     return personalizado

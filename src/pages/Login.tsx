@@ -53,8 +53,8 @@ export default function Login() {
       }
       // Em caso de sucesso, a sessão é detectada pelo store e o usuário é redirecionado
     } else {
-      if (senha.length < 6) {
-        setErro('A senha precisa ter pelo menos 6 caracteres.')
+      if (senha.length < 8) {
+        setErro('A senha precisa ter pelo menos 8 caracteres.')
         setCarregando(false)
         return
       }
@@ -70,7 +70,9 @@ export default function Login() {
         setErro(
           error.message.toLowerCase().includes('already registered')
             ? 'Este e-mail já tem conta. Use "Já tenho conta. Entrar".'
-            : `Não foi possível criar a conta: ${error.message}`,
+            : /database error|não está autorizado/i.test(error.message)
+              ? 'Este e-mail não está autorizado. Peça à administradora para liberar seu acesso.'
+              : 'Não foi possível criar a conta. Tente novamente em instantes.',
         )
       } else if (!data.session) {
         // A conta é confirmada automaticamente no banco: entra direto

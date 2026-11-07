@@ -1,3 +1,4 @@
+import { hojeISO, inicioDoMesISO } from '@/lib/datas'
 import React, { useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
 import {
@@ -12,25 +13,7 @@ import { formatBRL, formatDataBR } from '@/store/periodUtils'
 import { ModalPagamento } from '@/components/pedidos/ModalPagamento'
 import { FormDespesaModal } from '@/components/financeiro/FormDespesaModal'
 import { ModalCategorias } from '@/components/financeiro/ModalCategorias'
-import {
-  Wallet,
-  TrendingUp,
-  CreditCard,
-  Clock,
-  ArrowDownRight,
-  Sparkles,
-  Receipt,
-  Plus,
-  Search,
-  Filter,
-  CheckCircle,
-  XCircle,
-  Edit,
-  Trash2,
-  FolderTree,
-  AlertTriangle,
-  ArrowRight,
-} from 'lucide-react'
+import { Plus, Search, CheckCircle, Edit, Trash2, FolderTree, AlertTriangle } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -60,8 +43,8 @@ export default function Financeiro() {
 
   const [periodo, setPeriodo] = useState<PeriodoFiltro>('mes_atual')
   const [personalizado, setPersonalizado] = useState<DataRange>({
-    inicio: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10),
-    fim: new Date().toISOString().slice(0, 10),
+    inicio: inicioDoMesISO(),
+    fim: hojeISO(),
   })
 
   const resumo = selectFinancialSummary(state, periodo, personalizado)

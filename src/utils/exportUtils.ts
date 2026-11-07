@@ -9,7 +9,10 @@ export function exportarParaCSV(
   const conteudoLinhas = linhas.map((linha) =>
     linha
       .map((item) => {
-        const str = String(item ?? '')
+        let str = String(item ?? '')
+        // Proteção contra "injeção de fórmula": textos que começam com = + - @ seriam
+        // executados como fórmula pelo Excel/Planilhas. Números continuam números.
+        if (typeof item === 'string' && /^[=+\-@\t\r]/.test(str)) str = `'${str}`
         // Escapa aspas
         if (str.includes(';') || str.includes('"') || str.includes('\n')) {
           return `"${str.replace(/"/g, '""')}"`

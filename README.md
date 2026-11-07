@@ -24,12 +24,21 @@ Os dados ficam no projeto Supabase **Criartere** (`kitarrykwoaxlrydethm`).
   `src/store/CriartereContext.tsx` aplica as mudanças na tela na hora e salva em seguida.
 - **Banco:** as tabelas, políticas de segurança (RLS) e funções estão em `supabase/migrations/`.
   Regras como número do pedido (0001, 0002…), status de pagamento e histórico são calculadas no banco.
-- **Quem acessa:** só e-mails cadastrados na tabela `membros` veem e editam os dados.
-  Para liberar alguém, no SQL Editor do Supabase:
+- **Quem acessa:** só e-mails cadastrados na tabela `membros` conseguem criar conta e ver/editar os dados.
+  Para liberar alguém (antes de a pessoa criar a conta), no SQL Editor do Supabase:
 
   ```sql
   insert into public.membros (email, nome) values ('pessoa@email.com', 'Nome da Pessoa');
   ```
+
+## 🔒 Segurança
+
+- RLS em todas as tabelas: só membros autenticados acessam; visitantes (anon) não têm permissão alguma.
+- Histórico de pedidos e pagamentos não podem ser alterados nem apagados pela API (auditoria).
+- Regras de negócio (código do pedido, pagamentos, conversão de orçamento) rodam no banco.
+- Cabeçalhos HTTP de segurança e Content-Security-Policy em `public/.htaccess`.
+- Exportação CSV protegida contra injeção de fórmulas.
+- A chave do `.env` é a *publishable* (pública por definição). Nunca coloque a `service_role` no frontend.
 
 ## 📋 Pré-requisitos
 

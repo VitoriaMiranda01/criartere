@@ -1,3 +1,5 @@
+import { Opcional } from '@/components/common/MarcadorCampo'
+import { Textarea } from '@/components/ui/textarea'
 import { infoEtapa } from '@/store/etapas'
 import React, { useState } from 'react'
 import { Pedido } from '@/types/criartere'
@@ -9,22 +11,11 @@ import {
   selectClientePorId,
 } from '@/store/selectors'
 import { formatBRL, formatDataBR } from '@/store/periodUtils'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  CreditCard,
-  Ban,
-  Edit,
-  Clock,
-  User,
-  Package,
-  Calendar,
-  History,
-  FileText,
-  AlertTriangle,
-} from 'lucide-react'
+import { CreditCard, Ban, Edit, User, Package, AlertTriangle } from 'lucide-react'
 import { ModalPagamento } from './ModalPagamento'
 import {
   AlertDialog,
@@ -394,6 +385,23 @@ export const DetalhePedidoDrawer: React.FC<DetalhePedidoDrawerProps> = ({
               <p>Esta operação é registrada no histórico de alterações do pedido.</p>
             </AlertDialogDescription>
           </AlertDialogHeader>
+          <div className="space-y-1.5">
+            <label
+              htmlFor="motivo-cancelamento"
+              className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+            >
+              Motivo do cancelamento
+              <Opcional />
+            </label>
+            <Textarea
+              id="motivo-cancelamento"
+              value={motivoCancelamento}
+              onChange={(e) => setMotivoCancelamento(e.target.value)}
+              placeholder="Ex: Cliente desistiu, arte não aprovada..."
+              maxLength={200}
+              className="min-h-[60px] text-xs border-[#DFC3AE]"
+            />
+          </div>
           <AlertDialogFooter>
             <AlertDialogCancel className="border-[#DFC3AE] text-[#6B4B36] text-xs">
               Voltar

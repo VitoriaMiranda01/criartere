@@ -1,3 +1,4 @@
+import { daquiADias, hojeISO } from '@/lib/datas'
 import { etapasDoKanban } from '@/store/etapas'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { novoId } from '@/lib/supabase'
@@ -23,7 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { Plus, Trash2, UserPlus, Check } from 'lucide-react'
+import { Plus, Trash2, UserPlus } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface FormPedidoModalProps {
@@ -56,10 +57,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
     pedidoParaEditar?.formaPagamento || 'Pix',
   )
   const [status, setStatus] = useState<OrderStatus>(pedidoParaEditar?.status || 'novo')
-  const [prazoEntrega, setPrazoEntrega] = useState(
-    pedidoParaEditar?.prazoEntrega ||
-      new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
-  )
+  const [prazoEntrega, setPrazoEntrega] = useState(pedidoParaEditar?.prazoEntrega || daquiADias(7))
   const [observacoes, setObservacoes] = useState(pedidoParaEditar?.observacoes || '')
   const [erro, setErro] = useState('')
 
@@ -90,7 +88,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
       setValorDescontoStr('0')
       setFormaPagamento('Pix')
       setStatus('novo')
-      setPrazoEntrega(new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10))
+      setPrazoEntrega(daquiADias(7))
       setObservacoes('')
     }
     setCadastrandoClienteInline(false)
@@ -178,7 +176,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
       email: novoClienteEmail.trim() || 'contato@cliente.com',
       endereco: novoClienteEndereco.trim() || 'A definir',
       cidadeUf: 'São Paulo - SP',
-      criadoEm: new Date().toISOString().slice(0, 10),
+      criadoEm: hojeISO(),
     }
 
     dispatch({ type: 'SALVAR_CLIENTE', payload: novoCliente })

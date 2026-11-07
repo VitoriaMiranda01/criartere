@@ -1,16 +1,12 @@
+import { hojeISO, inicioDoMesISO } from '@/lib/datas'
 import React, { useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
-import {
-  selectFinancialSummary,
-  selectPagamentosDoPedido,
-  selectClientePorId,
-} from '@/store/selectors'
+import { selectPagamentosDoPedido, selectClientePorId } from '@/store/selectors'
 import { PeriodoFiltro, DataRange } from '@/types/criartere'
 import { PeriodFilterBar } from '@/components/common/PeriodFilterBar'
 import { formatBRL, formatDataBR } from '@/store/periodUtils'
 import { exportarParaCSV, imprimirRelatorio } from '@/utils/exportUtils'
 import {
-  BarChart3,
   FileSpreadsheet,
   Printer,
   TrendingUp,
@@ -23,7 +19,6 @@ import {
   DollarSign,
   ChevronRight,
   ArrowLeft,
-  Sparkles,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -58,8 +53,8 @@ export default function Relatorios() {
   const [relatorioSelecionado, setRelatorioSelecionado] = useState<ReportType | null>(null)
   const [periodo, setPeriodo] = useState<PeriodoFiltro>('mes_atual')
   const [personalizado, setPersonalizado] = useState<DataRange>({
-    inicio: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10),
-    fim: new Date().toISOString().slice(0, 10),
+    inicio: inicioDoMesISO(),
+    fim: hojeISO(),
   })
 
   // Lista dos 8 Relatórios exigidos pela especificação

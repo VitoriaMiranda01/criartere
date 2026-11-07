@@ -1,3 +1,4 @@
+import { hojeISO } from '@/lib/datas'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { novoId } from '@/lib/supabase'
 import React, { useState } from 'react'
@@ -11,17 +12,12 @@ import {
   UserPlus,
   Search,
   Phone,
-  MessageCircle,
   Mail,
   MapPin,
-  ShoppingBag,
-  Clock,
   Trash2,
   Edit,
   X,
   AlertTriangle,
-  ChevronRight,
-  ExternalLink,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,7 +30,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { Sheet, SheetContent } from '@/components/ui/sheet'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -138,7 +134,7 @@ export default function Clientes() {
       endereco: endereco.trim(),
       cidadeUf: cidadeUf.trim() || 'São Paulo - SP',
       observacoes: observacoes.trim() || undefined,
-      criadoEm: clienteEditando ? clienteEditando.criadoEm : new Date().toISOString().slice(0, 10),
+      criadoEm: clienteEditando ? clienteEditando.criadoEm : hojeISO(),
     }
 
     dispatch({ type: 'SALVAR_CLIENTE', payload })
@@ -725,7 +721,7 @@ export default function Clientes() {
                   endereco: endereco.trim(),
                   cidadeUf: cidadeUf.trim() || 'São Paulo - SP',
                   observacoes: observacoes.trim() || undefined,
-                  criadoEm: new Date().toISOString().slice(0, 10),
+                  criadoEm: hojeISO(),
                 }
                 dispatch({ type: 'SALVAR_CLIENTE', payload })
                 toast.success(`Cliente "${payload.nome}" cadastrado com sucesso!`)

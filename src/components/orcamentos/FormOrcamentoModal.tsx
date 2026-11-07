@@ -1,3 +1,4 @@
+import { hojeISO } from '@/lib/datas'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import React, { useEffect, useState } from 'react'
 import { novoId } from '@/lib/supabase'
@@ -36,12 +37,6 @@ const FORMAS_RAPIDAS = ['Pix', 'Cartão', 'Dinheiro', 'Transferência']
 const DISPONIBILIDADES = ['Pronta entrega', 'Sob encomenda', 'Sob encomenda (7 dias úteis)']
 const AVULSO = '__avulso__'
 
-const hoje = () => {
-  const d = new Date()
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
-}
-
 const itemVazio = (): OrcamentoItem => ({
   id: novoId(),
   nome: '',
@@ -60,7 +55,7 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
   const [clienteId, setClienteId] = useState(AVULSO)
   const [clienteNome, setClienteNome] = useState('')
   const [clienteTelefone, setClienteTelefone] = useState('')
-  const [data, setData] = useState(hoje())
+  const [data, setData] = useState(hojeISO())
   const [disponibilidade, setDisponibilidade] = useState('Pronta entrega')
   const [formas, setFormas] = useState<string[]>(['Pix', 'Cartão', 'Dinheiro'])
   const [tipoPagamento, setTipoPagamento] = useState<'integral' | 'sinal'>('integral')
@@ -79,7 +74,7 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
     setClienteId(o?.clienteId || AVULSO)
     setClienteNome(o?.clienteNome || '')
     setClienteTelefone(o?.clienteTelefone || '')
-    setData(o?.data || hoje())
+    setData(o?.data || hojeISO())
     setDisponibilidade(o?.disponibilidade || 'Pronta entrega')
     setFormas(
       o

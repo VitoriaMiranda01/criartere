@@ -1,3 +1,4 @@
+import { hojeISO } from '@/lib/datas'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { novoId } from '@/lib/supabase'
 import React, { useState } from 'react'
@@ -39,7 +40,7 @@ export const FormDespesaModal: React.FC<FormDespesaModalProps> = ({
   const [descricao, setDescricao] = useState('')
   const [categoria, setCategoria] = useState('')
   const [valorStr, setValorStr] = useState('')
-  const [data, setData] = useState(new Date().toISOString().slice(0, 10))
+  const [data, setData] = useState(hojeISO())
   const [vencimento, setVencimento] = useState('')
   const [formaPagamento, setFormaPagamento] = useState<PaymentMethod>('Pix')
   const [status, setStatus] = useState<'pago' | 'pendente'>('pago')
@@ -60,7 +61,7 @@ export const FormDespesaModal: React.FC<FormDespesaModalProps> = ({
       setDescricao('')
       setCategoria(state.categoriasDespesa[0] || 'Outros')
       setValorStr('')
-      setData(new Date().toISOString().slice(0, 10))
+      setData(hojeISO())
       setVencimento('')
       setFormaPagamento('Pix')
       setStatus('pago')

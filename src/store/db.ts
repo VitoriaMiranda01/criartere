@@ -493,3 +493,28 @@ export async function persistirAcao(
       return []
   }
 }
+
+/** Converte erros técnicos (rede, banco) em mensagens claras em português. */
+export function mensagemErro(e: unknown): string {
+  const msg = e instanceof Error ? e.message : String(e ?? '')
+  const m = msg.toLowerCase()
+  if (m.includes('failed to fetch') || m.includes('networkerror') || m.includes('network request'))
+    return 'Sem conexão com a internet. Verifique a rede e tente de novo.'
+  if (m.includes('jwt') || m.includes('refresh token'))
+    return 'Sua sessão expirou. Saia e entre novamente.'
+  if (m.includes('foreign key'))
+    return 'Este registro está sendo usado em outro lugar (ex.: pedidos) e não pode ser excluído.'
+  if (m.includes('duplicate key') || m.includes('unique'))
+    return 'Já existe um registro com esses dados.'
+  if (
+    m.includes('permission denied') ||
+    m.includes('row-level security') ||
+    m.includes('acesso negado')
+  )
+    return 'Você não tem permissão para fazer isso.'
+  if (m.includes('check constraint') || m.includes('violates'))
+    return 'Algum valor informado é inválido. Confira os campos e tente de novo.'
+  // Mensagens das regras do banco já vêm em português
+  if (/[ãçéêíóúâ]/i.test(msg) && msg.length < 200) return msg
+  return 'Não foi possível concluir a operação. Tente novamente.'
+}

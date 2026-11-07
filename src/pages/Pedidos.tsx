@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useCriartere } from '@/store/CriartereContext'
-import { Pedido, OrderStatus, PaymentStatus } from '@/types/criartere'
+import { Pedido, OrderStatus } from '@/types/criartere'
 import { selectTotalPagoDoPedido } from '@/store/selectors'
 import { formatBRL, formatDataBR } from '@/store/periodUtils'
 import { DetalhePedidoDrawer } from '@/components/pedidos/DetalhePedidoDrawer'
@@ -15,13 +15,7 @@ import {
   List as ListIcon,
   Plus,
   Search,
-  Filter,
-  CreditCard,
   Clock,
-  Calendar,
-  CheckCircle2,
-  AlertCircle,
-  MoreVertical,
   X,
   Package,
   FileText,

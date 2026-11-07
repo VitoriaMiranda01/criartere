@@ -7,7 +7,6 @@ import { supabase } from '@/lib/supabase'
 import { PaymentMethod, PeriodoFiltro } from '@/types/criartere'
 import { ModalCategorias } from '@/components/financeiro/ModalCategorias'
 import {
-  Settings,
   Store,
   CreditCard,
   Palette,
@@ -16,9 +15,7 @@ import {
   FolderTree,
   Plus,
   Trash2,
-  CheckCircle,
   RotateCcw,
-  Sparkles,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -110,8 +107,8 @@ export default function Configuracoes() {
       toast.error('Preencha a senha atual e a nova senha.')
       return
     }
-    if (novaSenha.length < 6) {
-      toast.error('A nova senha precisa ter pelo menos 6 caracteres.')
+    if (novaSenha.length < 8) {
+      toast.error('A nova senha precisa ter pelo menos 8 caracteres.')
       return
     }
     // Confirma a senha atual antes de trocar

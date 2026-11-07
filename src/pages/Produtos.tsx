@@ -4,20 +4,7 @@ import React, { useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
 import { Produto } from '@/types/criartere'
 import { formatBRL } from '@/store/periodUtils'
-import {
-  Package,
-  Plus,
-  Search,
-  Tag,
-  Edit,
-  Trash2,
-  CheckCircle,
-  XCircle,
-  DollarSign,
-  AlertTriangle,
-  X,
-  Sparkles,
-} from 'lucide-react'
+import { Package, Plus, Search, Edit, Trash2, AlertTriangle, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'

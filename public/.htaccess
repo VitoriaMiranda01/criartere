@@ -14,7 +14,26 @@ AddType application/manifest+json .webmanifest
   <FilesMatch "^(sw\.js|index\.html|manifest\.webmanifest)$">
     Header set Cache-Control "no-cache"
   </FilesMatch>
-  <FilesMatch "\.(js|css)$">
-    Header append Vary Accept-Encoding
-  </FilesMatch>
+</IfModule>
+
+# Segurança: cabeçalhos HTTP
+<IfModule mod_headers.c>
+  # Força HTTPS por 1 ano
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  # Impede o navegador de "adivinhar" o tipo dos arquivos
+  Header always set X-Content-Type-Options "nosniff"
+  # Impede que o sistema seja carregado dentro de outro site (clickjacking)
+  Header always set X-Frame-Options "DENY"
+  # Não envia o endereço completo das páginas para outros sites
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  # Desliga recursos do navegador que o sistema não usa
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+  # Só carrega scripts, estilos e conexões de origens conhecidas
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://goskip.dev; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://kitarrykwoaxlrydethm.supabase.co wss://kitarrykwoaxlrydethm.supabase.co https://goskip.dev https://api.goskip.dev; worker-src 'self' blob:; manifest-src 'self'; frame-src 'self' https://goskip.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
+  Header always unset X-Powered-By
+</IfModule>
+
+# Bloqueia acesso a arquivos ocultos (ex.: .git, .env) caso existam no servidor
+<IfModule mod_rewrite.c>
+  RewriteRule (^|/)\.(?!well-known/) - [F,L]
 </IfModule>

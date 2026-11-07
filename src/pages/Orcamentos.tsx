@@ -1,3 +1,4 @@
+import { daquiADias } from '@/lib/datas'
 import { Obrigatorio } from '@/components/common/MarcadorCampo'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -60,12 +61,6 @@ const FILTROS: { valor: 'todos' | OrcamentoStatus; rotulo: string }[] = [
   { valor: 'expirado', rotulo: 'Expirados' },
 ]
 
-const daquiA = (dias: number) => {
-  const d = new Date(Date.now() + dias * 86400000)
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
-}
-
 export default function Orcamentos() {
   const { state, dispatch } = useCriartere()
   const navigate = useNavigate()
@@ -75,7 +70,7 @@ export default function Orcamentos() {
   const [modalAberto, setModalAberto] = useState(false)
   const [emEdicao, setEmEdicao] = useState<Orcamento | null>(null)
   const [paraConverter, setParaConverter] = useState<Orcamento | null>(null)
-  const [prazoConversao, setPrazoConversao] = useState(daquiA(7))
+  const [prazoConversao, setPrazoConversao] = useState(daquiADias(7))
   const [paraExcluir, setParaExcluir] = useState<Orcamento | null>(null)
 
   const chavePix = state.config.chavePix
@@ -338,7 +333,7 @@ export default function Orcamentos() {
                         size="sm"
                         onClick={() => {
                           if (!pronto(o)) return
-                          setPrazoConversao(daquiA(7))
+                          setPrazoConversao(daquiADias(7))
                           setParaConverter(o)
                         }}
                         className="h-8 text-xs bg-[#4C8A5A] hover:bg-[#3D6F48] text-white ml-auto"

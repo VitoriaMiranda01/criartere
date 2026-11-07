@@ -8,11 +8,6 @@ import {
   Pagamento,
   OrderHistoryEvent,
   LojaConfig,
-  PeriodoFiltro,
-  DataRange,
-  MovimentacaoCaixa,
-  OrderStatus,
-  PaymentStatus,
   PaymentMethod,
 } from '@/types/criartere'
 

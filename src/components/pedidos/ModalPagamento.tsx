@@ -1,3 +1,4 @@
+import { hojeISO } from '@/lib/datas'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import React, { useState } from 'react'
 import { Pedido, PaymentMethod } from '@/types/criartere'
@@ -36,7 +37,7 @@ export const ModalPagamento: React.FC<ModalPagamentoProps> = ({ pedido, aberto, 
   const saldoRestante = pedido ? Math.max(0, pedido.valorTotal - jaPago) : 0
 
   const [valorStr, setValorStr] = useState(saldoRestante.toFixed(2))
-  const [data, setData] = useState(new Date().toISOString().slice(0, 10))
+  const [data, setData] = useState(hojeISO())
   const [forma, setForma] = useState<PaymentMethod>(pedido?.formaPagamento || 'Pix')
   const [obs, setObs] = useState('')
   const [erro, setErro] = useState('')

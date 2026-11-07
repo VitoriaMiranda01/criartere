@@ -1,5 +1,5 @@
 import { useTituloPagina } from '@/hooks/use-titulo-pagina'
-import React, { useState } from 'react'
+import React, { useState, Suspense } from 'react'
 import { NavLink, Navigate, useNavigate, useLocation, Outlet } from 'react-router-dom'
 import { useCriartere } from '@/store/CriartereContext'
 import {
@@ -17,7 +17,6 @@ import {
   Menu,
   X,
   Clock,
-  ArrowUpRight,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -473,7 +472,15 @@ export default function Layout() {
 
         {/* CONTEÚDO PRINCIPAL (Outlet) */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
-          <Outlet />
+          <Suspense
+            fallback={
+              <div className="min-h-[40vh] flex items-center justify-center" role="status">
+                <span className="w-7 h-7 rounded-full border-2 border-[#DFC3AE] border-t-[#C48864] animate-spin" />
+              </div>
+            }
+          >
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>
