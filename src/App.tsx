@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { CriartereProvider } from '@/store/CriartereContext'
+import { ErroTela } from '@/components/common/ErroTela'
 
 import Layout from './components/Layout'
 import Login from './pages/Login'
@@ -39,29 +40,31 @@ const App = () => (
       <Toaster />
       <Sonner position="bottom-right" richColors />
       <BrowserRouter>
-        <Suspense fallback={<CarregandoTela />}>
-          <Routes>
-            {/* Rota de Acesso Privado / Login */}
-            <Route path="/login" element={<Login />} />
+        <ErroTela>
+          <Suspense fallback={<CarregandoTela />}>
+            <Routes>
+              {/* Rota de Acesso Privado / Login */}
+              <Route path="/login" element={<Login />} />
 
-            {/* Rotas autenticadas sob o AppLayout */}
-            <Route element={<Layout />}>
-              <Route path="/" element={<Index />} />
-              <Route path="/pedidos" element={<Pedidos />} />
-              <Route path="/orcamentos" element={<Orcamentos />} />
-              <Route path="/clientes" element={<Clientes />} />
-              <Route path="/produtos" element={<Produtos />} />
-              <Route path="/financeiro" element={<Financeiro />} />
-              <Route path="/fluxo-de-caixa" element={<FluxoDeCaixa />} />
-              <Route path="/relatorios" element={<Relatorios />} />
-              <Route path="/configuracoes" element={<Configuracoes />} />
-              <Route path="/ajuda" element={<Ajuda />} />
-            </Route>
+              {/* Rotas autenticadas sob o AppLayout */}
+              <Route element={<Layout />}>
+                <Route path="/" element={<Index />} />
+                <Route path="/pedidos" element={<Pedidos />} />
+                <Route path="/orcamentos" element={<Orcamentos />} />
+                <Route path="/clientes" element={<Clientes />} />
+                <Route path="/produtos" element={<Produtos />} />
+                <Route path="/financeiro" element={<Financeiro />} />
+                <Route path="/fluxo-de-caixa" element={<FluxoDeCaixa />} />
+                <Route path="/relatorios" element={<Relatorios />} />
+                <Route path="/configuracoes" element={<Configuracoes />} />
+                <Route path="/ajuda" element={<Ajuda />} />
+              </Route>
 
-            {/* Rota não encontrada */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+              {/* Rota não encontrada */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </ErroTela>
       </BrowserRouter>
     </TooltipProvider>
   </CriartereProvider>

@@ -2,6 +2,7 @@ import { useTituloPagina } from '@/hooks/use-titulo-pagina'
 import React, { useState, Suspense } from 'react'
 import { NavLink, Navigate, useNavigate, useLocation, Outlet } from 'react-router-dom'
 import { useCriartere } from '@/store/CriartereContext'
+import { ErroTela } from '@/components/common/ErroTela'
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -55,6 +56,37 @@ export default function Layout() {
   // Redireciona se não autenticado
   if (!state.autenticado) {
     return <Navigate to="/login" replace />
+  }
+
+  // Não conseguiu confirmar o acesso (ex.: internet caiu bem na hora)
+  if (!state.autorizado && state.falhaVerificacao) {
+    return (
+      <div className="min-h-screen bg-[#F7F3EA] flex items-center justify-center p-6">
+        <div className="max-w-sm text-center space-y-3">
+          <h1 className="font-serif text-lg font-bold text-[#0C1014]">
+            Não foi possível entrar no sistema
+          </h1>
+          <p className="text-sm text-[#6B4B36]">
+            Verifique sua conexão com a internet e tente de novo.
+          </p>
+          <div className="flex justify-center gap-2">
+            <Button
+              onClick={() => window.location.reload()}
+              className="bg-[#A5683F] hover:bg-[#8C5636] text-white"
+            >
+              Tentar de novo
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => dispatch({ type: 'LOGOUT' })}
+              className="border-[#DFC3AE] text-[#6B4B36]"
+            >
+              Sair
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   // Logado, mas ainda verificando se é administrador (ou saindo, se não for)
@@ -493,15 +525,17 @@ export default function Layout() {
 
         {/* CONTEÚDO PRINCIPAL (Outlet) */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
-          <Suspense
-            fallback={
-              <div className="min-h-[40vh] flex items-center justify-center" role="status">
-                <span className="w-7 h-7 rounded-full border-2 border-[#DFC3AE] border-t-[#C48864] animate-spin" />
-              </div>
-            }
-          >
-            <Outlet />
-          </Suspense>
+          <ErroTela chave={location.pathname}>
+            <Suspense
+              fallback={
+                <div className="min-h-[40vh] flex items-center justify-center" role="status">
+                  <span className="w-7 h-7 rounded-full border-2 border-[#DFC3AE] border-t-[#A5683F] animate-spin" />
+                </div>
+              }
+            >
+              <Outlet />
+            </Suspense>
+          </ErroTela>
         </main>
       </div>
     </div>
@@ -511,7 +545,7 @@ export default function Layout() {
 function TelaCarregando({ mensagem }: { mensagem: string }) {
   return (
     <div className="min-h-screen bg-[#F7F3EA] flex flex-col items-center justify-center gap-3">
-      <span className="w-8 h-8 rounded-full border-2 border-[#DFC3AE] border-t-[#C48864] animate-spin" />
+      <span className="w-8 h-8 rounded-full border-2 border-[#DFC3AE] border-t-[#A5683F] animate-spin" />
       <p className="text-sm text-[#6B4B36]">{mensagem}</p>
     </div>
   )

@@ -2,8 +2,28 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import fs from 'fs'
 // @ts-expect-error - uidPlugin is a custom plugin
 import uidPlugin from './vite-plugin-react-uid'
+
+/** Carimba uma versão nova no service worker a cada build: o app instalado
+    percebe a atualização, oferece recarregar e apaga os arquivos antigos. */
+function versaoServiceWorker() {
+  let pastaSaida = 'dist'
+  return {
+    name: 'criartere-versao-sw',
+    apply: 'build' as const,
+    configResolved(config: { build: { outDir: string }; root: string }) {
+      pastaSaida = path.resolve(config.root, config.build.outDir)
+    },
+    closeBundle() {
+      const arquivo = path.join(pastaSaida, 'sw.js')
+      if (!fs.existsSync(arquivo)) return
+      const versao = `criartere-${new Date().toISOString().replace(/\D/g, '').slice(0, 14)}`
+      fs.writeFileSync(arquivo, fs.readFileSync(arquivo, 'utf8').replace('criartere-dev', versao))
+    },
+  }
+}
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -26,7 +46,11 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-  plugins: [mode === 'development' ? uidPlugin() : undefined, react()].filter(Boolean),
+  plugins: [
+    mode === 'development' ? uidPlugin() : undefined,
+    react(),
+    versaoServiceWorker(),
+  ].filter(Boolean),
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode ?? process.env.NODE_ENV ?? 'production'),
   },

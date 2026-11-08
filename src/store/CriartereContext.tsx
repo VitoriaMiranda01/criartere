@@ -34,6 +34,7 @@ const initialState: CriartereState = {
   carregando: false,
   autorizado: false,
   acessoNegado: false,
+  falhaVerificacao: false,
   usuarioAtual: {
     id: '',
     nome: '',
@@ -447,6 +448,23 @@ interface CriartereContextType {
   recarregar: () => Promise<void>
 }
 
+/** Tabela do banco -> partes da tela que dependem dela. */
+const FATIAS_POR_TABELA: Record<string, Fatia[]> = {
+  clientes: ['clientes'],
+  produtos: ['produtos'],
+  pedidos: ['pedidos'],
+  pedido_itens: ['pedidos'],
+  pedido_historico: ['historico'],
+  pagamentos: ['pagamentos'],
+  orcamentos: ['orcamentos'],
+  orcamento_itens: ['orcamentos'],
+  despesas: ['despesas'],
+  categorias_despesa: ['categoriasDespesa'],
+  formas_pagamento: ['formasPagamento'],
+  etapas_pedido: ['etapas'],
+  loja_config: ['config'],
+}
+
 const CriartereContext = createContext<CriartereContextType | undefined>(undefined)
 
 export function CriartereProvider({ children }: { children: React.ReactNode }) {
@@ -455,6 +473,10 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
   stateRef.current = state
   // Fila para gravar as ações no banco na mesma ordem em que aconteceram
   const filaRef = useRef<Promise<unknown>>(Promise.resolve())
+  // Gravações ainda na fila e fatias a recarregar quando a fila esvaziar.
+  // Recarregar no meio da fila desfaria por um instante as ações seguintes.
+  const pendentesRef = useRef(0)
+  const fatiasARecarregarRef = useRef(new Set<Fatia>())
 
   const mesclar = useCallback((payload: Partial<CriartereState>) => {
     stateRef.current = { ...stateRef.current, ...payload }
@@ -499,7 +521,13 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
         negarAcesso = false
         return
       }
-      mesclar({ autenticado: true, carregando: true, sessaoVerificada: true, acessoNegado: false })
+      mesclar({
+        autenticado: true,
+        carregando: true,
+        sessaoVerificada: true,
+        acessoNegado: false,
+        falhaVerificacao: false,
+      })
       try {
         const perfil = await buscarPerfil(userId)
         if (perfil?.papel !== 'admin') {
@@ -520,7 +548,9 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
         })
         await recarregarFatias(TODAS_FATIAS)
       } catch (e) {
-        toast.error(`Não foi possível carregar os dados. ${mensagemErro(e)}`)
+        // Sem confirmar o acesso, mostra a tela de erro com "Tentar de novo"
+        if (!stateRef.current.autorizado) mesclar({ falhaVerificacao: true })
+        else toast.error(`Não foi possível carregar os dados. ${mensagemErro(e)}`)
       } finally {
         mesclar({ carregando: false })
       }
@@ -539,6 +569,39 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
     })
     return () => data.subscription.unsubscribe()
   }, [mesclar, recarregarFatias])
+
+  // Atualização ao vivo: quando outra pessoa (ou outro aparelho) altera algo,
+  // o banco avisa e só a parte afetada é recarregada.
+  useEffect(() => {
+    if (!state.autorizado) return
+    let temporizador: ReturnType<typeof setTimeout> | undefined
+    const recebidas = new Set<Fatia>()
+    const aplicar = () => {
+      temporizador = undefined
+      // Com gravações nossas na fila, deixa para recarregar quando ela esvaziar
+      if (pendentesRef.current > 0) {
+        recebidas.forEach((f) => fatiasARecarregarRef.current.add(f))
+        recebidas.clear()
+        return
+      }
+      const fatias = [...recebidas]
+      recebidas.clear()
+      filaRef.current = filaRef.current.then(() => recarregarFatias(fatias).catch(() => undefined))
+    }
+    const canal = supabase.channel('criartere-dados')
+    for (const [tabela, fatias] of Object.entries(FATIAS_POR_TABELA)) {
+      canal.on('postgres_changes', { event: '*', schema: 'public', table: tabela }, () => {
+        fatias.forEach((f) => recebidas.add(f))
+        clearTimeout(temporizador)
+        temporizador = setTimeout(aplicar, 600)
+      })
+    }
+    canal.subscribe()
+    return () => {
+      clearTimeout(temporizador)
+      supabase.removeChannel(canal)
+    }
+  }, [state.autorizado, recarregarFatias])
 
   // Mantém os dados atualizados quando o sistema é usado em mais de um aparelho:
   // ao voltar para a aba (após 2 min) ou quando a internet volta, busca tudo de novo.
@@ -587,13 +650,21 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
       stateRef.current = proximo
       baseDispatch(action)
 
+      pendentesRef.current++
       filaRef.current = filaRef.current.then(async () => {
         try {
           const fatias = await persistirAcao(action, anterior, proximo)
-          await recarregarFatias(fatias)
+          fatias.forEach((f) => fatiasARecarregarRef.current.add(f))
         } catch (e) {
           toast.error(`Não foi salvo: ${mensagemErro(e)}`)
-          await recarregarFatias(TODAS_FATIAS).catch(() => undefined)
+          TODAS_FATIAS.forEach((f) => fatiasARecarregarRef.current.add(f))
+        } finally {
+          pendentesRef.current--
+        }
+        if (pendentesRef.current === 0 && fatiasARecarregarRef.current.size > 0) {
+          const fatias = [...fatiasARecarregarRef.current]
+          fatiasARecarregarRef.current.clear()
+          await recarregarFatias(fatias).catch(() => undefined)
         }
       })
     },

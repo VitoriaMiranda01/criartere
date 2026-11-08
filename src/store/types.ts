@@ -17,6 +17,7 @@ export interface CriartereState {
   carregando: boolean // carregando dados do servidor
   autorizado: boolean // usuário logado é administrador
   acessoNegado: boolean // tentou entrar sem ser administrador (mensagem no login)
+  falhaVerificacao: boolean // não conseguiu confirmar o acesso (ex.: sem internet)
   usuarioAtual: {
     id: string
     nome: string

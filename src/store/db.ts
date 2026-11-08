@@ -357,7 +357,7 @@ export async function listarUsuarios(): Promise<UsuarioSistema[]> {
   const rows = check(
     await supabase
       .from('perfis')
-      .select('user_id, email, nome, papel, criado_em')
+      .select('user_id, email, nome, papel, avatar_url, criado_em')
       .order('criado_em'),
   ) as Row[]
   return rows.map((r) => ({

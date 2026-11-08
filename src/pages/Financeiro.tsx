@@ -272,7 +272,7 @@ export default function Financeiro() {
             <div className="font-serif text-base font-bold text-[#0C1014] truncate">
               <CountUpNumber value={resumo.resultadoFinanceiro} isCurrency />
             </div>
-            <p className="text-[10px] text-[#6B4B36] truncate">Recebido − despesas pagas</p>
+            <p className="text-[10px] text-[#6B4B36] leading-tight">Recebido − despesas pagas</p>
           </CardContent>
         </Card>
 
