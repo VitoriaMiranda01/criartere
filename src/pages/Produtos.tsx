@@ -4,7 +4,7 @@ import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { novoId } from '@/lib/supabase'
 import { prepararImagemProduto, ImagemPreparada } from '@/lib/imagem'
 import { enviarImagemProduto, mensagemErro } from '@/store/db'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
 import { Produto } from '@/types/criartere'
 import { formatBRL } from '@/store/periodUtils'
@@ -333,13 +333,8 @@ export default function Produtos() {
                 }`}
               >
                 {/* Imagem do Produto */}
-                <div className="relative aspect-4/3 bg-[#F7F3EA] overflow-hidden">
-                  <img
-                    src={prod.imagemUrl}
-                    alt={prod.nome}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                    loading="lazy"
-                  />
+                <div className="relative h-44 bg-[#F7F3EA] overflow-hidden">
+                  <FotoProduto url={prod.imagemUrl} nome={prod.nome} />
                   {/* Badge Ativo / Inativo */}
                   <div className="absolute top-2.5 right-2.5">
                     {prod.ativo ? (
@@ -711,5 +706,28 @@ export default function Produtos() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+  )
+}
+
+/** Foto do produto no card; sem foto (ou se falhar ao carregar), mostra um ícone. */
+function FotoProduto({ url, nome }: { url?: string; nome: string }) {
+  const [falhou, setFalhou] = useState(false)
+  useEffect(() => setFalhou(false), [url])
+  if (!url || url === '/placeholder.svg' || falhou) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 text-[#C9A68C]">
+        <Package className="w-10 h-10" strokeWidth={1.25} />
+        <span className="text-[10px] font-medium text-[#6B4B36]/90">Sem foto</span>
+      </div>
+    )
+  }
+  return (
+    <img
+      src={url}
+      alt={nome}
+      onError={() => setFalhou(true)}
+      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+      loading="lazy"
+    />
   )
 }
