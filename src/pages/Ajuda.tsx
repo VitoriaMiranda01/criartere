@@ -330,16 +330,37 @@ const TOPICOS: Topico[] = [
     resumo: 'Use o sistema como um aplicativo, com ícone na tela inicial.',
     secoes: [
       {
-        subtitulo: 'Como instalar',
+        subtitulo: 'iPhone (pelo Safari)',
         passos: [
-          'Android (Chrome): menu ⋮ → "Instalar app".',
-          'iPhone (Safari): botão Compartilhar → "Adicionar à Tela de Início".',
-          'Computador (Chrome/Edge): clique no ícone de instalar na barra de endereço.',
+          'Abra criartere.com.br no Safari (precisa ser o Safari; no Chrome do iPhone a opção pode não aparecer).',
+          'Toque no botão Compartilhar (o quadrado com uma seta para cima), na barra de baixo.',
+          'Role a lista e toque em "Adicionar à Tela de Início".',
+          'Confira o nome "Criartere" e toque em Adicionar.',
+        ],
+      },
+      {
+        subtitulo: 'Android (pelo Chrome)',
+        passos: [
+          'Abra criartere.com.br no Chrome.',
+          'Toque nos três pontinhos (⋮) no canto superior direito.',
+          'Toque em "Instalar app" ou "Adicionar à tela inicial".',
+          'Confirme em Instalar.',
+        ],
+      },
+      {
+        subtitulo: 'Computador (Chrome ou Edge)',
+        passos: [
+          'Abra criartere.com.br.',
+          'Clique no ícone de instalar, no canto direito da barra de endereço.',
+          'Confirme em Instalar. O sistema abre em uma janela própria e ganha atalho no menu Iniciar.',
         ],
       },
     ],
     dicas: [
-      'O app atualiza sozinho. Os dados ficam salvos na nuvem, então dá para usar em vários aparelhos ao mesmo tempo.',
+      'Pronto: o ícone da Criartere fica na tela inicial e abre em tela cheia, sem a barra do navegador. Na primeira vez, entre com seu e-mail e senha; depois o login fica salvo.',
+      'Se uma novidade não aparecer, feche o app por completo e abra de novo.',
+      'O app atualiza sozinho. Os dados ficam na nuvem: é preciso internet, e dá para usar em vários aparelhos ao mesmo tempo.',
+      'Para desinstalar, segure o ícone e escolha remover, como qualquer outro app.',
     ],
   },
 ]
