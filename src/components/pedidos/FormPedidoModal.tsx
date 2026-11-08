@@ -6,13 +6,7 @@ import React, { useState } from 'react'
 import { Pedido, PedidoItem, PaymentMethod, OrderStatus } from '@/types/criartere'
 import { useCriartere } from '@/store/CriartereContext'
 import { formatBRL } from '@/store/periodUtils'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -256,139 +250,158 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
 
   return (
     <Dialog open={aberto} onOpenChange={(open) => !open && onFechar()}>
-      <DialogContent className="sm:max-w-2xl bg-white border-[#DFC3AE] p-6 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-5xl bg-white border-[#DFC3AE] p-5 sm:p-6 max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-serif text-xl font-bold text-[#0C1014]">
             {pedidoParaEditar ? `Editar Pedido ${pedidoParaEditar.codigo}` : 'Novo Pedido de Venda'}
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSalvarPedido} className="space-y-6 pt-2">
-          {/* SEÇÃO 1: CLIENTE */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-xs font-bold text-[#6B4B36] uppercase tracking-wider">
-                Cliente
-                <Obrigatorio />
-              </Label>
+        <form
+          onSubmit={handleSalvarPedido}
+          className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5"
+        >
+          {/* COLUNA ESQUERDA: CLIENTE E ITENS */}
+          <div className="space-y-4 min-w-0">
+            {/* CLIENTE */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label className="text-[11px] font-bold text-[#6B4B36] uppercase tracking-wider">
+                  Cliente
+                  <Obrigatorio />
+                </Label>
+                {!cadastrandoClienteInline ? (
+                  <button
+                    type="button"
+                    onClick={() => setCadastrandoClienteInline(true)}
+                    className="text-xs text-[#C48864] hover:underline flex items-center gap-1 font-semibold"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    Cadastrar novo cliente
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setCadastrandoClienteInline(false)}
+                    className="text-xs text-[#6B4B36] hover:underline"
+                  >
+                    Voltar para seleção
+                  </button>
+                )}
+              </div>
+
               {!cadastrandoClienteInline ? (
-                <button
-                  type="button"
-                  onClick={() => setCadastrandoClienteInline(true)}
-                  className="text-xs text-[#C48864] hover:underline flex items-center gap-1 font-semibold"
-                >
-                  <UserPlus className="w-3.5 h-3.5" />+ Cadastrar Novo Cliente
-                </button>
+                <Select value={clienteId} onValueChange={setClienteId}>
+                  <SelectTrigger className="h-10 text-xs border-[#DFC3AE] bg-[#F7F3EA]/30">
+                    <SelectValue placeholder="Selecione um cliente cadastrado..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {state.clientes.map((c) => (
+                      <SelectItem key={c.id} value={c.id} className="text-xs">
+                        {c.nome} &bull; {c.telefone}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => setCadastrandoClienteInline(false)}
-                  className="text-xs text-[#6B4B36] hover:underline"
-                >
-                  Voltar para seleção
-                </button>
+                <div className="p-4 rounded-xl bg-[#F7F3EA]/60 border border-[#DFC3AE] space-y-3">
+                  <p className="text-xs font-bold text-[#0C1014]">Novo Cliente Rápido</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      placeholder="Nome completo *"
+                      value={novoClienteNome}
+                      onChange={(e) => setNovoClienteNome(e.target.value)}
+                      className="h-9 text-xs border-[#DFC3AE]"
+                    />
+                    <Input
+                      placeholder="Telefone / WhatsApp *"
+                      value={novoClienteTelefone}
+                      onChange={(e) => setNovoClienteTelefone(e.target.value)}
+                      className="h-9 text-xs border-[#DFC3AE]"
+                    />
+                    <Input
+                      placeholder="E-mail (opcional)"
+                      value={novoClienteEmail}
+                      onChange={(e) => setNovoClienteEmail(e.target.value)}
+                      className="h-9 text-xs border-[#DFC3AE]"
+                    />
+                    <Input
+                      placeholder="Endereço de entrega (opcional)"
+                      value={novoClienteEndereco}
+                      onChange={(e) => setNovoClienteEndereco(e.target.value)}
+                      className="h-9 text-xs border-[#DFC3AE]"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCadastrandoClienteInline(false)}
+                      className="text-xs h-8 border-[#DFC3AE]"
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleCriarClienteInline}
+                      className="text-xs h-8 bg-[#C48864] hover:bg-[#B0764F] text-white font-semibold"
+                    >
+                      Salvar e Selecionar
+                    </Button>
+                  </div>
+                </div>
               )}
             </div>
 
-            {!cadastrandoClienteInline ? (
-              <Select value={clienteId} onValueChange={setClienteId}>
-                <SelectTrigger className="h-10 text-xs border-[#DFC3AE] bg-[#F7F3EA]/30">
-                  <SelectValue placeholder="Selecione um cliente cadastrado..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {state.clientes.map((c) => (
-                    <SelectItem key={c.id} value={c.id} className="text-xs">
-                      {c.nome} &bull; {c.telefone}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <div className="p-4 rounded-xl bg-[#F7F3EA]/60 border border-[#DFC3AE] space-y-3">
-                <p className="text-xs font-bold text-[#0C1014]">Novo Cliente Rápido</p>
-                <div className="grid grid-cols-2 gap-3">
-                  <Input
-                    placeholder="Nome completo *"
-                    value={novoClienteNome}
-                    onChange={(e) => setNovoClienteNome(e.target.value)}
-                    className="h-9 text-xs border-[#DFC3AE]"
-                  />
-                  <Input
-                    placeholder="Telefone / WhatsApp *"
-                    value={novoClienteTelefone}
-                    onChange={(e) => setNovoClienteTelefone(e.target.value)}
-                    className="h-9 text-xs border-[#DFC3AE]"
-                  />
-                  <Input
-                    placeholder="E-mail (opcional)"
-                    value={novoClienteEmail}
-                    onChange={(e) => setNovoClienteEmail(e.target.value)}
-                    className="h-9 text-xs border-[#DFC3AE]"
-                  />
-                  <Input
-                    placeholder="Endereço de entrega (opcional)"
-                    value={novoClienteEndereco}
-                    onChange={(e) => setNovoClienteEndereco(e.target.value)}
-                    className="h-9 text-xs border-[#DFC3AE]"
-                  />
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCadastrandoClienteInline(false)}
-                    className="text-xs h-8 border-[#DFC3AE]"
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={handleCriarClienteInline}
-                    className="text-xs h-8 bg-[#C48864] hover:bg-[#B0764F] text-white font-semibold"
-                  >
-                    Salvar e Selecionar
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* SEÇÃO 2: ITENS DO PEDIDO */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-xs font-bold text-[#6B4B36] uppercase tracking-wider">
-                Itens do Pedido
-                <Obrigatorio />
-              </Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddItem}
-                className="h-7 text-xs border-[#DFC3AE] text-[#C48864] hover:bg-[#F7F3EA]"
-              >
-                <Plus className="w-3.5 h-3.5 mr-1" />
-                Adicionar Item
-              </Button>
-            </div>
-
-            <div className="space-y-2">
-              {itens.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="p-3 bg-[#F7F3EA]/40 rounded-xl border border-[#DFC3AE]/50 space-y-2 text-xs"
+            {/* ITENS DO PEDIDO */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label className="text-[11px] font-bold text-[#6B4B36] uppercase tracking-wider">
+                  Itens do Pedido
+                  <Obrigatorio />
+                </Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddItem}
+                  className="h-7 text-xs border-[#DFC3AE] text-[#C48864] hover:bg-[#F7F3EA]"
                 >
-                  <div className="grid grid-cols-12 gap-2 items-center">
-                    {/* Seletor de produto ou texto livre */}
-                    <div className="col-span-12 sm:col-span-6 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] uppercase font-semibold text-[#6B4B36]">
-                          Produto do Catálogo
-                          <Opcional />
-                        </span>
-                      </div>
+                  <Plus className="w-3.5 h-3.5 mr-1" />
+                  Adicionar item
+                </Button>
+              </div>
+
+              <div className="rounded-xl border border-[#DFC3AE]/60 bg-[#F7F3EA]/40 p-2.5 space-y-2">
+                {/* Cabeçalho das colunas (computador) */}
+                <div className="hidden sm:grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_60px_88px_96px] gap-2 px-0.5 text-[10px] uppercase font-semibold text-[#6B4B36]">
+                  <span>
+                    Catálogo
+                    <Opcional />
+                  </span>
+                  <span>
+                    Descrição do item
+                    <Obrigatorio />
+                  </span>
+                  <span>
+                    Qtd
+                    <Obrigatorio />
+                  </span>
+                  <span>
+                    Unit. (R$)
+                    <Obrigatorio />
+                  </span>
+                  <span className="text-right pr-8">Subtotal</span>
+                </div>
+
+                <div className="space-y-2 max-h-[34vh] overflow-y-auto pr-0.5">
+                  {itens.map((item, index) => (
+                    <div
+                      key={item.id}
+                      className="grid grid-cols-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_60px_88px_96px] gap-2 items-center"
+                    >
                       <Select
                         value={item.produtoId || 'custom'}
                         onValueChange={(val) => {
@@ -401,12 +414,15 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                           }
                         }}
                       >
-                        <SelectTrigger className="h-8 text-xs border-[#DFC3AE] bg-white">
+                        <SelectTrigger
+                          className="h-9 text-xs border-[#DFC3AE] bg-white col-span-2 sm:col-span-1"
+                          aria-label="Produto do catálogo"
+                        >
                           <SelectValue placeholder="Escolha um produto..." />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="custom" className="text-xs italic text-[#6B4B36]">
-                            &bull; Item personalizado / sob medida
+                            Item personalizado / sob medida
                           </SelectItem>
                           {produtosAtivos.map((p) => (
                             <SelectItem key={p.id} value={p.id} className="text-xs">
@@ -417,227 +433,206 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                       </Select>
                       <Input
                         placeholder="Nome do item no pedido"
+                        aria-label="Descrição do item"
                         value={item.nome}
                         onChange={(e) => handleChangeItemNome(index, e.target.value)}
-                        className="h-8 text-xs border-[#DFC3AE] bg-white mt-1"
+                        className="h-9 text-xs border-[#DFC3AE] bg-white col-span-2 sm:col-span-1"
                       />
-                    </div>
-
-                    {/* Quantidade */}
-                    <div className="col-span-4 sm:col-span-2 space-y-1">
-                      <span className="text-[10px] uppercase font-semibold text-[#6B4B36]">
-                        Qtd
-                        <Obrigatorio />
-                      </span>
                       <Input
                         type="number"
                         min="1"
+                        aria-label="Quantidade"
                         value={item.quantidade}
                         onChange={(e) =>
                           handleChangeItemQuantidade(index, parseInt(e.target.value, 10) || 1)
                         }
-                        className="h-8 text-xs border-[#DFC3AE] bg-white"
+                        className="h-9 text-xs border-[#DFC3AE] bg-white"
                       />
-                    </div>
-
-                    {/* Valor Unitário */}
-                    <div className="col-span-4 sm:col-span-2 space-y-1">
-                      <span className="text-[10px] uppercase font-semibold text-[#6B4B36]">
-                        Unit. (R$)
-                        <Obrigatorio />
-                      </span>
                       <Input
                         type="number"
                         step="0.01"
                         min="0"
+                        aria-label="Valor unitário"
                         value={item.valorUnitario}
                         onChange={(e) =>
                           handleChangeItemValorUnitario(index, parseFloat(e.target.value) || 0)
                         }
-                        className="h-8 text-xs border-[#DFC3AE] bg-white"
+                        className="h-9 text-xs border-[#DFC3AE] bg-white"
                       />
+                      <div className="flex items-center justify-end gap-1 col-span-2 sm:col-span-1">
+                        <span className="font-bold text-[#0C1014] text-xs whitespace-nowrap">
+                          {formatBRL(item.subtotal)}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoverItem(item.id)}
+                          className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50 shrink-0"
+                          aria-label="Remover item"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
                     </div>
-
-                    {/* Subtotal e Remover */}
-                    <div className="col-span-4 sm:col-span-2 flex items-center justify-end gap-2 pt-3">
-                      <span className="font-bold text-[#0C1014] text-xs">
-                        {formatBRL(item.subtotal)}
-                      </span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleRemoverItem(item.id)}
-                        className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* SEÇÃO 3: VALORES (Frete, Desconto, Total Calculado) */}
-          <div className="bg-[#F7F3EA] p-4 rounded-xl border border-[#DFC3AE]/70 space-y-3">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <div>
-                <Label className="text-[11px] font-semibold text-[#6B4B36]">
-                  Subtotal Produtos
-                </Label>
-                <p className="font-serif font-bold text-sm text-[#0C1014] mt-1">
-                  {formatBRL(subtotalProdutos)}
-                </p>
-              </div>
-
-              <div>
-                <Label htmlFor="frete" className="text-[11px] font-semibold text-[#6B4B36]">
-                  Frete de Envio (R$)
-                  <Opcional />
-                </Label>
-                <Input
-                  id="frete"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={valorFreteStr}
-                  onChange={(e) => setValorFreteStr(e.target.value)}
-                  className="h-8 text-xs border-[#DFC3AE] bg-white mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="desconto" className="text-[11px] font-semibold text-[#6B4B36]">
-                  Desconto (R$)
-                  <Opcional />
-                </Label>
-                <Input
-                  id="desconto"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={valorDescontoStr}
-                  onChange={(e) => setValorDescontoStr(e.target.value)}
-                  className="h-8 text-xs border-[#DFC3AE] bg-white mt-1"
-                />
               </div>
             </div>
 
-            <div className="pt-3 border-t border-[#DFC3AE]/50 flex items-center justify-between">
-              <div>
-                <span className="text-xs uppercase font-bold text-[#6B4B36] tracking-wider">
-                  Valor Total do Pedido
-                </span>
-                <p className="text-[10px] text-[#6B4B36]/80">
-                  Cadastrado como receita prevista até o recebimento
-                </p>
-              </div>
-              <span className="font-serif text-2xl font-bold text-[#C48864]">
-                {formatBRL(valorTotalFinal)}
-              </span>
-            </div>
-          </div>
-
-          {/* SEÇÃO 4: PAGAMENTO, STATUS E PRAZO */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
-                Forma de Pagamento
-                <Obrigatorio />
-              </Label>
-              <Select value={formaPagamento} onValueChange={(val: any) => setFormaPagamento(val)}>
-                <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {state.formasPagamento.map((f) => (
-                    <SelectItem key={f} value={f} className="text-xs">
-                      {f}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
-                Status Operacional
-                <Obrigatorio />
-              </Label>
-              <Select value={status} onValueChange={(val: any) => setStatus(val)}>
-                <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {etapasDoKanban(state).map((e) => (
-                    <SelectItem key={e.chave} value={e.chave} className="text-xs">
-                      {e.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
+            {/* OBSERVAÇÕES */}
             <div className="space-y-1.5">
               <Label
-                htmlFor="prazo"
-                className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+                htmlFor="obs"
+                className="text-[11px] font-bold text-[#6B4B36] uppercase tracking-wider"
               >
-                Prazo de Entrega
-                <Obrigatorio />
+                Observações Internas
+                <Opcional />
               </Label>
-              <Input
-                id="prazo"
-                type="date"
-                value={prazoEntrega}
-                onChange={(e) => setPrazoEntrega(e.target.value)}
-                className="h-9 text-xs border-[#DFC3AE]"
-                required
+              <Textarea
+                id="obs"
+                placeholder="Ex: Arquivo enviado por WhatsApp, cor do filamento, papel couché 300g, retirar na loja..."
+                value={observacoes}
+                onChange={(e) => setObservacoes(e.target.value)}
+                rows={2}
+                className="text-xs border-[#DFC3AE] min-h-[56px] resize-none"
               />
             </div>
           </div>
 
-          {/* SEÇÃO 5: OBSERVAÇÕES */}
-          <div className="space-y-1.5">
-            <Label
-              htmlFor="obs"
-              className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
-            >
-              Observações Internas
-              <Opcional />
-            </Label>
-            <Textarea
-              id="obs"
-              placeholder="Ex: Arquivo enviado por WhatsApp, cor do filamento, papel couché 300g, retirar na loja..."
-              value={observacoes}
-              onChange={(e) => setObservacoes(e.target.value)}
-              className="text-xs border-[#DFC3AE] min-h-[70px]"
-            />
-          </div>
-
-          {erro && (
-            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 font-medium">
-              {erro}
+          {/* COLUNA DIREITA: VALORES, PAGAMENTO E PRAZO */}
+          <div className="space-y-4">
+            <div className="bg-[#F7F3EA] p-4 rounded-xl border border-[#DFC3AE]/70 space-y-2.5">
+              <div className="flex items-center justify-between text-xs text-[#6B4B36]">
+                <span className="font-semibold">Subtotal dos itens</span>
+                <span className="font-bold text-[#0C1014]">{formatBRL(subtotalProdutos)}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label htmlFor="frete" className="text-[11px] font-semibold text-[#6B4B36]">
+                    Frete (R$)
+                    <Opcional />
+                  </Label>
+                  <Input
+                    id="frete"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={valorFreteStr}
+                    onChange={(e) => setValorFreteStr(e.target.value)}
+                    className="h-9 text-xs border-[#DFC3AE] bg-white"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="desconto" className="text-[11px] font-semibold text-[#6B4B36]">
+                    Desconto (R$)
+                    <Opcional />
+                  </Label>
+                  <Input
+                    id="desconto"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={valorDescontoStr}
+                    onChange={(e) => setValorDescontoStr(e.target.value)}
+                    className="h-9 text-xs border-[#DFC3AE] bg-white"
+                  />
+                </div>
+              </div>
+              <div className="pt-2.5 border-t border-[#DFC3AE]/50 flex items-end justify-between gap-2">
+                <div>
+                  <span className="text-[11px] uppercase font-bold text-[#6B4B36] tracking-wider">
+                    Valor total
+                  </span>
+                  <p className="text-[10px] text-[#6B4B36]/80">
+                    Receita prevista até o recebimento
+                  </p>
+                </div>
+                <span className="font-serif text-2xl font-bold text-[#C48864] whitespace-nowrap">
+                  {formatBRL(valorTotalFinal)}
+                </span>
+              </div>
             </div>
-          )}
 
-          <DialogFooter className="gap-2 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onFechar}
-              className="border-[#DFC3AE] text-[#6B4B36] h-10 text-xs"
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              className="bg-[#C48864] hover:bg-[#B0764F] text-white h-10 text-xs font-semibold shadow-xs"
-            >
-              {pedidoParaEditar ? 'Salvar Alterações' : 'Cadastrar Pedido'}
-            </Button>
-          </DialogFooter>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-[11px] font-bold text-[#6B4B36] uppercase tracking-wider">
+                  Pagamento
+                  <Obrigatorio />
+                </Label>
+                <Select value={formaPagamento} onValueChange={(val: any) => setFormaPagamento(val)}>
+                  <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {state.formasPagamento.map((f) => (
+                      <SelectItem key={f} value={f} className="text-xs">
+                        {f}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="prazo"
+                  className="text-[11px] font-bold text-[#6B4B36] uppercase tracking-wider"
+                >
+                  Prazo
+                  <Obrigatorio />
+                </Label>
+                <Input
+                  id="prazo"
+                  type="date"
+                  value={prazoEntrega}
+                  onChange={(e) => setPrazoEntrega(e.target.value)}
+                  className="h-9 text-xs border-[#DFC3AE]"
+                  required
+                />
+              </div>
+              <div className="space-y-1.5 col-span-2">
+                <Label className="text-[11px] font-bold text-[#6B4B36] uppercase tracking-wider">
+                  Etapa (status)
+                  <Obrigatorio />
+                </Label>
+                <Select value={status} onValueChange={(val: any) => setStatus(val)}>
+                  <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {etapasDoKanban(state).map((e) => (
+                      <SelectItem key={e.chave} value={e.chave} className="text-xs">
+                        {e.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {erro && (
+              <div className="p-2.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 font-medium">
+                {erro}
+              </div>
+            )}
+
+            <div className="flex flex-col-reverse sm:flex-row gap-2 pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onFechar}
+                className="border-[#DFC3AE] text-[#6B4B36] h-10 text-xs sm:flex-1"
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                className="bg-[#C48864] hover:bg-[#B0764F] text-white h-10 text-xs font-semibold shadow-xs sm:flex-[2]"
+              >
+                {pedidoParaEditar ? 'Salvar Alterações' : 'Cadastrar Pedido'}
+              </Button>
+            </div>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
