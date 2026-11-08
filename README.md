@@ -1,6 +1,6 @@
 # Projeto Criado com o Skip
 
-Este projeto foi criado de ponta a ponta com o [Skip](https://goskip.dev).
+Sistema de gestão da Criartere (impressão 3D e gráfica). Projeto iniciado com o [Skip](https://goskip.dev).
 
 ## 🚀 Stack Tecnológica
 

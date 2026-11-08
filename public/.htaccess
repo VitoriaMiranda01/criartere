@@ -38,7 +38,7 @@ AddType application/manifest+json .webmanifest
   # Desliga recursos do navegador que o sistema não usa
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
   # Só carrega scripts, estilos e conexões de origens conhecidas
-  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://goskip.dev; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://kitarrykwoaxlrydethm.supabase.co wss://kitarrykwoaxlrydethm.supabase.co https://goskip.dev https://api.goskip.dev; worker-src 'self' blob:; manifest-src 'self'; frame-src 'self' https://goskip.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://kitarrykwoaxlrydethm.supabase.co wss://kitarrykwoaxlrydethm.supabase.co; worker-src 'self' blob:; manifest-src 'self'; frame-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
   Header always unset X-Powered-By
 </IfModule>
 

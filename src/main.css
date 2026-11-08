@@ -7,6 +7,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Fundo creme em toda a página (evita faixa branca ao rolar no celular) */
+html,
+body {
+  background-color: #f7f3ea;
+}
+
 @layer base {
   :root {
     /* Paleta Criartere */

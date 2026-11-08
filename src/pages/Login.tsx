@@ -92,7 +92,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#F7F3EA] flex items-center justify-center p-4 sm:p-6 relative overflow-hidden font-sans">
+    <div className="min-h-[100dvh] w-full bg-[#F7F3EA] flex items-center justify-center p-4 sm:p-6 relative overflow-hidden font-sans">
       {/* Elementos orgânicos decorativos sutis no fundo */}
       <div
         className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#DFC3AE] opacity-25 blur-3xl pointer-events-none"
@@ -105,11 +105,15 @@ export default function Login() {
 
       <div className="w-full max-w-md relative z-10">
         {/* Card Principal */}
-        <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(12,16,20,0.06)] border border-[#DFC3AE]/60 p-8 sm:p-10">
+        <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(12,16,20,0.06)] border border-[#DFC3AE]/60 px-6 py-6 sm:p-10">
           {/* Wordmark Criartere */}
-          <div className="text-center mb-8">
-            <img src="/logo.png" alt="Logo Criartere" className="w-20 h-20 mx-auto mb-3" />
-            <div className="inline-flex items-center justify-center gap-2 mb-2">
+          <div className="text-center mb-5 sm:mb-8">
+            <img
+              src="/logo.png"
+              alt="Logo Criartere"
+              className="w-14 h-14 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3"
+            />
+            <div className="inline-flex items-center justify-center gap-2 mb-1 sm:mb-2">
               <span className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-[#0C1014]">
                 Criartere
               </span>
@@ -117,15 +121,17 @@ export default function Login() {
             <p className="text-xs uppercase tracking-widest text-[#6B4B36] font-medium">
               Impressão 3D &amp; Gráfica
             </p>
-            <div className="mt-4 pt-4 border-t border-[#DFC3AE]/40">
-              <h1 className="font-serif text-xl font-semibold text-[#0C1014]">Sistema de Gestão</h1>
+            <div className="mt-3 pt-3 sm:mt-4 sm:pt-4 border-t border-[#DFC3AE]/40">
+              <h1 className="font-serif text-lg sm:text-xl font-semibold text-[#0C1014]">
+                Sistema de Gestão
+              </h1>
               <p className="text-xs text-[#6B4B36] mt-1">
                 Acesse o painel administrativo e financeiro da loja
               </p>
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             {modo === 'cadastrar' && (
               <div className="space-y-1.5">
                 <Label
@@ -222,7 +228,7 @@ export default function Login() {
             </Button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-[#DFC3AE]/50 text-center">
+          <div className="mt-4 pt-4 sm:mt-6 sm:pt-5 border-t border-[#DFC3AE]/50 text-center">
             <button
               type="button"
               onClick={() => {
@@ -242,7 +248,7 @@ export default function Login() {
         </div>
 
         {/* Rodapé discreto */}
-        <div className="text-center mt-6 text-xs text-[#6B4B36]/70 flex items-center justify-center gap-2">
+        <div className="text-center mt-4 sm:mt-6 text-xs text-[#6B4B36]/70 flex items-center justify-center gap-2">
           <span>Criartere &copy; {new Date().getFullYear()}</span>
           <span>&bull;</span>
           <span>Sistema de Gestão</span>
