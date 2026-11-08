@@ -9,7 +9,7 @@ export function Obrigatorio() {
 
 export function Opcional() {
   return (
-    <span className="ml-1 text-[0.85em] font-normal normal-case tracking-normal text-[#6B4B36]/70">
+    <span className="ml-1 text-[0.85em] font-normal normal-case tracking-normal text-[#6B4B36]/70 whitespace-nowrap">
       (opcional)
     </span>
   )

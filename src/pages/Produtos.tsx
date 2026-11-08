@@ -1,11 +1,13 @@
 import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { novoId } from '@/lib/supabase'
-import React, { useState } from 'react'
+import { prepararImagemProduto, ImagemPreparada } from '@/lib/imagem'
+import { enviarImagemProduto, mensagemErro } from '@/store/db'
+import React, { useRef, useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
 import { Produto } from '@/types/criartere'
 import { formatBRL } from '@/store/periodUtils'
-import { Package, Plus, Search, Edit, Trash2, AlertTriangle, X } from 'lucide-react'
+import { Package, Plus, Search, Edit, Trash2, AlertTriangle, X, ImagePlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -58,6 +60,11 @@ export default function Produtos() {
   const [custoStr, setCustoStr] = useState('')
   const [categoria, setCategoria] = useState('Impressão 3D')
   const [imagemUrl, setImagemUrl] = useState('')
+  const [novaImagem, setNovaImagem] = useState<ImagemPreparada | null>(null)
+  const [previaImagem, setPreviaImagem] = useState<string | null>(null)
+  const [arrastando, setArrastando] = useState(false)
+  const [salvando, setSalvando] = useState(false)
+  const inputImagem = useRef<HTMLInputElement>(null)
   const [ativo, setAtivo] = useState(true)
   const [estoqueStr, setEstoqueStr] = useState('10')
   const [erro, setErro] = useState('')
@@ -80,6 +87,7 @@ export default function Produtos() {
     setCustoStr('')
     setCategoria('Impressão 3D')
     setImagemUrl('')
+    limparNovaImagem()
     setAtivo(true)
     setEstoqueStr('12')
     setErro('')
@@ -93,14 +101,40 @@ export default function Produtos() {
     setPrecoVendaStr(prod.precoVenda.toString())
     setCustoStr(prod.custo ? prod.custo.toString() : '')
     setCategoria(prod.categoria)
-    setImagemUrl(prod.imagemUrl || '')
+    setImagemUrl(prod.imagemUrl && prod.imagemUrl !== '/placeholder.svg' ? prod.imagemUrl : '')
+    limparNovaImagem()
     setAtivo(prod.ativo)
     setEstoqueStr(prod.estoqueAproximado ? prod.estoqueAproximado.toString() : '0')
     setErro('')
     setModalFormAberto(true)
   }
 
-  const handleSalvarProduto = (e: React.FormEvent) => {
+  const limparNovaImagem = () => {
+    setNovaImagem(null)
+    setPreviaImagem((anterior) => {
+      if (anterior) URL.revokeObjectURL(anterior)
+      return null
+    })
+  }
+
+  const escolherImagem = async (arquivo?: File | null) => {
+    if (!arquivo) return
+    try {
+      const imagem = await prepararImagemProduto(arquivo)
+      limparNovaImagem()
+      setNovaImagem(imagem)
+      setPreviaImagem(URL.createObjectURL(imagem.blob))
+    } catch (err) {
+      toast.error((err as Error).message)
+    }
+  }
+
+  const removerImagem = () => {
+    limparNovaImagem()
+    setImagemUrl('')
+  }
+
+  const handleSalvarProduto = async (e: React.FormEvent) => {
     e.preventDefault()
     setErro('')
 
@@ -118,14 +152,28 @@ export default function Produtos() {
       return
     }
 
+    const id = produtoEditando ? produtoEditando.id : novoId()
+    let urlFinal = imagemUrl
+    if (novaImagem) {
+      setSalvando(true)
+      try {
+        urlFinal = await enviarImagemProduto(id, novaImagem)
+      } catch (err) {
+        setSalvando(false)
+        setErro(`Não foi possível enviar a imagem. ${mensagemErro(err)}`)
+        return
+      }
+      setSalvando(false)
+    }
+
     const payload: Produto = {
-      id: produtoEditando ? produtoEditando.id : novoId(),
+      id,
       nome: nome.trim(),
       descricao: descricao.trim(),
       precoVenda,
       custo,
       categoria,
-      imagemUrl: imagemUrl.trim() || '/placeholder.svg',
+      imagemUrl: urlFinal || '/placeholder.svg',
       ativo,
       estoqueAproximado: estoque,
     }
@@ -136,6 +184,7 @@ export default function Produtos() {
         ? `Produto "${payload.nome}" atualizado!`
         : `Produto "${payload.nome}" cadastrado com sucesso!`,
     )
+    limparNovaImagem()
     setModalFormAberto(false)
   }
 
@@ -190,7 +239,7 @@ export default function Produtos() {
           className="bg-[#C48864] hover:bg-[#B0764F] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5 self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
-          <span>+ Novo Produto</span>
+          <span>Novo Produto</span>
         </Button>
       </div>
 
@@ -370,164 +419,224 @@ export default function Produtos() {
 
       {/* MODAL FORMULÁRIO PRODUTO */}
       <Dialog open={modalFormAberto} onOpenChange={setModalFormAberto}>
-        <DialogContent className="sm:max-w-lg bg-white border-[#DFC3AE] p-6 max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-3xl bg-white border-[#DFC3AE] p-5 sm:p-6 max-h-[95vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-serif text-xl font-bold text-[#0C1014]">
               {produtoEditando ? 'Editar Produto' : 'Novo Produto'}
             </DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleSalvarProduto} className="space-y-4 pt-2">
-            <div className="space-y-1.5">
-              <Label
-                htmlFor="nome"
-                className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
-              >
-                Nome do Produto
-                <Obrigatorio />
-              </Label>
-              <Input
-                id="nome"
-                placeholder="Ex: Chaveiro 3D personalizado ou Cartão de visita (1000 un.)"
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                className="h-10 text-xs border-[#DFC3AE]"
-                required
-              />
-            </div>
+          <form onSubmit={handleSalvarProduto} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-5">
+              {/* COLUNA ESQUERDA: IMAGEM + ATIVO */}
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
+                    Imagem
+                    <Opcional />
+                  </Label>
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => inputImagem.current?.click()}
+                    onKeyDown={(e) =>
+                      (e.key === 'Enter' || e.key === ' ') && inputImagem.current?.click()
+                    }
+                    onDragOver={(e) => {
+                      e.preventDefault()
+                      setArrastando(true)
+                    }}
+                    onDragLeave={() => setArrastando(false)}
+                    onDrop={(e) => {
+                      e.preventDefault()
+                      setArrastando(false)
+                      escolherImagem(e.dataTransfer.files?.[0])
+                    }}
+                    className={`relative w-36 h-36 sm:w-[200px] sm:h-[200px] mx-auto sm:mx-0 rounded-xl border-2 border-dashed overflow-hidden cursor-pointer group transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C48864] ${
+                      arrastando
+                        ? 'border-[#C48864] bg-[#C48864]/10'
+                        : 'border-[#DFC3AE] bg-[#F7F3EA]/60 hover:border-[#C48864]'
+                    }`}
+                    aria-label="Escolher imagem do produto"
+                  >
+                    {previaImagem || imagemUrl ? (
+                      <>
+                        <img
+                          src={previaImagem || imagemUrl}
+                          alt="Imagem do produto"
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute inset-0 bg-black/40 text-white text-xs font-semibold flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <ImagePlus className="w-5 h-5" />
+                          Trocar imagem
+                        </span>
+                      </>
+                    ) : (
+                      <span className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-[#6B4B36] text-center px-3">
+                        <ImagePlus className="w-7 h-7 text-[#C48864]" />
+                        <span className="text-xs font-semibold">Enviar imagem</span>
+                        <span className="text-[10px] text-[#6B4B36]/70">
+                          Clique ou arraste aqui
+                          <br />
+                          JPG, PNG ou WebP
+                        </span>
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    ref={inputImagem}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      escolherImagem(e.target.files?.[0])
+                      e.target.value = ''
+                    }}
+                  />
+                  {(previaImagem || imagemUrl) && (
+                    <button
+                      type="button"
+                      onClick={removerImagem}
+                      className="text-[11px] text-red-600 hover:underline flex items-center gap-1 mx-auto sm:mx-0"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      Remover imagem
+                    </button>
+                  )}
+                </div>
 
-            <div className="space-y-1.5">
-              <Label
-                htmlFor="desc"
-                className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
-              >
-                Descrição Detalhada
-                <Opcional />
-              </Label>
-              <Textarea
-                id="desc"
-                placeholder="Material (PLA, PETG, resina, papel), cores, dimensões, acabamento, prazo..."
-                value={descricao}
-                onChange={(e) => setDescricao(e.target.value)}
-                className="text-xs border-[#DFC3AE] min-h-[70px]"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="preco"
-                  className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
-                >
-                  Preço de Venda (R$)
-                  <Obrigatorio />
-                </Label>
-                <Input
-                  id="preco"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  placeholder="0,00"
-                  value={precoVendaStr}
-                  onChange={(e) => setPrecoVendaStr(e.target.value)}
-                  className="h-10 text-xs border-[#DFC3AE]"
-                  required
-                />
+                <div className="flex items-center justify-between gap-2 p-2.5 bg-[#F7F3EA] rounded-xl border border-[#DFC3AE]/60">
+                  <Label
+                    htmlFor="ativo"
+                    className="text-xs font-bold text-[#0C1014] cursor-pointer flex items-center gap-1"
+                  >
+                    Ativo no catálogo
+                    <DicaAjuda titulo="Ativo × Inativo">
+                      <p>
+                        Produtos inativos não aparecem para escolha em pedidos e orçamentos, mas o
+                        histórico de vendas continua. Útil para itens fora de linha.
+                      </p>
+                    </DicaAjuda>
+                  </Label>
+                  <Switch id="ativo" checked={ativo} onCheckedChange={setAtivo} />
+                </div>
               </div>
 
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="custo"
-                  className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
-                >
-                  Custo de Fabricação (R$)
-                  <Opcional />
-                </Label>
-                <Input
-                  id="custo"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder="0,00"
-                  value={custoStr}
-                  onChange={(e) => setCustoStr(e.target.value)}
-                  className="h-10 text-xs border-[#DFC3AE]"
-                />
-              </div>
-            </div>
+              {/* COLUNA DIREITA: DADOS */}
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label
+                    htmlFor="nome"
+                    className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+                  >
+                    Nome do Produto
+                    <Obrigatorio />
+                  </Label>
+                  <Input
+                    id="nome"
+                    placeholder="Ex: Chaveiro 3D personalizado ou Cartão de visita (1000 un.)"
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    className="h-10 text-xs border-[#DFC3AE]"
+                    required
+                  />
+                </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
-                  Categoria
-                  <Obrigatorio />
-                </Label>
-                <Select value={categoria} onValueChange={setCategoria}>
-                  <SelectTrigger className="h-10 text-xs border-[#DFC3AE]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categoriasDisponiveis.map((c) => (
-                      <SelectItem key={c} value={c} className="text-xs">
-                        {c}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                <div className="space-y-1.5">
+                  <Label
+                    htmlFor="desc"
+                    className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+                  >
+                    Descrição
+                    <Opcional />
+                  </Label>
+                  <Textarea
+                    id="desc"
+                    placeholder="Material (PLA, PETG, resina, papel), cores, dimensões, acabamento, prazo..."
+                    value={descricao}
+                    onChange={(e) => setDescricao(e.target.value)}
+                    rows={2}
+                    className="text-xs border-[#DFC3AE] min-h-[60px] resize-none"
+                  />
+                </div>
 
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="est"
-                  className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
-                >
-                  Estoque Aproximado (un)
-                  <Opcional />
-                </Label>
-                <Input
-                  id="est"
-                  type="number"
-                  min="0"
-                  value={estoqueStr}
-                  onChange={(e) => setEstoqueStr(e.target.value)}
-                  className="h-10 text-xs border-[#DFC3AE]"
-                />
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="preco"
+                      className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+                    >
+                      Preço de venda (R$)
+                      <Obrigatorio />
+                    </Label>
+                    <Input
+                      id="preco"
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      placeholder="0,00"
+                      value={precoVendaStr}
+                      onChange={(e) => setPrecoVendaStr(e.target.value)}
+                      className="h-10 text-xs border-[#DFC3AE]"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="custo"
+                      className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+                    >
+                      Custo (R$)
+                      <Opcional />
+                    </Label>
+                    <Input
+                      id="custo"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0,00"
+                      value={custoStr}
+                      onChange={(e) => setCustoStr(e.target.value)}
+                      className="h-10 text-xs border-[#DFC3AE]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
+                      Categoria
+                      <Obrigatorio />
+                    </Label>
+                    <Select value={categoria} onValueChange={setCategoria}>
+                      <SelectTrigger className="h-10 text-xs border-[#DFC3AE]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categoriasDisponiveis.map((c) => (
+                          <SelectItem key={c} value={c} className="text-xs">
+                            {c}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="est"
+                      className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+                    >
+                      Estoque (un)
+                      <Opcional />
+                    </Label>
+                    <Input
+                      id="est"
+                      type="number"
+                      min="0"
+                      value={estoqueStr}
+                      onChange={(e) => setEstoqueStr(e.target.value)}
+                      className="h-10 text-xs border-[#DFC3AE]"
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label
-                htmlFor="img"
-                className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
-              >
-                URL da Imagem
-                <Opcional />
-              </Label>
-              <Input
-                id="img"
-                placeholder="https://..."
-                value={imagemUrl}
-                onChange={(e) => setImagemUrl(e.target.value)}
-                className="h-10 text-xs border-[#DFC3AE]"
-              />
-            </div>
-
-            <div className="flex items-center justify-between p-3 bg-[#F7F3EA] rounded-xl border border-[#DFC3AE]/60">
-              <div className="space-y-0.5">
-                <Label htmlFor="ativo" className="text-xs font-bold text-[#0C1014] cursor-pointer">
-                  Produto Ativo no Catálogo
-                </Label>
-                <DicaAjuda titulo="Ativo × Inativo">
-                  <p>
-                    Inativar esconde o produto das listas de pedidos e orçamentos, sem apagar o
-                    histórico de vendas. Útil para itens fora de linha.
-                  </p>
-                </DicaAjuda>
-                <p className="text-[11px] text-[#6B4B36]">
-                  Produtos inativos não aparecem na seleção de novos pedidos
-                </p>
-              </div>
-              <Switch id="ativo" checked={ativo} onCheckedChange={setAtivo} />
             </div>
 
             {erro && (
@@ -536,7 +645,7 @@ export default function Produtos() {
               </div>
             )}
 
-            <DialogFooter className="gap-2 pt-2">
+            <DialogFooter className="gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -547,9 +656,10 @@ export default function Produtos() {
               </Button>
               <Button
                 type="submit"
+                disabled={salvando}
                 className="bg-[#C48864] hover:bg-[#B0764F] text-white h-10 text-xs font-semibold"
               >
-                Salvar Produto
+                {salvando ? 'Enviando imagem...' : 'Salvar Produto'}
               </Button>
             </DialogFooter>
           </form>

@@ -230,7 +230,7 @@ export default function Pedidos() {
             className="bg-[#C48864] hover:bg-[#B0764F] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4" />
-            <span>+ Novo Pedido</span>
+            <span>Novo Pedido</span>
           </Button>
         </div>
       </div>

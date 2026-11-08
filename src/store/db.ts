@@ -394,6 +394,30 @@ export async function limparFotosAntigas(userId: string, urlAtual: string | null
   if (apagar.length) await supabase.storage.from('avatares').remove(apagar)
 }
 
+/** Envia a imagem de um produto e devolve o endereço público. */
+export async function enviarImagemProduto(
+  produtoId: string,
+  imagem: { blob: Blob; extensao: string },
+): Promise<string> {
+  const caminho = `${produtoId}/${Date.now()}.${imagem.extensao}`
+  const { error } = await supabase.storage.from('produtos').upload(caminho, imagem.blob, {
+    contentType: imagem.blob.type,
+    cacheControl: '31536000',
+    upsert: false,
+  })
+  if (error) throw new Error(error.message)
+  return supabase.storage.from('produtos').getPublicUrl(caminho).data.publicUrl
+}
+
+/** Apaga imagens antigas do produto, mantendo só a atual (ou todas, se urlAtual for null). */
+export async function limparImagensProduto(produtoId: string, urlAtual: string | null) {
+  const { data } = await supabase.storage.from('produtos').list(produtoId, { limit: 100 })
+  const apagar = (data ?? [])
+    .map((f) => `${produtoId}/${f.name}`)
+    .filter((caminho) => !urlAtual || !urlAtual.endsWith(caminho))
+  if (apagar.length) await supabase.storage.from('produtos').remove(apagar)
+}
+
 /** Atualiza nome e foto do próprio usuário. */
 export async function atualizarMeuPerfil(nome: string, avatarUrl: string | null): Promise<void> {
   check(await supabase.rpc('atualizar_meu_perfil', { p_nome: nome, p_avatar_url: avatarUrl ?? '' }))
@@ -511,10 +535,15 @@ export async function persistirAcao(
 
     case 'SALVAR_PRODUTO':
       check(await supabase.from('produtos').upsert(produtoParaRow(p)))
+      await limparImagensProduto(
+        p.id,
+        p.imagemUrl?.includes('/produtos/') ? p.imagemUrl : null,
+      ).catch(() => undefined)
       return []
 
     case 'EXCLUIR_PRODUTO':
       check(await supabase.from('produtos').delete().eq('id', p))
+      await limparImagensProduto(p, null).catch(() => undefined)
       return []
 
     case 'SALVAR_DESPESA':

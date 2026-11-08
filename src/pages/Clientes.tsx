@@ -215,7 +215,7 @@ export default function Clientes() {
           className="bg-[#C48864] hover:bg-[#B0764F] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5 self-start sm:self-auto"
         >
           <UserPlus className="w-4 h-4" />
-          <span>+ Novo Cliente</span>
+          <span>Novo Cliente</span>
         </Button>
       </div>
 
