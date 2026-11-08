@@ -251,7 +251,7 @@ export default function Financeiro() {
         <Card className="border-[#DFC3AE]/80 bg-white shadow-xs">
           <CardContent className="p-3.5 space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#6B4B36] block">
-              Desp. Pendentes
+              Despesas Pendentes
             </span>
             <div className="font-serif text-base font-bold text-[#6B4B36] truncate">
               <CountUpNumber value={resumo.despesasPendentes} isCurrency />
@@ -272,7 +272,7 @@ export default function Financeiro() {
             <div className="font-serif text-base font-bold text-[#0C1014] truncate">
               <CountUpNumber value={resumo.resultadoFinanceiro} isCurrency />
             </div>
-            <p className="text-[10px] text-[#6B4B36] truncate">Recebido − Desp. pagas</p>
+            <p className="text-[10px] text-[#6B4B36] truncate">Recebido − despesas pagas</p>
           </CardContent>
         </Card>
 

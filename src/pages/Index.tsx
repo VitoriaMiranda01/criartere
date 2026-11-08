@@ -288,7 +288,7 @@ export default function Index() {
             >
               <CountUpNumber value={resumo.resultadoFinanceiro} isCurrency />
             </div>
-            <p className="text-[10px] text-[#6B4B36] font-medium">Recebido − Desp. pagas</p>
+            <p className="text-[10px] text-[#6B4B36] font-medium">Recebido − despesas pagas</p>
           </CardContent>
         </Card>
 
