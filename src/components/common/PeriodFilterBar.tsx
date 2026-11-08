@@ -36,7 +36,7 @@ export const PeriodFilterBar: React.FC<PeriodFilterBarProps> = ({
   }
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-2.5 sm:p-3 rounded-xl border border-[#DFC3AE]/70 shadow-xs mb-6">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-2.5 sm:p-3 rounded-xl border border-[#DFC3AE]/70 shadow-xs">
       {/* Pílulas */}
       <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
         {opcoes.map((op) => {

@@ -193,62 +193,62 @@ export default function Clientes() {
 
   return (
     <div className="space-y-6">
-      {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
-        <CabecalhoPagina
-          titulo="Cadastro de Clientes"
-          descricao={`${state.clientes.length} clientes cadastrados • Histórico individual de compras`}
-          ajuda={
-            <DicaAjuda titulo="Clientes" topico="clientes" lado="bottom">
-              <p>
-                Clique em um cliente para ver os pedidos, o total comprado e o que falta receber.
-              </p>
-              <p>Clientes com pedidos não podem ser excluídos, para preservar o histórico.</p>
-            </DicaAjuda>
-          }
-        />
-
-        <Button
-          onClick={abrirNovoCliente}
-          className="bg-[#A5683F] hover:bg-[#8C5636] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5 self-start sm:self-auto"
-        >
-          <UserPlus className="w-4 h-4" />
-          <span>Novo Cliente</span>
-        </Button>
-      </div>
+      <CabecalhoPagina
+        titulo="Cadastro de Clientes"
+        descricao={`${state.clientes.length} clientes cadastrados • Histórico individual de compras`}
+        ajuda={
+          <DicaAjuda titulo="Clientes" topico="clientes" lado="bottom">
+            <p>Clique em um cliente para ver os pedidos, o total comprado e o que falta receber.</p>
+            <p>Clientes com pedidos não podem ser excluídos, para preservar o histórico.</p>
+          </DicaAjuda>
+        }
+      />
 
       {/* BARRA DE BUSCA */}
-      <div className="bg-white p-3.5 rounded-xl border border-[#DFC3AE]/70 shadow-xs flex items-center gap-3">
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 text-[#6B4B36]/90 absolute left-3 top-1/2 -translate-y-1/2" />
-          <Input
-            placeholder="Buscar por nome, telefone, WhatsApp ou e-mail..."
-            value={busca}
-            onChange={(e) => {
-              setBusca(e.target.value)
-              setSearchParams((prev) => {
-                if (e.target.value) prev.set('busca', e.target.value)
-                else prev.delete('busca')
-                return prev
-              })
-            }}
-            className="pl-9 pr-8 h-9 text-xs border-[#DFC3AE]"
-          />
-          {busca && (
-            <button
-              aria-label="Limpar busca"
-              onClick={() => {
-                setBusca('')
-                setSearchParams((prev) => {
-                  prev.delete('busca')
-                  return prev
-                })
-              }}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[#6B4B36] hover:text-[#0C1014]"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="bg-white p-3.5 rounded-xl border border-[#DFC3AE]/70 shadow-xs flex items-center gap-3">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-[#6B4B36]/90 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Input
+                placeholder="Buscar por nome, telefone, WhatsApp ou e-mail..."
+                value={busca}
+                onChange={(e) => {
+                  setBusca(e.target.value)
+                  setSearchParams((prev) => {
+                    if (e.target.value) prev.set('busca', e.target.value)
+                    else prev.delete('busca')
+                    return prev
+                  })
+                }}
+                className="pl-9 pr-8 h-9 text-xs border-[#DFC3AE]"
+              />
+              {busca && (
+                <button
+                  aria-label="Limpar busca"
+                  onClick={() => {
+                    setBusca('')
+                    setSearchParams((prev) => {
+                      prev.delete('busca')
+                      return prev
+                    })
+                  }}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[#6B4B36] hover:text-[#0C1014]"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <Button
+            onClick={abrirNovoCliente}
+            className="bg-[#A5683F] hover:bg-[#8C5636] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5 self-start sm:self-auto"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Novo Cliente</span>
+          </Button>
         </div>
       </div>
 

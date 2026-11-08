@@ -584,6 +584,7 @@ export default function Layout() {
 
           {/* CONTEÚDO PRINCIPAL (Outlet) */}
           <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+            <div ref={setEspacoCelular} className="lg:hidden mb-4 empty:hidden" />
             {state.modoDemo && (
               <div
                 role="status"
@@ -597,7 +598,6 @@ export default function Layout() {
                 </p>
               </div>
             )}
-            <div ref={setEspacoCelular} className="lg:hidden mb-4 empty:hidden" />
             <ErroTela chave={location.pathname}>
               <Suspense
                 fallback={

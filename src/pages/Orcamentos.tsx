@@ -141,64 +141,67 @@ export default function Orcamentos() {
 
   return (
     <div className="space-y-6">
-      {/* CABEÇALHO */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
-        <CabecalhoPagina
-          titulo="Orçamentos"
-          descricao={`${contagem('aguardando')} aguardando confirmação • ${formatBRL(totalAguardando)} em negociação`}
-          ajuda={
-            <DicaAjuda titulo="Orçamentos" topico="orcamentos" lado="bottom">
-              <p>Crie o orçamento, baixe ou compartilhe o PDF e envie ao cliente.</p>
-              <p>Quando o cliente aprovar, use "Aprovado → virar pedido" para gerar o pedido.</p>
-            </DicaAjuda>
-          }
-        />
-        <Button
-          onClick={() => {
-            setEmEdicao(null)
-            setModalAberto(true)
-          }}
-          className="bg-[#A5683F] hover:bg-[#8C5636] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Novo Orçamento</span>
-        </Button>
-      </div>
+      <CabecalhoPagina
+        titulo="Orçamentos"
+        descricao={`${contagem('aguardando')} aguardando confirmação • ${formatBRL(totalAguardando)} em negociação`}
+        ajuda={
+          <DicaAjuda titulo="Orçamentos" topico="orcamentos" lado="bottom">
+            <p>Crie o orçamento, baixe ou compartilhe o PDF e envie ao cliente.</p>
+            <p>Quando o cliente aprovar, use "Aprovado → virar pedido" para gerar o pedido.</p>
+          </DicaAjuda>
+        }
+      />
 
       {/* FILTROS */}
-      <div className="bg-white p-3.5 rounded-xl border border-[#DFC3AE]/70 shadow-xs space-y-3">
-        <div className="relative">
-          <Search className="w-4 h-4 text-[#6B4B36]/90 absolute left-3 top-1/2 -translate-y-1/2" />
-          <Input
-            placeholder="Buscar por número, cliente ou item..."
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            className="pl-9 pr-8 h-9 text-xs border-[#DFC3AE]"
-          />
-          {busca && (
-            <button
-              aria-label="Limpar busca"
-              onClick={() => setBusca('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6B4B36] hover:text-[#0C1014]"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="bg-white p-3.5 rounded-xl border border-[#DFC3AE]/70 shadow-xs space-y-3">
+            <div className="relative">
+              <Search className="w-4 h-4 text-[#6B4B36]/90 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Input
+                placeholder="Buscar por número, cliente ou item..."
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                className="pl-9 pr-8 h-9 text-xs border-[#DFC3AE]"
+              />
+              {busca && (
+                <button
+                  aria-label="Limpar busca"
+                  onClick={() => setBusca('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6B4B36] hover:text-[#0C1014]"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {FILTROS.map((f) => (
+                <button
+                  key={f.valor}
+                  onClick={() => setFiltro(f.valor)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    filtro === f.valor
+                      ? 'bg-[#A5683F] text-white shadow-xs'
+                      : 'bg-[#F7F3EA] text-[#6B4B36] hover:bg-[#DFC3AE]/40'
+                  }`}
+                >
+                  {f.rotulo} ({contagem(f.valor)})
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-1.5">
-          {FILTROS.map((f) => (
-            <button
-              key={f.valor}
-              onClick={() => setFiltro(f.valor)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                filtro === f.valor
-                  ? 'bg-[#A5683F] text-white shadow-xs'
-                  : 'bg-[#F7F3EA] text-[#6B4B36] hover:bg-[#DFC3AE]/40'
-              }`}
-            >
-              {f.rotulo} ({contagem(f.valor)})
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <Button
+            onClick={() => {
+              setEmEdicao(null)
+              setModalAberto(true)
+            }}
+            className="bg-[#A5683F] hover:bg-[#8C5636] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Novo Orçamento</span>
+          </Button>
         </div>
       </div>
 

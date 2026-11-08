@@ -129,56 +129,58 @@ export default function Financeiro() {
 
   return (
     <div className="space-y-6">
-      {/* HEADER DA TELA */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
-        <CabecalhoPagina
-          titulo="Gestão Financeira"
-          descricao="Faturamento previsto, recebimentos realizados e saldo de caixa"
-          ajuda={
-            <DicaAjuda titulo="Previsto × Realizado" topico="financeiro" lado="bottom">
-              <p>
-                <strong>Vendas (Faturamento)</strong>: valor dos pedidos vendidos, pagos ou não.
-              </p>
-              <p>
-                <strong>Total Recebido</strong>: o que já entrou no caixa.
-              </p>
-              <p>
-                <strong>Resultado</strong>: recebido menos despesas pagas (lucro realizado).
-              </p>
-              <p>Clique no status de uma despesa para marcar como paga ou pendente.</p>
-            </DicaAjuda>
-          }
-        />
-
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setModalCategoriasAberto(true)}
-            className="border-[#DFC3AE] text-[#6B4B36] hover:text-[#0C1014] text-xs h-10 px-3.5 rounded-xl flex items-center gap-1.5"
-          >
-            <FolderTree className="w-3.5 h-3.5 text-[#94603D]" />
-            <span>Categorias</span>
-          </Button>
-          <Button
-            onClick={() => {
-              setDespesaParaEditar(null)
-              setModalDespesaAberto(true)
-            }}
-            className="bg-[#A5683F] hover:bg-[#8C5636] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Nova Despesa</span>
-          </Button>
-        </div>
-      </div>
+      <CabecalhoPagina
+        titulo="Gestão Financeira"
+        descricao="Faturamento previsto, recebimentos realizados e saldo de caixa"
+        ajuda={
+          <DicaAjuda titulo="Previsto × Realizado" topico="financeiro" lado="bottom">
+            <p>
+              <strong>Vendas (Faturamento)</strong>: valor dos pedidos vendidos, pagos ou não.
+            </p>
+            <p>
+              <strong>Total Recebido</strong>: o que já entrou no caixa.
+            </p>
+            <p>
+              <strong>Resultado</strong>: recebido menos despesas pagas (lucro realizado).
+            </p>
+            <p>Clique no status de uma despesa para marcar como paga ou pendente.</p>
+          </DicaAjuda>
+        }
+      />
 
       {/* FILTRO DE PERÍODO */}
-      <PeriodFilterBar
-        periodo={periodo}
-        onChangePeriodo={setPeriodo}
-        personalizado={personalizado}
-        onChangePersonalizado={setPersonalizado}
-      />
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <PeriodFilterBar
+            periodo={periodo}
+            onChangePeriodo={setPeriodo}
+            personalizado={personalizado}
+            onChangePersonalizado={setPersonalizado}
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setModalCategoriasAberto(true)}
+              className="border-[#DFC3AE] text-[#6B4B36] hover:text-[#0C1014] text-xs h-10 px-3.5 rounded-xl flex items-center gap-1.5"
+            >
+              <FolderTree className="w-3.5 h-3.5 text-[#94603D]" />
+              <span>Categorias</span>
+            </Button>
+            <Button
+              onClick={() => {
+                setDespesaParaEditar(null)
+                setModalDespesaAberto(true)
+              }}
+              className="bg-[#A5683F] hover:bg-[#8C5636] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Nova Despesa</span>
+            </Button>
+          </div>
+        </div>
+      </div>
 
       {/* RESUMO FINANCEIRO (Cards diferenciados visualmente por tipo) */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">

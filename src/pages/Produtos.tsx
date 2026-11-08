@@ -220,94 +220,94 @@ export default function Produtos() {
 
   return (
     <div className="space-y-6">
-      {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
-        <CabecalhoPagina
-          titulo="Catálogo de Produtos"
-          descricao={`${state.produtos.length} produtos cadastrados • Prontos para preenchimento ágil nos pedidos`}
-          ajuda={
-            <DicaAjuda titulo="Catálogo" topico="produtos" lado="bottom">
-              <p>
-                Os produtos aparecem para escolha rápida em pedidos e orçamentos, já com o preço.
-              </p>
-              <p>Informe o custo para acompanhar a margem de lucro.</p>
-            </DicaAjuda>
-          }
-        />
-
-        <Button
-          onClick={abrirNovoProduto}
-          className="bg-[#A5683F] hover:bg-[#8C5636] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5 self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Novo Produto</span>
-        </Button>
-      </div>
+      <CabecalhoPagina
+        titulo="Catálogo de Produtos"
+        descricao={`${state.produtos.length} produtos cadastrados • Prontos para preenchimento ágil nos pedidos`}
+        ajuda={
+          <DicaAjuda titulo="Catálogo" topico="produtos" lado="bottom">
+            <p>Os produtos aparecem para escolha rápida em pedidos e orçamentos, já com o preço.</p>
+            <p>Informe o custo para acompanhar a margem de lucro.</p>
+          </DicaAjuda>
+        }
+      />
 
       {/* FILTROS E BUSCA */}
-      <div className="bg-white p-3.5 rounded-xl border border-[#DFC3AE]/70 shadow-xs space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-          <div className="sm:col-span-6 relative">
-            <Search className="w-4 h-4 text-[#6B4B36]/90 absolute left-3 top-1/2 -translate-y-1/2" />
-            <Input
-              placeholder="Buscar por nome ou descrição do produto..."
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              className="pl-9 pr-8 h-9 text-xs border-[#DFC3AE]"
-            />
-            {busca && (
-              <button
-                aria-label="Limpar busca"
-                onClick={() => setBusca('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[#6B4B36]"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="bg-white p-3.5 rounded-xl border border-[#DFC3AE]/70 shadow-xs space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+              <div className="sm:col-span-6 relative">
+                <Search className="w-4 h-4 text-[#6B4B36]/90 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Input
+                  placeholder="Buscar por nome ou descrição do produto..."
+                  value={busca}
+                  onChange={(e) => setBusca(e.target.value)}
+                  className="pl-9 pr-8 h-9 text-xs border-[#DFC3AE]"
+                />
+                {busca && (
+                  <button
+                    aria-label="Limpar busca"
+                    onClick={() => setBusca('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[#6B4B36]"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
 
-          <div className="sm:col-span-3">
-            <Select value={categoriaFiltro} onValueChange={setCategoriaFiltro}>
-              <SelectTrigger
-                aria-label="Filtrar por categoria"
-                className="h-9 text-xs border-[#DFC3AE]"
-              >
-                <SelectValue placeholder="Categoria..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todas" className="text-xs">
-                  Todas as Categorias
-                </SelectItem>
-                {categoriasDisponiveis.map((cat) => (
-                  <SelectItem key={cat} value={cat} className="text-xs">
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+              <div className="sm:col-span-3">
+                <Select value={categoriaFiltro} onValueChange={setCategoriaFiltro}>
+                  <SelectTrigger
+                    aria-label="Filtrar por categoria"
+                    className="h-9 text-xs border-[#DFC3AE]"
+                  >
+                    <SelectValue placeholder="Categoria..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todas" className="text-xs">
+                      Todas as Categorias
+                    </SelectItem>
+                    {categoriasDisponiveis.map((cat) => (
+                      <SelectItem key={cat} value={cat} className="text-xs">
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <div className="sm:col-span-3">
-            <Select value={filtroStatus} onValueChange={(val: any) => setFiltroStatus(val)}>
-              <SelectTrigger
-                aria-label="Filtrar por situação"
-                className="h-9 text-xs border-[#DFC3AE]"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos" className="text-xs">
-                  Todos os Status
-                </SelectItem>
-                <SelectItem value="ativos" className="text-xs">
-                  Somente Ativos
-                </SelectItem>
-                <SelectItem value="inativos" className="text-xs">
-                  Somente Inativos
-                </SelectItem>
-              </SelectContent>
-            </Select>
+              <div className="sm:col-span-3">
+                <Select value={filtroStatus} onValueChange={(val: any) => setFiltroStatus(val)}>
+                  <SelectTrigger
+                    aria-label="Filtrar por situação"
+                    className="h-9 text-xs border-[#DFC3AE]"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos" className="text-xs">
+                      Todos os Status
+                    </SelectItem>
+                    <SelectItem value="ativos" className="text-xs">
+                      Somente Ativos
+                    </SelectItem>
+                    <SelectItem value="inativos" className="text-xs">
+                      Somente Inativos
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <Button
+            onClick={abrirNovoProduto}
+            className="bg-[#A5683F] hover:bg-[#8C5636] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5 self-start sm:self-auto"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Novo Produto</span>
+          </Button>
         </div>
       </div>
 
