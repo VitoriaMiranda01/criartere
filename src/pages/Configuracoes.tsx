@@ -1,3 +1,4 @@
+import { CabecalhoPagina } from '@/components/common/CabecalhoPagina'
 import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { MeuPerfil } from '@/components/configuracoes/MeuPerfil'
 import { UsuariosPermissoes } from '@/components/configuracoes/UsuariosPermissoes'
@@ -125,15 +126,16 @@ export default function Configuracoes() {
 
   return (
     <div className="space-y-6 max-w-5xl">
-      {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="font-serif text-2xl font-bold text-[#0C1014]">Configurações do Sistema</h2>
-          <p className="text-xs text-[#6B4B36]">
-            Parâmetros da loja, preferências operacionais, formas de pagamento e categorias
-          </p>
-        </div>
-      </div>
+      <CabecalhoPagina
+        titulo="Configurações"
+        descricao="Perfil, dados da loja, pagamentos, categorias, usuários e preferências"
+        ajuda={
+          <DicaAjuda titulo="Configurações" topico="configuracoes" lado="bottom">
+            <p>Os dados da loja e a chave Pix aparecem nos orçamentos em PDF.</p>
+            <p>Em "Usuários e permissões" você define quem acessa o sistema.</p>
+          </DicaAjuda>
+        }
+      />
 
       {/* MEU PERFIL */}
       <MeuPerfil />

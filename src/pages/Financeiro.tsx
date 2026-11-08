@@ -1,3 +1,4 @@
+import { CabecalhoPagina } from '@/components/common/CabecalhoPagina'
 import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { hojeISO, inicioDoMesISO } from '@/lib/datas'
 import React, { useState } from 'react'
@@ -129,10 +130,11 @@ export default function Financeiro() {
   return (
     <div className="space-y-6">
       {/* HEADER DA TELA */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="font-serif text-2xl font-bold text-[#0C1014] flex items-center gap-1.5">
-            Gestão Financeira
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
+        <CabecalhoPagina
+          titulo="Gestão Financeira"
+          descricao="Faturamento previsto, recebimentos realizados e saldo de caixa"
+          ajuda={
             <DicaAjuda titulo="Previsto × Realizado" topico="financeiro" lado="bottom">
               <p>
                 <strong>Vendas (Faturamento)</strong>: valor dos pedidos vendidos, pagos ou não.
@@ -145,11 +147,8 @@ export default function Financeiro() {
               </p>
               <p>Clique no status de uma despesa para marcar como paga ou pendente.</p>
             </DicaAjuda>
-          </h2>
-          <p className="text-xs text-[#6B4B36]">
-            Diferenciação clara entre faturamento previsto, recebimentos realizados e saldo de caixa
-          </p>
-        </div>
+          }
+        />
 
         <div className="flex items-center gap-2">
           <Button

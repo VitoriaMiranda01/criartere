@@ -1,3 +1,5 @@
+import { CabecalhoPagina } from '@/components/common/CabecalhoPagina'
+import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { daquiADias } from '@/lib/datas'
 import { Obrigatorio } from '@/components/common/MarcadorCampo'
 import { useMemo, useState } from 'react'
@@ -140,14 +142,17 @@ export default function Orcamentos() {
   return (
     <div className="space-y-6">
       {/* CABEÇALHO */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="font-serif text-2xl font-bold text-[#0C1014]">Orçamentos</h2>
-          <p className="text-xs text-[#6B4B36]">
-            {contagem('aguardando')} aguardando confirmação &bull; {formatBRL(totalAguardando)} em
-            negociação
-          </p>
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
+        <CabecalhoPagina
+          titulo="Orçamentos"
+          descricao={`${contagem('aguardando')} aguardando confirmação • ${formatBRL(totalAguardando)} em negociação`}
+          ajuda={
+            <DicaAjuda titulo="Orçamentos" topico="orcamentos" lado="bottom">
+              <p>Crie o orçamento, baixe ou compartilhe o PDF e envie ao cliente.</p>
+              <p>Quando o cliente aprovar, use "Aprovado → virar pedido" para gerar o pedido.</p>
+            </DicaAjuda>
+          }
+        />
         <Button
           onClick={() => {
             setEmEdicao(null)

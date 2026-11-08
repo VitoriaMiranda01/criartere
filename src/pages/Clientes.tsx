@@ -1,3 +1,4 @@
+import { CabecalhoPagina } from '@/components/common/CabecalhoPagina'
 import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { hojeISO } from '@/lib/datas'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
@@ -193,22 +194,19 @@ export default function Clientes() {
   return (
     <div className="space-y-6">
       {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="font-serif text-2xl font-bold text-[#0C1014] flex items-center gap-1.5">
-            Cadastro de Clientes
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
+        <CabecalhoPagina
+          titulo="Cadastro de Clientes"
+          descricao={`${state.clientes.length} clientes cadastrados • Histórico individual de compras`}
+          ajuda={
             <DicaAjuda titulo="Clientes" topico="clientes" lado="bottom">
               <p>
                 Clique em um cliente para ver os pedidos, o total comprado e o que falta receber.
               </p>
               <p>Clientes com pedidos não podem ser excluídos, para preservar o histórico.</p>
             </DicaAjuda>
-          </h2>
-          <p className="text-xs text-[#6B4B36]">
-            {state.clientes.length} clientes ativos cadastrados &bull; Histórico individual de
-            compras
-          </p>
-        </div>
+          }
+        />
 
         <Button
           onClick={abrirNovoCliente}

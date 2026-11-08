@@ -1,3 +1,4 @@
+import { CabecalhoPagina } from '@/components/common/CabecalhoPagina'
 import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { novoId } from '@/lib/supabase'
@@ -220,22 +221,19 @@ export default function Produtos() {
   return (
     <div className="space-y-6">
       {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="font-serif text-2xl font-bold text-[#0C1014] flex items-center gap-1.5">
-            Catálogo de Produtos
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
+        <CabecalhoPagina
+          titulo="Catálogo de Produtos"
+          descricao={`${state.produtos.length} produtos cadastrados • Prontos para preenchimento ágil nos pedidos`}
+          ajuda={
             <DicaAjuda titulo="Catálogo" topico="produtos" lado="bottom">
               <p>
                 Os produtos aparecem para escolha rápida em pedidos e orçamentos, já com o preço.
               </p>
               <p>Informe o custo para acompanhar a margem de lucro.</p>
             </DicaAjuda>
-          </h2>
-          <p className="text-xs text-[#6B4B36]">
-            {state.produtos.length} produtos cadastrados &bull; Prontas para preenchimento ágil nos
-            pedidos
-          </p>
-        </div>
+          }
+        />
 
         <Button
           onClick={abrirNovoProduto}

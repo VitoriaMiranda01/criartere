@@ -1,3 +1,4 @@
+import { CabecalhoPagina } from '@/components/common/CabecalhoPagina'
 import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { hojeISO, inicioDoMesISO } from '@/lib/datas'
 import React, { useState } from 'react'
@@ -62,10 +63,10 @@ export default function FluxoDeCaixa() {
 
   return (
     <div className="space-y-6">
-      {/* HEADER */}
-      <div>
-        <h2 className="font-serif text-2xl font-bold text-[#0C1014] flex items-center gap-1.5">
-          Fluxo de Caixa
+      <CabecalhoPagina
+        titulo="Fluxo de Caixa"
+        descricao="Histórico cronológico e conciliação financeira de entradas e saídas"
+        ajuda={
           <DicaAjuda titulo="Como ler o fluxo de caixa" topico="fluxo-de-caixa" lado="bottom">
             <p>Mostra entradas (pagamentos recebidos) e saídas (despesas) em ordem de data.</p>
             <p>
@@ -73,11 +74,8 @@ export default function FluxoDeCaixa() {
               entram no saldo.
             </p>
           </DicaAjuda>
-        </h2>
-        <p className="text-xs text-[#6B4B36]">
-          Histórico cronológico e conciliação financeira de entradas e saídas
-        </p>
-      </div>
+        }
+      />
 
       {/* FILTRO DE PERÍODO */}
       <PeriodFilterBar

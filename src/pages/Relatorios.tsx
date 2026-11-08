@@ -1,3 +1,4 @@
+import { CabecalhoPagina } from '@/components/common/CabecalhoPagina'
 import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { hojeISO, inicioDoMesISO } from '@/lib/datas'
 import React, { useState } from 'react'
@@ -429,19 +430,19 @@ export default function Relatorios() {
 
   return (
     <div className="space-y-6">
+      <CabecalhoPagina
+        titulo="Relatórios e Análises"
+        descricao="Escolha um dos 8 relatórios operacionais e financeiros para visualizar e exportar"
+        ajuda={
+          <DicaAjuda titulo="Relatórios" topico="relatorios" lado="bottom">
+            <p>Clique em um relatório para ver os dados do período escolhido.</p>
+            <p>Use o botão de exportar para baixar a planilha (CSV).</p>
+          </DicaAjuda>
+        }
+      />
       {/* VISTA PRINCIPAL: SELEÇÃO DE RELATÓRIOS OU VISÃO DO RELATÓRIO */}
       {!relatorioSelecionado ? (
         <>
-          <div>
-            <h2 className="font-serif text-2xl font-bold text-[#0C1014]">
-              Relatórios e Análises Gerenciais
-            </h2>
-            <p className="text-xs text-[#6B4B36]">
-              Selecione um dos 8 relatórios operacionais e financeiros da Criartere para visualizar
-              e exportar
-            </p>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {listaRelatorios.map((rel) => {
               const Icon = rel.icon

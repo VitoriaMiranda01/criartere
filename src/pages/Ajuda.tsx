@@ -1,3 +1,4 @@
+import { CabecalhoPagina } from '@/components/common/CabecalhoPagina'
 /* Central de Ajuda: guia prático de uso do sistema, organizado por tela. */
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
@@ -450,17 +451,15 @@ export default function Ajuda() {
   return (
     <div className="space-y-6 max-w-4xl">
       {/* CABEÇALHO */}
-      <div className="space-y-1">
-        <h2 className="font-serif text-2xl font-bold text-[#0C1014] flex items-center gap-2">
-          <HelpCircle className="w-6 h-6 text-[#94603D]" />
-          Ajuda
-        </h2>
-        <p className="text-xs text-[#6B4B36]">
-          Guia prático de cada parte do sistema. Procure pelo assunto ou abra um tópico abaixo. Nas
-          telas, o ícone <HelpCircle className="inline w-3.5 h-3.5 -mt-0.5" /> explica o recurso ao
-          lado dele.
-        </p>
-      </div>
+      <CabecalhoPagina
+        titulo="Ajuda"
+        descricao={
+          <>
+            Guia prático de cada parte do sistema. Nas telas, o ícone{' '}
+            <HelpCircle className="inline w-3.5 h-3.5 -mt-0.5" /> explica o recurso ao lado dele.
+          </>
+        }
+      />
 
       {/* BUSCA */}
       <div className="relative">

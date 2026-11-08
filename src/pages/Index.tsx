@@ -1,3 +1,4 @@
+import { CabecalhoPagina } from '@/components/common/CabecalhoPagina'
 import { corLegivel } from '@/lib/cores'
 import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { hojeISO, inicioDoMesISO } from '@/lib/datas'
@@ -150,6 +151,10 @@ export default function Index() {
 
   return (
     <div className="space-y-6">
+      <CabecalhoPagina
+        titulo="Dashboard"
+        descricao="Visão geral de vendas, recebimentos, despesas e pedidos do período"
+      />
       {/* Barra de Filtro de Período */}
       <PeriodFilterBar
         periodo={periodo}
