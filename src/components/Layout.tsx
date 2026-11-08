@@ -20,6 +20,8 @@ import {
   X,
   Clock,
   Code2,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -31,6 +33,23 @@ export default function Layout() {
   const location = useLocation()
 
   const [mobileMenuAberto, setMobileMenuAberto] = useState(false)
+  // Menu lateral recolhido (só ícones) no computador; a escolha fica salva no aparelho
+  const [menuRecolhido, setMenuRecolhido] = useState(() => {
+    try {
+      return localStorage.getItem('criartere-menu-recolhido') === '1'
+    } catch {
+      return false
+    }
+  })
+  const alternarMenu = () =>
+    setMenuRecolhido((atual) => {
+      try {
+        localStorage.setItem('criartere-menu-recolhido', atual ? '0' : '1')
+      } catch {
+        // sem armazenamento local: vale só até recarregar
+      }
+      return !atual
+    })
   const [buscaGlobal, setBuscaGlobal] = useState('')
   const [buscaFocada, setBuscaFocada] = useState(false)
 
@@ -180,22 +199,52 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-[#F7F3EA] text-[#0C1014] flex flex-col lg:flex-row font-sans">
       {/* SIDEBAR DESKTOP */}
-      <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-[#DFC3AE]/60 shrink-0 sticky top-0 h-screen z-30">
+      <aside
+        className={`hidden lg:flex flex-col bg-white border-r border-[#DFC3AE]/60 shrink-0 sticky top-0 h-screen z-30 transition-[width] duration-200 ${
+          menuRecolhido ? 'w-[76px]' : 'w-64'
+        }`}
+      >
+        {/* Recolher / expandir */}
+        <button
+          type="button"
+          onClick={alternarMenu}
+          aria-label={menuRecolhido ? 'Expandir menu' : 'Recolher menu'}
+          aria-expanded={!menuRecolhido}
+          title={menuRecolhido ? 'Expandir menu' : 'Recolher menu'}
+          className="absolute -right-3 top-[38px] z-10 w-6 h-6 rounded-full bg-white border border-[#DFC3AE] text-[#6B4B36] hover:text-[#0C1014] hover:border-[#A5683F] shadow-xs flex items-center justify-center"
+        >
+          {menuRecolhido ? (
+            <ChevronRight className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronLeft className="w-3.5 h-3.5" />
+          )}
+        </button>
+
         {/* Brand Block */}
-        <div className="p-6 pb-4 border-b border-[#DFC3AE]/40">
+        <div
+          className={`border-b border-[#DFC3AE]/40 ${menuRecolhido ? 'px-0 py-5 flex justify-center' : 'p-6 pb-4'}`}
+        >
           <div className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="" className="w-9 h-9 shrink-0" />
-            <span className="font-serif text-2xl font-bold tracking-tight text-[#0C1014]">
-              Criartere
-            </span>
+            <img
+              src="/logo.png"
+              alt={menuRecolhido ? 'Criartere' : ''}
+              className="w-9 h-9 shrink-0"
+            />
+            {!menuRecolhido && (
+              <span className="font-serif text-2xl font-bold tracking-tight text-[#0C1014]">
+                Criartere
+              </span>
+            )}
           </div>
-          <p className="text-[10px] uppercase tracking-widest text-[#6B4B36] font-semibold mt-0.5">
-            Sistema de Gestão
-          </p>
+          {!menuRecolhido && (
+            <p className="text-[10px] uppercase tracking-widest text-[#6B4B36] font-semibold mt-0.5">
+              Sistema de Gestão
+            </p>
+          )}
         </div>
 
         {/* Navigation Menu */}
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto overflow-x-hidden">
           {navItems.map((item) => {
             const Icon = item.icon
             const isActive =
@@ -207,7 +256,11 @@ export default function Layout() {
               <NavLink
                 key={item.path}
                 to={item.path}
-                className={`flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all group relative ${
+                title={menuRecolhido ? item.label : undefined}
+                aria-label={menuRecolhido ? item.label : undefined}
+                className={`flex items-center rounded-lg text-sm font-medium transition-all group relative ${
+                  menuRecolhido ? 'justify-center px-0 py-2.5' : 'justify-between px-3.5 py-2.5'
+                } ${
                   isActive
                     ? 'bg-[#C48864]/12 text-[#94603D] font-semibold shadow-xs'
                     : 'text-[#6B4B36] hover:bg-[#F7F3EA] hover:text-[#0C1014]'
@@ -219,33 +272,42 @@ export default function Layout() {
                 )}
                 <div className="flex items-center gap-3">
                   <Icon
-                    className={`w-4 h-4 transition-colors ${
+                    className={`w-4 h-4 shrink-0 transition-colors ${
                       isActive ? 'text-[#94603D]' : 'text-[#6B4B36]/90 group-hover:text-[#0C1014]'
                     }`}
                   />
-                  <span>{item.label}</span>
+                  {!menuRecolhido && <span>{item.label}</span>}
                 </div>
-                {item.badge !== undefined && (
-                  <Badge
-                    variant="secondary"
-                    className="h-5 px-1.5 bg-[#C48864]/20 text-[#6B4B36] text-[11px] font-bold border-none"
-                  >
-                    {item.badge}
-                  </Badge>
-                )}
+                {item.badge !== undefined &&
+                  (menuRecolhido ? (
+                    <span className="absolute top-1 right-2.5 min-w-4 h-4 px-1 rounded-full bg-[#A5683F] text-white text-[9px] font-bold flex items-center justify-center">
+                      {item.badge}
+                    </span>
+                  ) : (
+                    <Badge
+                      variant="secondary"
+                      className="h-5 px-1.5 bg-[#C48864]/20 text-[#6B4B36] text-[11px] font-bold border-none"
+                    >
+                      {item.badge}
+                    </Badge>
+                  ))}
               </NavLink>
             )
           })}
         </nav>
 
         {/* Rodapé da Sidebar */}
-        <div className="p-4 border-t border-[#DFC3AE]/50 bg-[#F7F3EA]/30 space-y-3">
-          {/* User Block */}
-          <div className="flex items-center justify-between pt-1">
+        <div
+          className={`border-t border-[#DFC3AE]/50 bg-[#F7F3EA]/30 ${menuRecolhido ? 'p-3' : 'p-4'}`}
+        >
+          <div
+            className={`flex items-center pt-1 ${menuRecolhido ? 'flex-col gap-2' : 'justify-between'}`}
+          >
             <button
               type="button"
               onClick={() => navigate('/configuracoes#meu-perfil')}
               title="Editar meu perfil"
+              aria-label="Editar meu perfil"
               className="flex items-center gap-2.5 min-w-0 text-left rounded-lg p-1 -m-1 hover:bg-[#F7F3EA]"
             >
               <Avatar
@@ -253,19 +315,22 @@ export default function Layout() {
                 src={state.usuarioAtual.avatarUrl}
                 className="w-8 h-8"
               />
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-[#0C1014] truncate">
-                  {state.usuarioAtual.nome}
-                </p>
-                <p className="text-[10px] text-[#6B4B36] truncate">
-                  {state.usuarioAtual.papel || state.usuarioAtual.email}
-                </p>
-              </div>
+              {!menuRecolhido && (
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-[#0C1014] truncate">
+                    {state.usuarioAtual.nome}
+                  </p>
+                  <p className="text-[10px] text-[#6B4B36] truncate">
+                    {state.usuarioAtual.papel || state.usuarioAtual.email}
+                  </p>
+                </div>
+              )}
             </button>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleLogout}
+              aria-label="Sair do sistema"
               className="h-8 w-8 text-[#6B4B36] hover:text-red-600 hover:bg-red-50 rounded-lg shrink-0"
               title="Sair do sistema"
             >
