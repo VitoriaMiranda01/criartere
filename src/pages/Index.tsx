@@ -1,3 +1,4 @@
+import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { hojeISO, inicioDoMesISO } from '@/lib/datas'
 import { etapasDoKanban } from '@/store/etapas'
 import React, { useState } from 'react'
@@ -162,8 +163,25 @@ export default function Index() {
         <Card className="border-[#DFC3AE]/70 shadow-xs bg-white">
           <CardContent className="p-3.5 space-y-1">
             <div className="flex items-center justify-between text-xs text-[#6B4B36]">
-              <span className="font-semibold uppercase tracking-wider text-[10px]">
+              <span className="font-semibold uppercase tracking-wider text-[10px] flex items-center gap-0.5">
                 Faturamento Total
+                <DicaAjuda
+                  titulo="Entendendo os números"
+                  topico="dashboard"
+                  lado="bottom"
+                  className="w-4 h-4"
+                >
+                  <p>
+                    <strong>Faturamento</strong>: pedidos vendidos no período, pagos ou não.
+                  </p>
+                  <p>
+                    <strong>Recebido</strong>: o que entrou no caixa. <strong>A Receber</strong>: o
+                    que falta.
+                  </p>
+                  <p>
+                    <strong>Resultado</strong>: recebido menos despesas pagas.
+                  </p>
+                </DicaAjuda>
               </span>
               <TrendingUp className="w-3.5 h-3.5 text-[#C48864]" />
             </div>

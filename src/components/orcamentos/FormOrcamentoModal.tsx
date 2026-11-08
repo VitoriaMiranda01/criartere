@@ -1,3 +1,4 @@
+import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { hojeISO } from '@/lib/datas'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import React, { useEffect, useState } from 'react'
@@ -236,6 +237,9 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
             <div className="space-y-1.5 sm:col-span-2">
               <Label className={lbl}>
                 Disponibilidade
+                <DicaAjuda>
+                  <p>Aparece no PDF. Ex.: "Pronta entrega" ou "Sob encomenda (7 dias úteis)".</p>
+                </DicaAjuda>
                 <Opcional />
               </Label>
               <Input
@@ -426,6 +430,15 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
               <div className="space-y-1.5">
                 <Label className={lbl}>
                   Condição de pagamento
+                  <DicaAjuda titulo="Integral ou com sinal">
+                    <p>
+                      <strong>Integral</strong>: o cliente paga o valor total.
+                    </p>
+                    <p>
+                      <strong>Com sinal</strong>: o cliente paga uma parte (ex.: 50%) para confirmar
+                      o pedido e o restante na entrega. O PDF mostra os dois valores.
+                    </p>
+                  </DicaAjuda>
                   <Obrigatorio />
                 </Label>
                 <div className="grid grid-cols-2 gap-1.5">

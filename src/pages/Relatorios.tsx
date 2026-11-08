@@ -1,3 +1,4 @@
+import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { hojeISO, inicioDoMesISO } from '@/lib/datas'
 import React, { useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
@@ -899,6 +900,12 @@ export default function Relatorios() {
               <div className="flex items-center justify-between">
                 <h3 className="font-serif text-base font-bold text-[#0C1014]">
                   Posição de Valores a Receber (Aging de Cobrança)
+                  <DicaAjuda>
+                    <p>
+                      Lista quem ainda deve e há quanto tempo, para priorizar as cobranças mais
+                      antigas.
+                    </p>
+                  </DicaAjuda>
                 </h3>
                 <span className="font-serif font-bold text-sm text-[#D9A441]">
                   Total a Receber:{' '}

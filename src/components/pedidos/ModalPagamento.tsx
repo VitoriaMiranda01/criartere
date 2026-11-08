@@ -1,3 +1,4 @@
+import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { hojeISO } from '@/lib/datas'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import React, { useState } from 'react'
@@ -126,6 +127,15 @@ export const ModalPagamento: React.FC<ModalPagamentoProps> = ({ pedido, aberto, 
               className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
             >
               Valor a Receber (R$)
+              <DicaAjuda>
+                <p>
+                  Pode ser parcial (ex.: sinal). O pedido fica "Parcial" até a soma dos pagamentos
+                  chegar ao total.
+                </p>
+                <p>
+                  Pagamentos não podem ser apagados depois, então confira o valor antes de salvar.
+                </p>
+              </DicaAjuda>
               <Obrigatorio />
             </Label>
             <Input

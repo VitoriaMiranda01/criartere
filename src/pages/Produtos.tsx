@@ -1,3 +1,4 @@
+import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { novoId } from '@/lib/supabase'
 import React, { useState } from 'react'
@@ -169,7 +170,15 @@ export default function Produtos() {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="font-serif text-2xl font-bold text-[#0C1014]">Catálogo de Produtos</h2>
+          <h2 className="font-serif text-2xl font-bold text-[#0C1014] flex items-center gap-1.5">
+            Catálogo de Produtos
+            <DicaAjuda titulo="Catálogo" topico="produtos" lado="bottom">
+              <p>
+                Os produtos aparecem para escolha rápida em pedidos e orçamentos, já com o preço.
+              </p>
+              <p>Informe o custo para acompanhar a margem de lucro.</p>
+            </DicaAjuda>
+          </h2>
           <p className="text-xs text-[#6B4B36]">
             {state.produtos.length} produtos cadastrados &bull; Prontas para preenchimento ágil nos
             pedidos
@@ -508,6 +517,12 @@ export default function Produtos() {
                 <Label htmlFor="ativo" className="text-xs font-bold text-[#0C1014] cursor-pointer">
                   Produto Ativo no Catálogo
                 </Label>
+                <DicaAjuda titulo="Ativo × Inativo">
+                  <p>
+                    Inativar esconde o produto das listas de pedidos e orçamentos, sem apagar o
+                    histórico de vendas. Útil para itens fora de linha.
+                  </p>
+                </DicaAjuda>
                 <p className="text-[11px] text-[#6B4B36]">
                   Produtos inativos não aparecem na seleção de novos pedidos
                 </p>

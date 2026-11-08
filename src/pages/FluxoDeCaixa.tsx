@@ -1,3 +1,4 @@
+import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { hojeISO, inicioDoMesISO } from '@/lib/datas'
 import React, { useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
@@ -63,7 +64,16 @@ export default function FluxoDeCaixa() {
     <div className="space-y-6">
       {/* HEADER */}
       <div>
-        <h2 className="font-serif text-2xl font-bold text-[#0C1014]">Fluxo de Caixa</h2>
+        <h2 className="font-serif text-2xl font-bold text-[#0C1014] flex items-center gap-1.5">
+          Fluxo de Caixa
+          <DicaAjuda titulo="Como ler o fluxo de caixa" topico="fluxo-de-caixa" lado="bottom">
+            <p>Mostra entradas (pagamentos recebidos) e saídas (despesas) em ordem de data.</p>
+            <p>
+              O saldo considera só o que já aconteceu. Valores previstos aparecem tracejados e não
+              entram no saldo.
+            </p>
+          </DicaAjuda>
+        </h2>
         <p className="text-xs text-[#6B4B36]">
           Histórico cronológico e conciliação financeira de entradas e saídas
         </p>
@@ -129,6 +139,12 @@ export default function FluxoDeCaixa() {
           <CardContent className="p-3.5 space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#6B4B36] block">
               Saldo Final Realizado
+              <DicaAjuda className="w-4 h-4 ml-0.5">
+                <p>
+                  Saldo inicial + entradas recebidas − despesas pagas. Não inclui valores a receber
+                  nem contas pendentes.
+                </p>
+              </DicaAjuda>
             </span>
             <div className="font-serif text-base font-bold text-[#6B4B36] truncate">
               <CountUpNumber value={resumo.saldoFinal} isCurrency />

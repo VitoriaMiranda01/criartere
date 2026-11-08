@@ -1,3 +1,4 @@
+import { DicaAjuda } from '@/components/common/DicaAjuda'
 import React, { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useCriartere } from '@/store/CriartereContext'
@@ -152,7 +153,19 @@ export default function Pedidos() {
       {/* HEADER DA PÁGINA: TÍTULO, CONTROLES E BOTÃO NOVO PEDIDO */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="font-serif text-2xl font-bold text-[#0C1014]">Gestão de Pedidos</h2>
+          <h2 className="font-serif text-2xl font-bold text-[#0C1014] flex items-center gap-1.5">
+            Gestão de Pedidos
+            <DicaAjuda titulo="Como funciona o Kanban" topico="pedidos" lado="bottom">
+              <p>
+                Cada coluna é uma etapa da produção. Arraste o cartão do pedido para mudar de etapa;
+                tudo fica registrado no histórico.
+              </p>
+              <p>
+                No menu ⋯ de cada coluna você renomeia, muda a cor, reordena ou exclui. Use "Nova
+                coluna" para criar etapas.
+              </p>
+            </DicaAjuda>
+          </h2>
           <p className="text-xs text-[#6B4B36]">
             {state.pedidos.length} pedidos no total &bull; Movimentação arrastável em tempo real
           </p>

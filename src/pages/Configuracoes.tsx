@@ -1,3 +1,4 @@
+import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { MeuPerfil } from '@/components/configuracoes/MeuPerfil'
 import { UsuariosPermissoes } from '@/components/configuracoes/UsuariosPermissoes'
 import { todasEtapas } from '@/store/etapas'
@@ -223,6 +224,9 @@ export default function Configuracoes() {
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
                   Chave Pix (usada nos orçamentos)
+                  <DicaAjuda>
+                    <p>Entra automaticamente nas observações de todo orçamento em PDF.</p>
+                  </DicaAjuda>
                   <Opcional />
                 </Label>
                 <Input
@@ -336,6 +340,12 @@ export default function Configuracoes() {
           <CardTitle className="font-serif text-base font-bold text-[#0C1014] flex items-center gap-2">
             <Palette className="w-4 h-4 text-[#C48864]" />
             Status Operacionais da Produção
+            <DicaAjuda topico="pedidos">
+              <p>
+                São as colunas do Kanban de Pedidos. Para criar, renomear, mudar a cor ou excluir,
+                use a tela de Pedidos.
+              </p>
+            </DicaAjuda>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-5">
@@ -465,7 +475,16 @@ export default function Configuracoes() {
 
             <div className="flex items-center justify-between p-3 bg-[#F7F3EA]/50 rounded-xl border border-[#DFC3AE]/50">
               <div className="space-y-0.5">
-                <span className="font-bold text-[#0C1014] block">Faturamento Previsto</span>
+                <span className="font-bold text-[#0C1014] flex items-center gap-1">
+                  Faturamento Previsto
+                  <DicaAjuda>
+                    <p>
+                      Ligado: pedidos na etapa "Aguardando pagamento" contam no Faturamento Total do
+                      Dashboard e do Financeiro.
+                    </p>
+                    <p>Desligado: só contam quando saírem dessa etapa.</p>
+                  </DicaAjuda>
+                </span>
                 <span className="text-[11px] text-[#6B4B36]">
                   Incluir pedidos aguardando pagamento no faturamento total
                 </span>

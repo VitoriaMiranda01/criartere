@@ -1,3 +1,4 @@
+import { DicaAjuda } from '@/components/common/DicaAjuda'
 /* Lista de contas cadastradas e controle de quem é administrador. */
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
@@ -81,6 +82,13 @@ export function UsuariosPermissoes() {
           <span className="flex items-center gap-2">
             <Users className="w-4 h-4 text-[#C48864]" />
             Usuários e permissões
+            <DicaAjuda topico="configuracoes">
+              <p>
+                Para liberar alguém: a pessoa cria a conta no site e você clica em "Tornar admin" ao
+                lado do nome dela.
+              </p>
+              <p>Clientes (contas sem admin) não acessam o sistema.</p>
+            </DicaAjuda>
           </span>
           <Button
             variant="ghost"

@@ -12,6 +12,7 @@ import {
   ArrowLeftRight,
   BarChart3,
   Settings,
+  HelpCircle,
   Search,
   LogOut,
   Menu,
@@ -42,6 +43,7 @@ export default function Layout() {
     '/fluxo-de-caixa': 'Fluxo de Caixa',
     '/relatorios': 'Relatórios',
     '/configuracoes': 'Configurações',
+    '/ajuda': 'Ajuda',
   }
   useTituloPagina(titulos[location.pathname] ?? 'Sistema de Gestão')
 
@@ -97,6 +99,7 @@ export default function Layout() {
     { label: 'Fluxo de Caixa', path: '/fluxo-de-caixa', icon: ArrowLeftRight },
     { label: 'Relatórios', path: '/relatorios', icon: BarChart3 },
     { label: 'Configurações', path: '/configuracoes', icon: Settings },
+    { label: 'Ajuda', path: '/ajuda', icon: HelpCircle },
   ]
 
   // Resultados da busca global (clientes e pedidos)

@@ -17,6 +17,7 @@ const Financeiro = lazy(() => import('./pages/Financeiro'))
 const FluxoDeCaixa = lazy(() => import('./pages/FluxoDeCaixa'))
 const Relatorios = lazy(() => import('./pages/Relatorios'))
 const Configuracoes = lazy(() => import('./pages/Configuracoes'))
+const Ajuda = lazy(() => import('./pages/Ajuda'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 // Telas carregadas sob demanda (o site abre mais rápido)
@@ -54,6 +55,7 @@ const App = () => (
               <Route path="/fluxo-de-caixa" element={<FluxoDeCaixa />} />
               <Route path="/relatorios" element={<Relatorios />} />
               <Route path="/configuracoes" element={<Configuracoes />} />
+              <Route path="/ajuda" element={<Ajuda />} />
             </Route>
 
             {/* Rota não encontrada */}

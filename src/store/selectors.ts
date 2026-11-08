@@ -27,8 +27,13 @@ export function selectFinancialSummary(
     (p) => p.status !== 'cancelado' && estaNoPeriodo(p.dataCriacao, inicio, fim),
   )
 
-  // Faturamento total (receita prevista)
-  const faturamentoTotal = pedidosNoPeriodo.reduce((sum, p) => sum + p.valorTotal, 0)
+  // Faturamento total (receita prevista). A opção "Faturamento Previsto" em Configurações
+  // decide se pedidos na etapa "Aguardando pagamento" entram nesta soma.
+  const faturamentoTotal = pedidosNoPeriodo
+    .filter(
+      (p) => state.config.incluirAguardandoNoFaturamento || p.status !== 'aguardando_pagamento',
+    )
+    .reduce((sum, p) => sum + p.valorTotal, 0)
 
   // Pagamentos efetivamente recebidos no período (apenas de pedidos que não foram cancelados)
   // Caso o pedido tenha sido cancelado, seus pagamentos são desconsiderados do faturamento
