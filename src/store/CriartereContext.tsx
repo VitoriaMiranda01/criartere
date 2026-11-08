@@ -13,6 +13,7 @@ import { CriartereState } from './types'
 import { ETAPAS_PADRAO } from './etapas'
 import { CATEGORIAS_DESPESA_PADRAO, CONFIG_PADRAO, FORMAS_PAGAMENTO_PADRAO } from './padroes'
 import { agoraFormatado, hojeISO } from '@/lib/datas'
+import { dadosDemo, simularServidor } from './demo'
 import {
   Cliente,
   Produto,
@@ -35,6 +36,7 @@ const initialState: CriartereState = {
   autorizado: false,
   acessoNegado: false,
   falhaVerificacao: false,
+  modoDemo: false,
   usuarioAtual: {
     id: '',
     nome: '',
@@ -492,6 +494,7 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
   )
 
   const recarregar = useCallback(async () => {
+    if (stateRef.current.modoDemo) return
     mesclar({ carregando: true })
     try {
       await recarregarFatias(TODAS_FATIAS)
@@ -530,6 +533,22 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
       })
       try {
         const perfil = await buscarPerfil(userId)
+        if (perfil?.papel === 'desenvolvedor') {
+          // Desenvolvedor(a): usa o sistema com dados fictícios, sem ler nada do banco
+          mesclar({
+            autorizado: true,
+            modoDemo: true,
+            usuarioAtual: {
+              id: userId,
+              nome: perfil.nome || nomeMeta || email.split('@')[0],
+              email,
+              papel: 'Desenvolvedor(a)',
+              avatarUrl: perfil.avatarUrl ?? undefined,
+            },
+            ...dadosDemo(),
+          })
+          return
+        }
         if (perfil?.papel !== 'admin') {
           // Conta existe, mas não é administradora: encerra a sessão e avisa no login
           negarAcesso = true
@@ -573,7 +592,7 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
   // Atualização ao vivo: quando outra pessoa (ou outro aparelho) altera algo,
   // o banco avisa e só a parte afetada é recarregada.
   useEffect(() => {
-    if (!state.autorizado) return
+    if (!state.autorizado || state.modoDemo) return
     let temporizador: ReturnType<typeof setTimeout> | undefined
     const recebidas = new Set<Fatia>()
     const aplicar = () => {
@@ -601,7 +620,7 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
       clearTimeout(temporizador)
       supabase.removeChannel(canal)
     }
-  }, [state.autorizado, recarregarFatias])
+  }, [state.autorizado, state.modoDemo, recarregarFatias])
 
   // Mantém os dados atualizados quando o sistema é usado em mais de um aparelho:
   // ao voltar para a aba (após 2 min) ou quando a internet volta, busca tudo de novo.
@@ -609,7 +628,7 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
     let ultimaSincronizacao = Date.now()
     const sincronizar = (forcar = false) => {
       const s = stateRef.current
-      if (!s.autenticado || !s.autorizado || s.carregando) return
+      if (!s.autenticado || !s.autorizado || s.carregando || s.modoDemo) return
       if (!forcar && Date.now() - ultimaSincronizacao < 2 * 60 * 1000) return
       ultimaSincronizacao = Date.now()
       // Espera as gravações pendentes antes de recarregar
@@ -645,6 +664,15 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
       const anterior = stateRef.current
       const proximo = criartereReducer(anterior, action)
       if (proximo === anterior) return
+
+      // Modo desenvolvedor: aplica só na tela, sem gravar no banco
+      if (anterior.modoDemo) {
+        const simulado = simularServidor(action, proximo)
+        stateRef.current = simulado
+        baseDispatch(action)
+        if (simulado !== proximo) baseDispatch({ type: '__MESCLAR', payload: simulado })
+        return
+      }
 
       // Atualização otimista: a tela responde na hora
       stateRef.current = proximo

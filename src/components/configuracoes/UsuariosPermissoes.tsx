@@ -1,8 +1,22 @@
 import { DicaAjuda } from '@/components/common/DicaAjuda'
-/* Lista de contas cadastradas e controle de quem é administrador. */
+/* Lista de contas cadastradas e controle do papel de cada uma. */
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
-import { definirPapel, listarUsuarios, mensagemErro, UsuarioSistema } from '@/store/db'
+import {
+  definirPapel,
+  listarUsuarios,
+  mensagemErro,
+  type PapelUsuario,
+  type UsuarioSistema,
+} from '@/store/db'
+import { USUARIOS_DEMO } from '@/store/demo'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { formatDataBR } from '@/store/periodUtils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -17,26 +31,63 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { RefreshCw, Search, ShieldCheck, Users } from 'lucide-react'
+import { RefreshCw, Search, Users } from 'lucide-react'
 import { toast } from 'sonner'
+
+const NOME_PAPEL: Record<PapelUsuario, string> = {
+  admin: 'Administrador(a)',
+  desenvolvedor: 'Desenvolvedor(a)',
+  cliente: 'Cliente',
+}
+
+const ESTILO_PAPEL: Record<PapelUsuario, string> = {
+  admin: 'bg-[#4C8A5A]/15 text-[#2F5E3A] border-[#4C8A5A]/40',
+  desenvolvedor: 'bg-[#5A7D8A]/15 text-[#2F4A55] border-[#5A7D8A]/40',
+  cliente: 'bg-[#F7F3EA] text-[#6B4B36] border-[#DFC3AE]',
+}
+
+const ORDEM_PAPEL: Record<PapelUsuario, number> = { admin: 0, desenvolvedor: 1, cliente: 2 }
 
 export function UsuariosPermissoes() {
   const { state } = useCriartere()
   const [usuarios, setUsuarios] = useState<UsuarioSistema[]>([])
   const [carregando, setCarregando] = useState(true)
   const [busca, setBusca] = useState('')
-  const [alterando, setAlterando] = useState<UsuarioSistema | null>(null)
+  const [alterando, setAlterando] = useState<{
+    usuario: UsuarioSistema
+    papel: PapelUsuario
+  } | null>(null)
 
   const carregar = useCallback(async () => {
     setCarregando(true)
     try {
+      if (state.modoDemo) {
+        // Modo desenvolvedor: contas de exemplo (a lista real não é lida)
+        setUsuarios([
+          {
+            userId: state.usuarioAtual.id,
+            email: state.usuarioAtual.email,
+            nome: state.usuarioAtual.nome,
+            papel: 'desenvolvedor',
+            avatarUrl: state.usuarioAtual.avatarUrl ?? null,
+            criadoEm: new Date().toISOString(),
+          },
+          ...USUARIOS_DEMO.map((u, i) => ({
+            ...u,
+            userId: `demo-${i}`,
+            avatarUrl: null,
+            criadoEm: new Date().toISOString(),
+          })),
+        ])
+        return
+      }
       setUsuarios(await listarUsuarios())
     } catch (e) {
       toast.error(`Não foi possível carregar os usuários. ${mensagemErro(e)}`)
     } finally {
       setCarregando(false)
     }
-  }, [])
+  }, [state.modoDemo, state.usuarioAtual])
 
   useEffect(() => {
     carregar()
@@ -49,22 +100,24 @@ export function UsuariosPermissoes() {
           (u) => u.email.toLowerCase().includes(t) || (u.nome ?? '').toLowerCase().includes(t),
         )
       : usuarios
-    // Administradores primeiro
-    return [...lista].sort((a, b) => (a.papel === b.papel ? 0 : a.papel === 'admin' ? -1 : 1))
+    // Administradores primeiro, depois desenvolvedores e clientes
+    return [...lista].sort((a, b) => ORDEM_PAPEL[a.papel] - ORDEM_PAPEL[b.papel])
   }, [usuarios, busca])
 
   const totalAdmins = usuarios.filter((u) => u.papel === 'admin').length
 
   const confirmar = async () => {
     if (!alterando) return
-    const novoPapel = alterando.papel === 'admin' ? 'cliente' : 'admin'
+    const { usuario, papel } = alterando
+    if (state.modoDemo) {
+      setUsuarios((lista) => lista.map((u) => (u.userId === usuario.userId ? { ...u, papel } : u)))
+      toast.success(`Modo desenvolvedor: papel alterado só nesta tela (nada foi salvo).`)
+      setAlterando(null)
+      return
+    }
     try {
-      await definirPapel(alterando.userId, novoPapel)
-      toast.success(
-        novoPapel === 'admin'
-          ? `${alterando.nome || alterando.email} agora é administrador(a).`
-          : `${alterando.nome || alterando.email} deixou de ser administrador(a).`,
-      )
+      await definirPapel(usuario.userId, papel)
+      toast.success(`${usuario.nome || usuario.email} agora é ${NOME_PAPEL[papel].toLowerCase()}.`)
       await carregar()
     } catch (e) {
       toast.error(mensagemErro(e))
@@ -84,10 +137,13 @@ export function UsuariosPermissoes() {
             Usuários e permissões
             <DicaAjuda topico="configuracoes">
               <p>
-                Para liberar alguém: a pessoa cria a conta no site e você clica em "Tornar admin" ao
-                lado do nome dela.
+                Para liberar alguém: a pessoa cria a conta no site e você escolhe o papel dela ao
+                lado do nome.
               </p>
-              <p>Clientes (contas sem admin) não acessam o sistema.</p>
+              <p>
+                Desenvolvedor(a) usa o sistema com dados fictícios e não vê nenhum dado real.
+                Clientes não acessam o sistema.
+              </p>
             </DicaAjuda>
           </span>
           <Button
@@ -104,9 +160,10 @@ export function UsuariosPermissoes() {
       </CardHeader>
       <CardContent className="p-5 space-y-4">
         <p className="text-xs text-[#6B4B36]">
-          Qualquer pessoa pode criar uma conta, mas só <strong>administradores</strong> acessam este
-          sistema. Contas novas começam como <strong>cliente</strong>. Somente um administrador pode
-          liberar o acesso de outra pessoa.
+          Qualquer pessoa pode criar uma conta, mas só <strong>administradores</strong> veem os
+          dados da loja. <strong>Desenvolvedores</strong> usam o sistema com dados fictícios, para
+          manutenção, sem acesso a clientes, pedidos ou finanças. Contas novas começam como{' '}
+          <strong>cliente</strong> (sem acesso). Somente um administrador muda o papel de alguém.
         </p>
 
         <div className="relative">
@@ -126,8 +183,8 @@ export function UsuariosPermissoes() {
         ) : (
           <ul className="divide-y divide-[#DFC3AE]/40 border border-[#DFC3AE]/60 rounded-xl overflow-hidden">
             {filtrados.map((u) => {
-              const admin = u.papel === 'admin'
-              const unicoAdmin = admin && totalAdmins <= 1
+              const unicoAdmin = u.papel === 'admin' && totalAdmins <= 1
+              const podeAlterar = state.modoDemo || !unicoAdmin
               return (
                 <li
                   key={u.userId}
@@ -160,38 +217,36 @@ export function UsuariosPermissoes() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span
-                      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
-                        admin
-                          ? 'bg-[#4C8A5A]/15 text-[#2F5E3A] border-[#4C8A5A]/40'
-                          : 'bg-[#F7F3EA] text-[#6B4B36] border-[#DFC3AE]'
-                      }`}
-                    >
-                      {admin ? 'Administrador(a)' : 'Cliente'}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={unicoAdmin}
-                      title={
-                        unicoAdmin ? 'O sistema precisa ter pelo menos um administrador' : undefined
+                    <Select
+                      value={u.papel}
+                      disabled={!podeAlterar}
+                      onValueChange={(papel: PapelUsuario) =>
+                        papel !== u.papel && setAlterando({ usuario: u, papel })
                       }
-                      onClick={() => setAlterando(u)}
-                      className={`h-8 text-xs ${
-                        admin
-                          ? 'border-red-200 text-red-600 hover:bg-red-50'
-                          : 'border-[#4C8A5A]/40 text-[#2F5E3A] hover:bg-emerald-50'
-                      }`}
                     >
-                      {admin ? (
-                        'Remover admin'
-                      ) : (
-                        <>
-                          <ShieldCheck className="w-3.5 h-3.5 mr-1.5" />
-                          Tornar admin
-                        </>
-                      )}
-                    </Button>
+                      <SelectTrigger
+                        aria-label={`Papel de ${u.nome || u.email}`}
+                        title={
+                          podeAlterar
+                            ? undefined
+                            : 'O sistema precisa ter pelo menos um administrador'
+                        }
+                        className={`h-8 w-[180px] text-xs font-semibold ${ESTILO_PAPEL[u.papel]}`}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="admin" className="text-xs">
+                          Administrador(a)
+                        </SelectItem>
+                        <SelectItem value="desenvolvedor" className="text-xs">
+                          Desenvolvedor(a)
+                        </SelectItem>
+                        <SelectItem value="cliente" className="text-xs">
+                          Cliente (sem acesso)
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </li>
               )
@@ -204,29 +259,27 @@ export function UsuariosPermissoes() {
         <AlertDialogContent className="bg-white border-[#DFC3AE]">
           <AlertDialogHeader>
             <AlertDialogTitle className="font-serif">
-              {alterando?.papel === 'admin'
-                ? `Remover o acesso de ${alterando?.nome || alterando?.email}?`
-                : `Tornar ${alterando?.nome || alterando?.email} administrador(a)?`}
+              Tornar {alterando?.usuario.nome || alterando?.usuario.email}{' '}
+              {alterando && NOME_PAPEL[alterando.papel].toLowerCase()}?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-[#6B4B36]">
               {alterando?.papel === 'admin'
-                ? alterando && ehVoce(alterando)
-                  ? 'Você perderá o acesso ao sistema de gestão assim que sair ou recarregar a página.'
-                  : 'A pessoa não conseguirá mais entrar no sistema de gestão.'
-                : 'A pessoa terá acesso completo a pedidos, clientes, finanças e configurações, inclusive para liberar outros administradores.'}
+                ? 'A pessoa terá acesso completo a pedidos, clientes, finanças e configurações, inclusive para mudar o papel de outras contas.'
+                : alterando?.papel === 'desenvolvedor'
+                  ? 'A pessoa vai usar o sistema com dados fictícios, sem ver clientes, pedidos ou finanças reais, e não poderá salvar nada.'
+                  : 'A pessoa não conseguirá mais entrar no sistema de gestão.'}
+              {alterando && ehVoce(alterando.usuario) && alterando.papel !== 'admin'
+                ? ' Você perderá o acesso aos dados reais assim que sair ou recarregar a página.'
+                : ''}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="text-xs border-[#DFC3AE]">Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmar}
-              className={`text-xs text-white ${
-                alterando?.papel === 'admin'
-                  ? 'bg-red-600 hover:bg-red-700'
-                  : 'bg-[#4C8A5A] hover:bg-[#3D6F48]'
-              }`}
+              className="text-xs text-white bg-[#A5683F] hover:bg-[#8C5636]"
             >
-              {alterando?.papel === 'admin' ? 'Remover admin' : 'Tornar admin'}
+              Confirmar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

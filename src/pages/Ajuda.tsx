@@ -309,9 +309,10 @@ const TOPICOS: Topico[] = [
       {
         subtitulo: 'Usuários e permissões',
         passos: [
-          'Qualquer pessoa pode criar uma conta, mas só administradores entram no sistema.',
-          'Para liberar alguém: peça para a pessoa criar a conta e depois clique em "Tornar admin" ao lado do nome dela.',
-          'Para tirar o acesso: clique em "Remover admin". O sistema não deixa ficar sem nenhum administrador.',
+          'Qualquer pessoa pode criar uma conta, mas só administradores veem os dados da loja.',
+          'Para liberar alguém: peça para a pessoa criar a conta e escolha o papel dela ao lado do nome: Administrador(a), Desenvolvedor(a) ou Cliente.',
+          'Desenvolvedor(a) usa o sistema com dados fictícios, para manutenção e testes: não vê clientes, pedidos nem finanças reais, e nada do que faz é salvo.',
+          'Para tirar o acesso: mude o papel para Cliente. O sistema não deixa ficar sem nenhum administrador.',
         ],
       },
       {

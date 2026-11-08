@@ -327,7 +327,7 @@ export async function carregarFatias(fatias: Fatia[]): Promise<Partial<Criartere
   return Object.assign({}, ...partes)
 }
 
-export type PapelUsuario = 'admin' | 'cliente'
+export type PapelUsuario = 'admin' | 'desenvolvedor' | 'cliente'
 
 /** Perfil (nome e papel) do usuário logado. */
 export async function buscarPerfil(

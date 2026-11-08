@@ -19,6 +19,7 @@ import {
   Menu,
   X,
   Clock,
+  Code2,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -525,6 +526,19 @@ export default function Layout() {
 
         {/* CONTEÚDO PRINCIPAL (Outlet) */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+          {state.modoDemo && (
+            <div
+              role="status"
+              className="mb-4 flex items-start gap-2 rounded-xl border border-[#5A7D8A]/40 bg-[#5A7D8A]/10 px-4 py-2.5 text-xs text-[#2F4A55]"
+            >
+              <Code2 className="w-4 h-4 shrink-0 mt-px" />
+              <p>
+                <strong>Modo desenvolvedor:</strong> os dados exibidos são fictícios. Você pode
+                testar tudo à vontade, mas nada é salvo: ao recarregar a página, tudo volta ao
+                início.
+              </p>
+            </div>
+          )}
           <ErroTela chave={location.pathname}>
             <Suspense
               fallback={

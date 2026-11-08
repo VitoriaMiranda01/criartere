@@ -157,7 +157,10 @@ export default function Produtos() {
     if (novaImagem) {
       setSalvando(true)
       try {
-        urlFinal = await enviarImagemProduto(id, novaImagem)
+        // No modo desenvolvedor a imagem fica só neste aparelho (não é enviada)
+        urlFinal = state.modoDemo
+          ? URL.createObjectURL(novaImagem.blob)
+          : await enviarImagemProduto(id, novaImagem)
       } catch (err) {
         setSalvando(false)
         setErro(`Não foi possível enviar a imagem. ${mensagemErro(err)}`)
