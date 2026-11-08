@@ -142,7 +142,7 @@ export default function Configuracoes() {
       <Card className="border-[#DFC3AE]/70 bg-white shadow-xs">
         <CardHeader className="pb-3 border-b border-[#DFC3AE]/40">
           <CardTitle className="font-serif text-base font-bold text-[#0C1014] flex items-center gap-2">
-            <Store className="w-4 h-4 text-[#C48864]" />
+            <Store className="w-4 h-4 text-[#94603D]" />
             Dados Comerciais da Loja
           </CardTitle>
         </CardHeader>
@@ -150,11 +150,15 @@ export default function Configuracoes() {
           <form onSubmit={handleSalvarDadosLoja} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
+                <Label
+                  htmlFor="configuracoe-campo-1"
+                  className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+                >
                   Nome da Loja
                   <Obrigatorio />
                 </Label>
                 <Input
+                  id="configuracoe-campo-1"
                   value={nomeLoja}
                   onChange={(e) => setNomeLoja(e.target.value)}
                   className="h-10 text-xs border-[#DFC3AE]"
@@ -162,11 +166,15 @@ export default function Configuracoes() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
+                <Label
+                  htmlFor="configuracoe-campo-2"
+                  className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+                >
                   E-mail de Contato
                   <Opcional />
                 </Label>
                 <Input
+                  id="configuracoe-campo-2"
                   value={emailLoja}
                   onChange={(e) => setEmailLoja(e.target.value)}
                   className="h-10 text-xs border-[#DFC3AE]"
@@ -174,11 +182,15 @@ export default function Configuracoes() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
+                <Label
+                  htmlFor="configuracoe-campo-3"
+                  className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+                >
                   Telefone Comercial
                   <Opcional />
                 </Label>
                 <Input
+                  id="configuracoe-campo-3"
                   value={telefoneLoja}
                   onChange={(e) => setTelefoneLoja(e.target.value)}
                   className="h-10 text-xs border-[#DFC3AE]"
@@ -186,11 +198,15 @@ export default function Configuracoes() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
+                <Label
+                  htmlFor="configuracoe-campo-4"
+                  className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+                >
                   WhatsApp Oficial
                   <Opcional />
                 </Label>
                 <Input
+                  id="configuracoe-campo-4"
                   value={whatsappLoja}
                   onChange={(e) => setWhatsappLoja(e.target.value)}
                   className="h-10 text-xs border-[#DFC3AE]"
@@ -198,11 +214,15 @@ export default function Configuracoes() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
+                <Label
+                  htmlFor="configuracoe-campo-5"
+                  className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+                >
                   Endereço da Loja
                   <Opcional />
                 </Label>
                 <Input
+                  id="configuracoe-campo-5"
                   value={enderecoLoja}
                   onChange={(e) => setEnderecoLoja(e.target.value)}
                   className="h-10 text-xs border-[#DFC3AE]"
@@ -210,11 +230,15 @@ export default function Configuracoes() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
+                <Label
+                  htmlFor="configuracoe-campo-6"
+                  className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+                >
                   Instagram
                   <Opcional />
                 </Label>
                 <Input
+                  id="configuracoe-campo-6"
                   value={instagramLoja}
                   onChange={(e) => setInstagramLoja(e.target.value)}
                   className="h-10 text-xs border-[#DFC3AE]"
@@ -222,7 +246,10 @@ export default function Configuracoes() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
+                <Label
+                  htmlFor="configuracoe-campo-7"
+                  className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+                >
                   Chave Pix (usada nos orçamentos)
                   <DicaAjuda>
                     <p>Entra automaticamente nas observações de todo orçamento em PDF.</p>
@@ -230,6 +257,7 @@ export default function Configuracoes() {
                   <Opcional />
                 </Label>
                 <Input
+                  id="configuracoe-campo-7"
                   value={chavePix}
                   onChange={(e) => setChavePix(e.target.value)}
                   placeholder="E-mail, telefone, CPF/CNPJ ou chave aleatória"
@@ -241,7 +269,7 @@ export default function Configuracoes() {
             <div className="pt-2 flex justify-end">
               <Button
                 type="submit"
-                className="bg-[#C48864] hover:bg-[#B0764F] text-white text-xs font-semibold h-10 px-5"
+                className="bg-[#A5683F] hover:bg-[#8C5636] text-white text-xs font-semibold h-10 px-5"
               >
                 Salvar Alterações
               </Button>
@@ -256,7 +284,7 @@ export default function Configuracoes() {
         <Card className="border-[#DFC3AE]/70 bg-white shadow-xs">
           <CardHeader className="pb-3 border-b border-[#DFC3AE]/40">
             <CardTitle className="font-serif text-base font-bold text-[#0C1014] flex items-center gap-2">
-              <CreditCard className="w-4 h-4 text-[#C48864]" />
+              <CreditCard className="w-4 h-4 text-[#94603D]" />
               Formas de Pagamento Aceitas
             </CardTitle>
           </CardHeader>
@@ -271,7 +299,7 @@ export default function Configuracoes() {
               <Button
                 type="submit"
                 size="sm"
-                className="bg-[#C48864] hover:bg-[#B0764F] text-white text-xs h-9 shrink-0 font-semibold"
+                className="bg-[#A5683F] hover:bg-[#8C5636] text-white text-xs h-9 shrink-0 font-semibold"
               >
                 <Plus className="w-3.5 h-3.5 mr-1" />
                 Adicionar
@@ -286,6 +314,7 @@ export default function Configuracoes() {
                 >
                   <span className="font-semibold text-[#0C1014]">{forma}</span>
                   <Button
+                    aria-label="Remover forma de pagamento"
                     size="icon"
                     variant="ghost"
                     onClick={() => handleRemoverForma(forma)}
@@ -303,14 +332,14 @@ export default function Configuracoes() {
         <Card className="border-[#DFC3AE]/70 bg-white shadow-xs">
           <CardHeader className="pb-3 border-b border-[#DFC3AE]/40 flex flex-row items-center justify-between">
             <CardTitle className="font-serif text-base font-bold text-[#0C1014] flex items-center gap-2">
-              <FolderTree className="w-4 h-4 text-[#C48864]" />
+              <FolderTree className="w-4 h-4 text-[#94603D]" />
               Categorias de Custos &amp; Despesas
             </CardTitle>
             <Button
               size="sm"
               variant="outline"
               onClick={() => setModalCategoriasAberto(true)}
-              className="h-8 text-xs border-[#DFC3AE] text-[#C48864]"
+              className="h-8 text-xs border-[#DFC3AE] text-[#94603D]"
             >
               Gerenciar
             </Button>
@@ -338,7 +367,7 @@ export default function Configuracoes() {
       <Card className="border-[#DFC3AE]/70 bg-white shadow-xs">
         <CardHeader className="pb-3 border-b border-[#DFC3AE]/40">
           <CardTitle className="font-serif text-base font-bold text-[#0C1014] flex items-center gap-2">
-            <Palette className="w-4 h-4 text-[#C48864]" />
+            <Palette className="w-4 h-4 text-[#94603D]" />
             Status Operacionais da Produção
             <DicaAjuda topico="pedidos">
               <p>
@@ -387,7 +416,7 @@ export default function Configuracoes() {
         <Card className="border-[#DFC3AE]/70 bg-white shadow-xs">
           <CardHeader className="pb-3 border-b border-[#DFC3AE]/40">
             <CardTitle className="font-serif text-base font-bold text-[#0C1014] flex items-center gap-2">
-              <Shield className="w-4 h-4 text-[#C48864]" />
+              <Shield className="w-4 h-4 text-[#94603D]" />
               Dados de Acesso
             </CardTitle>
           </CardHeader>
@@ -402,11 +431,12 @@ export default function Configuracoes() {
 
             <form onSubmit={handleAlterarSenha} className="space-y-3">
               <div className="space-y-1">
-                <Label className="text-xs text-[#6B4B36]">
+                <Label htmlFor="configuracoe-campo-8" className="text-xs text-[#6B4B36]">
                   Senha Atual
                   <Obrigatorio />
                 </Label>
                 <CampoSenha
+                  id="configuracoe-campo-8"
                   value={senhaAtual}
                   onChange={(e) => setSenhaAtual(e.target.value)}
                   placeholder="••••••••"
@@ -415,11 +445,12 @@ export default function Configuracoes() {
               </div>
 
               <div className="space-y-1">
-                <Label className="text-xs text-[#6B4B36]">
+                <Label htmlFor="configuracoe-campo-9" className="text-xs text-[#6B4B36]">
                   Nova Senha
                   <Obrigatorio />
                 </Label>
                 <CampoSenha
+                  id="configuracoe-campo-9"
                   value={novaSenha}
                   onChange={(e) => setNovaSenha(e.target.value)}
                   placeholder="••••••••"
@@ -442,18 +473,22 @@ export default function Configuracoes() {
         <Card className="border-[#DFC3AE]/70 bg-white shadow-xs">
           <CardHeader className="pb-3 border-b border-[#DFC3AE]/40">
             <CardTitle className="font-serif text-base font-bold text-[#0C1014] flex items-center gap-2">
-              <Sliders className="w-4 h-4 text-[#C48864]" />
+              <Sliders className="w-4 h-4 text-[#94603D]" />
               Preferências Gerais do Painel
             </CardTitle>
           </CardHeader>
           <CardContent className="p-5 space-y-4 text-xs">
             <div className="space-y-1.5">
-              <Label className="text-xs text-[#6B4B36]">
+              <Label htmlFor="configuracoe-campo-10" className="text-xs text-[#6B4B36]">
                 Período Padrão do Dashboard
                 <Obrigatorio />
               </Label>
               <Select value={periodoPadrao} onValueChange={(val: any) => setPeriodoPadrao(val)}>
-                <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
+                <SelectTrigger
+                  id="configuracoe-campo-10"
+                  aria-label="Período padrão do dashboard"
+                  className="h-9 text-xs border-[#DFC3AE]"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -489,13 +524,17 @@ export default function Configuracoes() {
                   Incluir pedidos aguardando pagamento no faturamento total
                 </span>
               </div>
-              <Switch checked={incluirAguardando} onCheckedChange={setIncluirAguardando} />
+              <Switch
+                aria-label="Incluir pedidos aguardando pagamento no faturamento total"
+                checked={incluirAguardando}
+                onCheckedChange={setIncluirAguardando}
+              />
             </div>
 
             <div className="pt-2">
               <Button
                 onClick={handleSalvarDadosLoja}
-                className="w-full bg-[#C48864] hover:bg-[#B0764F] text-white text-xs h-9 font-semibold"
+                className="w-full bg-[#A5683F] hover:bg-[#8C5636] text-white text-xs h-9 font-semibold"
               >
                 Salvar Preferências
               </Button>

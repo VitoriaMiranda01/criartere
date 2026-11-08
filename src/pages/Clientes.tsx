@@ -212,7 +212,7 @@ export default function Clientes() {
 
         <Button
           onClick={abrirNovoCliente}
-          className="bg-[#C48864] hover:bg-[#B0764F] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5 self-start sm:self-auto"
+          className="bg-[#A5683F] hover:bg-[#8C5636] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5 self-start sm:self-auto"
         >
           <UserPlus className="w-4 h-4" />
           <span>Novo Cliente</span>
@@ -222,7 +222,7 @@ export default function Clientes() {
       {/* BARRA DE BUSCA */}
       <div className="bg-white p-3.5 rounded-xl border border-[#DFC3AE]/70 shadow-xs flex items-center gap-3">
         <div className="relative flex-1">
-          <Search className="w-4 h-4 text-[#6B4B36]/60 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#6B4B36]/90 absolute left-3 top-1/2 -translate-y-1/2" />
           <Input
             placeholder="Buscar por nome, telefone, WhatsApp ou e-mail..."
             value={busca}
@@ -238,6 +238,7 @@ export default function Clientes() {
           />
           {busca && (
             <button
+              aria-label="Limpar busca"
               onClick={() => {
                 setBusca('')
                 setSearchParams((prev) => {
@@ -257,7 +258,7 @@ export default function Clientes() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {clientesFiltrados.length === 0 ? (
           <div className="col-span-full bg-white p-12 rounded-2xl border border-dashed border-[#DFC3AE] text-center space-y-3">
-            <Users className="w-8 h-8 text-[#C48864] mx-auto opacity-70" />
+            <Users className="w-8 h-8 text-[#94603D] mx-auto opacity-70" />
             <p className="text-sm font-semibold text-[#0C1014]">Nenhum cliente encontrado</p>
             <p className="text-xs text-[#6B4B36]">
               Experimente ajustar sua busca ou cadastrar um novo cliente.
@@ -283,15 +284,15 @@ export default function Clientes() {
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       {/* Avatar com Terracota */}
-                      <div className="w-10 h-10 rounded-full bg-[#C48864]/15 border border-[#C48864]/30 flex items-center justify-center font-serif font-bold text-sm text-[#C48864]">
+                      <div className="w-10 h-10 rounded-full bg-[#C48864]/15 border border-[#C48864]/30 flex items-center justify-center font-serif font-bold text-sm text-[#94603D]">
                         {iniciais}
                       </div>
                       <div className="min-w-0">
-                        <h3 className="font-serif font-bold text-sm text-[#0C1014] truncate group-hover:text-[#C48864] transition-colors">
+                        <h3 className="font-serif font-bold text-sm text-[#0C1014] truncate group-hover:text-[#94603D] transition-colors">
                           {cli.nome}
                         </h3>
                         <p className="text-[11px] text-[#6B4B36] flex items-center gap-1 mt-0.5">
-                          <MapPin className="w-3 h-3 text-[#C48864]" />
+                          <MapPin className="w-3 h-3 text-[#94603D]" />
                           <span className="truncate">{cli.cidadeUf || 'São Paulo - SP'}</span>
                         </p>
                       </div>
@@ -301,17 +302,17 @@ export default function Clientes() {
                   {/* Contato rápido */}
                   <div className="space-y-1 text-xs text-[#6B4B36] pt-1">
                     <div className="flex items-center gap-2">
-                      <Phone className="w-3.5 h-3.5 text-[#6B4B36]/70 shrink-0" />
+                      <Phone className="w-3.5 h-3.5 text-[#6B4B36]/90 shrink-0" />
                       <span>{cli.telefone}</span>
                       {cli.whatsapp && (
-                        <span className="text-[10px] text-[#4C8A5A] font-bold bg-[#4C8A5A]/10 px-1.5 py-0.2 rounded">
+                        <span className="text-[10px] text-[#3F7A4E] font-bold bg-[#4C8A5A]/10 px-1.5 py-0.2 rounded">
                           WhatsApp
                         </span>
                       )}
                     </div>
                     {cli.email && (
                       <div className="flex items-center gap-2 truncate">
-                        <Mail className="w-3.5 h-3.5 text-[#6B4B36]/70 shrink-0" />
+                        <Mail className="w-3.5 h-3.5 text-[#6B4B36]/90 shrink-0" />
                         <span className="truncate">{cli.email}</span>
                       </div>
                     )}
@@ -336,7 +337,7 @@ export default function Clientes() {
                   </div>
 
                   {resumo.valoresPendentes > 0.01 && (
-                    <div className="text-[10px] text-[#D9A441] bg-amber-50/70 p-1.5 rounded-md flex justify-between">
+                    <div className="text-[10px] text-[#8A6416] bg-amber-50/70 p-1.5 rounded-md flex justify-between">
                       <span>Valores a receber:</span>
                       <span className="font-bold">{formatBRL(resumo.valoresPendentes)}</span>
                     </div>
@@ -360,7 +361,7 @@ export default function Clientes() {
               <div className="p-6 border-b border-[#DFC3AE]/50 bg-[#F7F3EA]/40 space-y-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-[#C48864] text-white flex items-center justify-center font-serif text-lg font-bold shadow-xs">
+                    <div className="w-12 h-12 rounded-full bg-[#A5683F] text-white flex items-center justify-center font-serif text-lg font-bold shadow-xs">
                       {clienteSelecionado.nome.slice(0, 2).toUpperCase()}
                     </div>
                     <div>
@@ -384,6 +385,7 @@ export default function Clientes() {
                       Editar
                     </Button>
                     <Button
+                      aria-label="Excluir cliente"
                       size="sm"
                       variant="ghost"
                       onClick={() => setClienteParaExcluir(clienteSelecionado)}
@@ -410,7 +412,7 @@ export default function Clientes() {
                   </div>
                   <div className="p-2.5 bg-white rounded-lg border border-[#DFC3AE]/60 text-center">
                     <span className="text-[10px] text-[#6B4B36] block">Pendente</span>
-                    <span className="font-serif font-bold text-xs text-[#D9A441]">
+                    <span className="font-serif font-bold text-xs text-[#8A6416]">
                       {formatBRL(resumoClienteSel.valoresPendentes)}
                     </span>
                   </div>
@@ -503,7 +505,7 @@ export default function Clientes() {
                                   ? 'bg-emerald-100 text-emerald-800'
                                   : ped.status === 'cancelado'
                                     ? 'bg-red-100 text-red-800'
-                                    : 'bg-[#C48864]/15 text-[#C48864]'
+                                    : 'bg-[#C48864]/15 text-[#94603D]'
                               }`}
                             >
                               {ped.status.replace('_', ' ')}
@@ -673,7 +675,7 @@ export default function Clientes() {
               </Button>
               <Button
                 type="submit"
-                className="bg-[#C48864] hover:bg-[#B0764F] text-white h-10 text-xs font-semibold"
+                className="bg-[#A5683F] hover:bg-[#8C5636] text-white h-10 text-xs font-semibold"
               >
                 Salvar Cadastro
               </Button>
@@ -687,7 +689,7 @@ export default function Clientes() {
         <AlertDialogContent className="bg-white border-[#DFC3AE]">
           <AlertDialogHeader>
             <AlertDialogTitle className="font-serif text-lg font-bold text-[#0C1014] flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-[#D9A441]" />
+              <AlertTriangle className="w-5 h-5 text-[#8A6416]" />
               Aviso: Possível Cadastro Duplicado
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-[#6B4B36] space-y-2">
@@ -736,7 +738,7 @@ export default function Clientes() {
                 toast.success(`Cliente "${payload.nome}" cadastrado com sucesso!`)
                 setModalFormAberto(false)
               }}
-              className="bg-[#C48864] hover:bg-[#B0764F] text-white text-xs font-semibold"
+              className="bg-[#A5683F] hover:bg-[#8C5636] text-white text-xs font-semibold"
             >
               Criar Novo Mesmo Assim
             </AlertDialogAction>
@@ -752,7 +754,7 @@ export default function Clientes() {
         <AlertDialogContent className="bg-white border-[#DFC3AE]">
           <AlertDialogHeader>
             <AlertDialogTitle className="font-serif text-lg font-bold text-[#0C1014] flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-[#B5533C]" />
+              <AlertTriangle className="w-5 h-5 text-[#A84A34]" />
               Confirmar Exclusão de Cliente
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-[#6B4B36] space-y-2">

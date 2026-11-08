@@ -453,7 +453,7 @@ export default function Relatorios() {
                 >
                   <CardContent className="p-5 space-y-3">
                     <div className="flex items-center justify-between">
-                      <div className="w-9 h-9 rounded-xl bg-[#C48864]/15 flex items-center justify-center text-[#C48864] group-hover:bg-[#C48864] group-hover:text-white transition-colors">
+                      <div className="w-9 h-9 rounded-xl bg-[#C48864]/15 flex items-center justify-center text-[#94603D] group-hover:bg-[#A5683F] group-hover:text-white transition-colors">
                         <Icon className="w-5 h-5" />
                       </div>
                       <Badge
@@ -465,7 +465,7 @@ export default function Relatorios() {
                     </div>
 
                     <div>
-                      <h3 className="font-serif font-bold text-sm text-[#0C1014] group-hover:text-[#C48864] transition-colors">
+                      <h3 className="font-serif font-bold text-sm text-[#0C1014] group-hover:text-[#94603D] transition-colors">
                         {rel.titulo}
                       </h3>
                       <p className="text-xs text-[#6B4B36] line-clamp-3 mt-1.5 leading-relaxed">
@@ -473,7 +473,7 @@ export default function Relatorios() {
                       </p>
                     </div>
 
-                    <div className="pt-2 border-t border-[#DFC3AE]/40 flex items-center justify-between text-xs font-semibold text-[#C48864]">
+                    <div className="pt-2 border-t border-[#DFC3AE]/40 flex items-center justify-between text-xs font-semibold text-[#94603D]">
                       <span>Abrir Relatório</span>
                       <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                     </div>
@@ -511,7 +511,7 @@ export default function Relatorios() {
               <Button
                 onClick={() => handleExportarExcel(relatorioSelecionado)}
                 variant="outline"
-                className="h-9 text-xs border-[#4C8A5A] text-[#4C8A5A] hover:bg-emerald-50 font-semibold flex items-center gap-1.5 shadow-xs"
+                className="h-9 text-xs border-[#4C8A5A] text-[#3F7A4E] hover:bg-emerald-50 font-semibold flex items-center gap-1.5 shadow-xs"
               >
                 <FileSpreadsheet className="w-4 h-4" />
                 <span>Exportar Excel (.csv)</span>
@@ -519,7 +519,7 @@ export default function Relatorios() {
 
               <Button
                 onClick={() => handleExportarPDF(relAtualObj?.titulo || 'Relatorio')}
-                className="h-9 text-xs bg-[#C48864] hover:bg-[#B0764F] text-white font-semibold flex items-center gap-1.5 shadow-xs"
+                className="h-9 text-xs bg-[#A5683F] hover:bg-[#8C5636] text-white font-semibold flex items-center gap-1.5 shadow-xs"
               >
                 <Printer className="w-4 h-4" />
                 <span>Exportar PDF / Imprimir</span>
@@ -544,7 +544,7 @@ export default function Relatorios() {
                 <h3 className="font-serif text-base font-bold text-[#0C1014]">
                   Tabela Detalhada de Vendas ({pedidosNoPeriodo.length} pedidos)
                 </h3>
-                <span className="font-serif font-bold text-sm text-[#C48864]">
+                <span className="font-serif font-bold text-sm text-[#94603D]">
                   Total Faturado:{' '}
                   {formatBRL(pedidosNoPeriodo.reduce((s, p) => s + p.valorTotal, 0))}
                 </span>
@@ -584,7 +584,7 @@ export default function Relatorios() {
                               {p.status.replace('_', ' ')}
                             </Badge>
                           </td>
-                          <td className="py-2.5 px-3 font-serif font-bold text-right text-[#C48864]">
+                          <td className="py-2.5 px-3 font-serif font-bold text-right text-[#94603D]">
                             {formatBRL(p.valorTotal)}
                           </td>
                         </tr>
@@ -643,7 +643,7 @@ export default function Relatorios() {
                         <td className="py-2.5 px-3 text-right font-bold text-[#0C1014]">
                           {p.quantidade} un
                         </td>
-                        <td className="py-2.5 px-3 text-right font-serif font-bold text-[#C48864]">
+                        <td className="py-2.5 px-3 text-right font-serif font-bold text-[#94603D]">
                           {formatBRL(p.faturamento)}
                         </td>
                       </tr>
@@ -689,7 +689,7 @@ export default function Relatorios() {
                         <td className="py-2.5 px-3 font-bold text-[#0C1014]">{c.nome}</td>
                         <td className="py-2.5 px-3 text-[#6B4B36]">{c.telefone}</td>
                         <td className="py-2.5 px-3 text-right font-semibold">{c.pedidosCount}</td>
-                        <td className="py-2.5 px-3 text-right font-serif font-bold text-[#C48864]">
+                        <td className="py-2.5 px-3 text-right font-serif font-bold text-[#94603D]">
                           {formatBRL(c.totalGasto)}
                         </td>
                       </tr>
@@ -743,7 +743,7 @@ export default function Relatorios() {
                     >
                       <span className="font-semibold text-[#0C1014]">{d.categoria}</span>
                       <div className="text-right">
-                        <span className="font-bold text-[#B5533C] mr-2">{formatBRL(d.total)}</span>
+                        <span className="font-bold text-[#A84A34] mr-2">{formatBRL(d.total)}</span>
                         <span className="text-[#6B4B36] font-medium">
                           ({d.percentual.toFixed(1)}%)
                         </span>
@@ -789,10 +789,10 @@ export default function Relatorios() {
                     {dadosEvolucaoMensal.map((d) => (
                       <tr key={d.mesNome} className="hover:bg-[#F7F3EA]/40">
                         <td className="py-2.5 px-3 font-semibold">{d.mesNome}</td>
-                        <td className="py-2.5 px-3 text-right font-bold text-[#4C8A5A]">
+                        <td className="py-2.5 px-3 text-right font-bold text-[#3F7A4E]">
                           {formatBRL(d.receitas)}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-[#B5533C]">
+                        <td className="py-2.5 px-3 text-right font-bold text-[#A84A34]">
                           {formatBRL(d.despesas)}
                         </td>
                         <td className="py-2.5 px-3 text-right font-serif font-bold text-[#0C1014]">
@@ -828,14 +828,14 @@ export default function Relatorios() {
                       const cli = selectClientePorId(state, p.clienteId)
                       return (
                         <tr key={p.id} className="hover:bg-[#F7F3EA]/40">
-                          <td className="py-2.5 px-3 font-serif font-bold text-[#B5533C]">
+                          <td className="py-2.5 px-3 font-serif font-bold text-[#A84A34]">
                             {p.codigo}
                           </td>
                           <td className="py-2.5 px-3 font-medium">{cli?.nome}</td>
                           <td className="py-2.5 px-3 text-[#6B4B36]">
                             {formatDataBR(p.dataCriacao)}
                           </td>
-                          <td className="py-2.5 px-3 font-serif font-bold text-[#B5533C]">
+                          <td className="py-2.5 px-3 font-serif font-bold text-[#A84A34]">
                             {formatBRL(p.valorTotal)}
                           </td>
                           <td className="py-2.5 px-3 text-[#6B4B36]">
@@ -882,7 +882,7 @@ export default function Relatorios() {
                           <td className="py-2.5 px-3 text-[#6B4B36]">
                             {formatDataBR(p.prazoEntrega)}
                           </td>
-                          <td className="py-2.5 px-3 font-serif font-bold text-right text-[#D9A441]">
+                          <td className="py-2.5 px-3 font-serif font-bold text-right text-[#8A6416]">
                             {formatBRL(p.valorTotal)}
                           </td>
                         </tr>
@@ -907,7 +907,7 @@ export default function Relatorios() {
                     </p>
                   </DicaAjuda>
                 </h3>
-                <span className="font-serif font-bold text-sm text-[#D9A441]">
+                <span className="font-serif font-bold text-sm text-[#8A6416]">
                   Total a Receber:{' '}
                   {formatBRL(valoresAReceber.reduce((s, p) => s + p.saldoRestante, 0))}
                 </span>
@@ -933,10 +933,10 @@ export default function Relatorios() {
                         <td className="py-2.5 px-3 text-right font-serif font-bold">
                           {formatBRL(p.valorTotal)}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-[#4C8A5A]">
+                        <td className="py-2.5 px-3 text-right font-bold text-[#3F7A4E]">
                           {formatBRL(p.valorPago)}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-serif font-bold text-[#D9A441]">
+                        <td className="py-2.5 px-3 text-right font-serif font-bold text-[#8A6416]">
                           {formatBRL(p.saldoRestante)}
                         </td>
                       </tr>

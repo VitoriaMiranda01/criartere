@@ -110,11 +110,11 @@ export const ModalPagamento: React.FC<ModalPagamentoProps> = ({ pedido, aberto, 
           </div>
           <div className="flex justify-between text-[#6B4B36]">
             <span>Já Pago Anteriormente:</span>
-            <span className="font-bold text-[#4C8A5A]">{formatBRL(jaPago)}</span>
+            <span className="font-bold text-[#3F7A4E]">{formatBRL(jaPago)}</span>
           </div>
           <div className="flex justify-between text-[#6B4B36] pt-1.5 border-t border-[#DFC3AE]/50">
             <span className="font-bold text-[#0C1014]">Saldo Restante:</span>
-            <span className="font-serif font-bold text-sm text-[#D9A441]">
+            <span className="font-serif font-bold text-sm text-[#8A6416]">
               {formatBRL(saldoRestante)}
             </span>
           </div>
@@ -153,7 +153,7 @@ export const ModalPagamento: React.FC<ModalPagamentoProps> = ({ pedido, aberto, 
               <button
                 type="button"
                 onClick={() => setValorStr(saldoRestante.toFixed(2))}
-                className="text-[11px] text-[#C48864] hover:underline font-medium"
+                className="text-[11px] text-[#94603D] hover:underline font-medium"
               >
                 Quitar total ({formatBRL(saldoRestante)})
               </button>
@@ -245,7 +245,7 @@ export const ModalPagamento: React.FC<ModalPagamentoProps> = ({ pedido, aberto, 
             </Button>
             <Button
               type="submit"
-              className="bg-[#C48864] hover:bg-[#B0764F] text-white h-10 text-xs font-semibold"
+              className="bg-[#A5683F] hover:bg-[#8C5636] text-white h-10 text-xs font-semibold"
             >
               Confirmar Recebimento
             </Button>

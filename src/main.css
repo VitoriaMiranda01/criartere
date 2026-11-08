@@ -27,8 +27,8 @@ body {
     --popover: 0 0% 100%;
     --popover-foreground: 210 25% 6%;
 
-    /* Terracota #C48864 (hsl 22 46% 58%) */
-    --primary: 22 46% 58%;
+    /* Terracota escurecida #A5683F para contraste AA com texto branco */
+    --primary: 23 45% 45%;
     --primary-foreground: 0 0% 100%;
 
     /* Bege suave #DFC3AE */
@@ -46,7 +46,7 @@ body {
 
     --border: 26 38% 80%; /* bege #DFC3AE */
     --input: 26 38% 80%;
-    --ring: 22 46% 58%;
+    --ring: 23 45% 45%;
 
     --radius: 0.75rem;
 
@@ -296,5 +296,29 @@ body {
 
   .animate-spotlight {
     animation: spotlight 2s ease forwards;
+  }
+}
+
+/* Acessibilidade: contorno visível ao navegar pelo teclado (Tab) em
+   links e botões simples; os componentes shadcn já têm o próprio anel. */
+@layer base {
+  a:focus-visible,
+  button:focus-visible,
+  [role='button']:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+}
+
+/* Respeita quem pediu ao sistema para reduzir animações. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

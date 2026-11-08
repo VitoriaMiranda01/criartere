@@ -430,7 +430,7 @@ export default function Ajuda() {
       {/* CABEÇALHO */}
       <div className="space-y-1">
         <h2 className="font-serif text-2xl font-bold text-[#0C1014] flex items-center gap-2">
-          <HelpCircle className="w-6 h-6 text-[#C48864]" />
+          <HelpCircle className="w-6 h-6 text-[#94603D]" />
           Ajuda
         </h2>
         <p className="text-xs text-[#6B4B36]">
@@ -442,7 +442,7 @@ export default function Ajuda() {
 
       {/* BUSCA */}
       <div className="relative">
-        <Search className="w-4 h-4 text-[#6B4B36]/60 absolute left-3 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-[#6B4B36]/90 absolute left-3 top-1/2 -translate-y-1/2" />
         <Input
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
@@ -481,7 +481,7 @@ export default function Ajuda() {
                 }}
                 className="flex items-center gap-2 p-3 rounded-xl bg-white border border-[#DFC3AE]/70 hover:border-[#C48864] hover:bg-[#F7F3EA] text-left text-xs font-semibold text-[#0C1014] transition-colors"
               >
-                <t.icone className="w-4 h-4 text-[#C48864] shrink-0" />
+                <t.icone className="w-4 h-4 text-[#94603D] shrink-0" />
                 <span className="truncate">{t.titulo}</span>
               </button>
             ))}
@@ -506,7 +506,7 @@ export default function Ajuda() {
               <AccordionTrigger className="hover:no-underline py-4">
                 <span className="flex items-start gap-3 text-left">
                   <span className="w-9 h-9 rounded-lg bg-[#F7F3EA] flex items-center justify-center shrink-0">
-                    <t.icone className="w-4 h-4 text-[#C48864]" />
+                    <t.icone className="w-4 h-4 text-[#94603D]" />
                   </span>
                   <span>
                     <span className="block font-serif font-bold text-[#0C1014]">{t.titulo}</span>
@@ -540,14 +540,14 @@ export default function Ajuda() {
                     key={d}
                     className="text-xs text-[#6B4B36] bg-[#F7F3EA] border border-[#DFC3AE]/60 rounded-lg p-3 flex gap-2"
                   >
-                    <Lightbulb className="w-4 h-4 text-[#D9A441] shrink-0" />
+                    <Lightbulb className="w-4 h-4 text-[#8A6416] shrink-0" />
                     <span>{d}</span>
                   </p>
                 ))}
                 {t.rota && (
                   <Link
                     to={t.rota}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#C48864] hover:underline"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#94603D] hover:underline"
                   >
                     Ir para {t.titulo.split(' (')[0]}
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -568,7 +568,7 @@ export default function Ajuda() {
               <details key={f.pergunta} className="group p-4" open={!!termo}>
                 <summary className="cursor-pointer list-none flex justify-between gap-3 text-sm font-semibold text-[#0C1014]">
                   {f.pergunta}
-                  <span className="text-[#C48864] group-open:rotate-45 transition-transform">
+                  <span className="text-[#94603D] group-open:rotate-45 transition-transform">
                     +
                   </span>
                 </summary>

@@ -176,11 +176,15 @@ export function DialogEtapa({ aberto, etapa, onFechar }: DialogEtapaProps) {
         </DialogHeader>
         <form onSubmit={salvar} className="space-y-4">
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
+            <Label
+              htmlFor="gerenciarcol-campo-1"
+              className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+            >
               Nome da coluna
               <Obrigatorio />
             </Label>
             <Input
+              id="gerenciarcol-campo-1"
               autoFocus
               value={nome}
               onChange={(e) => setNome(e.target.value)}
@@ -235,7 +239,7 @@ export function DialogEtapa({ aberto, etapa, onFechar }: DialogEtapaProps) {
             >
               Cancelar
             </Button>
-            <Button type="submit" className="text-xs bg-[#C48864] hover:bg-[#B0764F] text-white">
+            <Button type="submit" className="text-xs bg-[#A5683F] hover:bg-[#8C5636] text-white">
               {etapa ? 'Salvar' : 'Criar coluna'}
             </Button>
           </DialogFooter>
@@ -287,12 +291,15 @@ export function DialogExcluirEtapa({ etapa, onFechar }: DialogExcluirEtapaProps)
         </DialogHeader>
         {qtd > 0 && (
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
+            <Label
+              htmlFor="gerenciarcol-campo-2"
+              className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+            >
               Mover os pedidos para
               <Obrigatorio />
             </Label>
             <Select value={destino} onValueChange={setDestino}>
-              <SelectTrigger className="h-10 text-xs border-[#DFC3AE]">
+              <SelectTrigger id="gerenciarcol-campo-2" className="h-10 text-xs border-[#DFC3AE]">
                 <SelectValue placeholder="Escolha a coluna..." />
               </SelectTrigger>
               <SelectContent>

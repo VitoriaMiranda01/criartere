@@ -139,12 +139,15 @@ export const FormDespesaModal: React.FC<FormDespesaModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
+              <Label
+                htmlFor="formdespesam-campo-1"
+                className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+              >
                 Categoria
                 <Obrigatorio />
               </Label>
               <Select value={categoria} onValueChange={setCategoria}>
-                <SelectTrigger className="h-10 text-xs border-[#DFC3AE]">
+                <SelectTrigger id="formdespesam-campo-1" className="h-10 text-xs border-[#DFC3AE]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -218,12 +221,15 @@ export const FormDespesaModal: React.FC<FormDespesaModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
+              <Label
+                htmlFor="formdespesam-campo-2"
+                className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+              >
                 Forma de Pagamento
                 <Obrigatorio />
               </Label>
               <Select value={formaPagamento} onValueChange={(val: any) => setFormaPagamento(val)}>
-                <SelectTrigger className="h-10 text-xs border-[#DFC3AE]">
+                <SelectTrigger id="formdespesam-campo-2" className="h-10 text-xs border-[#DFC3AE]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -237,12 +243,15 @@ export const FormDespesaModal: React.FC<FormDespesaModalProps> = ({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
+              <Label
+                htmlFor="formdespesam-campo-3"
+                className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+              >
                 Status da Despesa
                 <Obrigatorio />
               </Label>
               <Select value={status} onValueChange={(val: any) => setStatus(val)}>
-                <SelectTrigger className="h-10 text-xs border-[#DFC3AE]">
+                <SelectTrigger id="formdespesam-campo-3" className="h-10 text-xs border-[#DFC3AE]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -291,7 +300,7 @@ export const FormDespesaModal: React.FC<FormDespesaModalProps> = ({
             </Button>
             <Button
               type="submit"
-              className="bg-[#C48864] hover:bg-[#B0764F] text-white h-10 text-xs font-semibold"
+              className="bg-[#A5683F] hover:bg-[#8C5636] text-white h-10 text-xs font-semibold"
             >
               Salvar Despesa
             </Button>

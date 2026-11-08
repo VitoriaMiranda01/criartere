@@ -99,7 +99,7 @@ export default function Login() {
         aria-hidden="true"
       />
       <div
-        className="absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-[#C48864] opacity-15 blur-3xl pointer-events-none"
+        className="absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-[#A5683F] opacity-15 blur-3xl pointer-events-none"
         aria-hidden="true"
       />
 
@@ -215,7 +215,7 @@ export default function Login() {
             <Button
               type="submit"
               disabled={carregando}
-              className="w-full h-11 bg-[#C48864] hover:bg-[#B0764F] text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm text-sm"
+              className="w-full h-11 bg-[#A5683F] hover:bg-[#8C5636] text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm text-sm"
             >
               {carregando ? (
                 <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -240,15 +240,15 @@ export default function Login() {
             >
               {modo === 'entrar' ? 'Primeiro acesso? Criar conta' : 'Já tenho conta. Entrar'}
             </button>
-            <p className="text-[11px] text-[#6B4B36]/80 mt-2 flex items-center justify-center gap-1">
-              <ShieldCheck className="w-3 h-3 text-[#4C8A5A]" />
+            <p className="text-[11px] text-[#6B4B36]/90 mt-2 flex items-center justify-center gap-1">
+              <ShieldCheck className="w-3 h-3 text-[#3F7A4E]" />
               <span>Área restrita a administradores da loja</span>
             </p>
           </div>
         </div>
 
         {/* Rodapé discreto */}
-        <div className="text-center mt-4 sm:mt-6 text-xs text-[#6B4B36]/70 flex items-center justify-center gap-2">
+        <div className="text-center mt-4 sm:mt-6 text-xs text-[#6B4B36]/90 flex items-center justify-center gap-2">
           <span>Criartere &copy; {new Date().getFullYear()}</span>
           <span>&bull;</span>
           <span>Sistema de Gestão</span>

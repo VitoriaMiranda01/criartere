@@ -1,3 +1,4 @@
+import { corLegivel } from '@/lib/cores'
 import { DicaAjuda } from '@/components/common/DicaAjuda'
 import React, { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -178,7 +179,7 @@ export default function Pedidos() {
               onClick={() => setModoView('kanban')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 modoView === 'kanban'
-                  ? 'bg-[#C48864] text-white shadow-xs'
+                  ? 'bg-[#A5683F] text-white shadow-xs'
                   : 'text-[#6B4B36] hover:bg-[#F7F3EA]'
               }`}
             >
@@ -189,7 +190,7 @@ export default function Pedidos() {
               onClick={() => setModoView('lista')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 modoView === 'lista'
-                  ? 'bg-[#C48864] text-white shadow-xs'
+                  ? 'bg-[#A5683F] text-white shadow-xs'
                   : 'text-[#6B4B36] hover:bg-[#F7F3EA]'
               }`}
             >
@@ -227,7 +228,7 @@ export default function Pedidos() {
               setPedidoParaEditar(null)
               setModalFormAberto(true)
             }}
-            className="bg-[#C48864] hover:bg-[#B0764F] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5"
+            className="bg-[#A5683F] hover:bg-[#8C5636] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4" />
             <span>Novo Pedido</span>
@@ -240,7 +241,7 @@ export default function Pedidos() {
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
           {/* Busca */}
           <div className="sm:col-span-5 relative">
-            <Search className="w-4 h-4 text-[#6B4B36]/60 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#6B4B36]/90 absolute left-3 top-1/2 -translate-y-1/2" />
             <Input
               placeholder="Buscar por número do pedido ou nome do cliente..."
               value={busca}
@@ -256,6 +257,7 @@ export default function Pedidos() {
             />
             {busca && (
               <button
+                aria-label="Limpar busca"
                 onClick={() => {
                   setBusca('')
                   setSearchParams((prev) => {
@@ -283,7 +285,10 @@ export default function Pedidos() {
                 })
               }}
             >
-              <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
+              <SelectTrigger
+                aria-label="Filtrar por status"
+                className="h-9 text-xs border-[#DFC3AE]"
+              >
                 <SelectValue placeholder="Filtrar por status..." />
               </SelectTrigger>
               <SelectContent>
@@ -302,7 +307,10 @@ export default function Pedidos() {
           {/* Filtro Pagamento */}
           <div className="sm:col-span-2">
             <Select value={filtroPagamento} onValueChange={setFiltroPagamento}>
-              <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
+              <SelectTrigger
+                aria-label="Filtrar por pagamento"
+                className="h-9 text-xs border-[#DFC3AE]"
+              >
                 <SelectValue placeholder="Pagamento..." />
               </SelectTrigger>
               <SelectContent>
@@ -325,7 +333,7 @@ export default function Pedidos() {
           {/* Ordenação */}
           <div className="sm:col-span-2">
             <Select value={ordenacao} onValueChange={(val: any) => setOrdenacao(val)}>
-              <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
+              <SelectTrigger aria-label="Ordenar pedidos" className="h-9 text-xs border-[#DFC3AE]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -383,7 +391,7 @@ export default function Pedidos() {
                     </div>
                     <div className="flex items-center gap-1">
                       <Badge
-                        style={{ backgroundColor: coluna.cor }}
+                        style={{ backgroundColor: corLegivel(coluna.cor) }}
                         className="text-white text-xs font-bold px-2 py-0 border-none h-5"
                       >
                         {pedidosDaColuna.length}
@@ -404,7 +412,7 @@ export default function Pedidos() {
                   {/* Lista de Cartões Arrasta-e-Solta */}
                   <div className="p-3 flex-1 space-y-3 min-h-[350px] max-h-[calc(100vh-320px)] overflow-y-auto">
                     {pedidosDaColuna.length === 0 ? (
-                      <div className="h-32 flex items-center justify-center border border-dashed border-[#DFC3AE]/60 rounded-xl text-[11px] text-[#6B4B36]/60 p-4 text-center">
+                      <div className="h-32 flex items-center justify-center border border-dashed border-[#DFC3AE]/60 rounded-xl text-[11px] text-[#6B4B36]/90 p-4 text-center">
                         Arraste um cartão para esta coluna
                       </div>
                     ) : (
@@ -455,19 +463,19 @@ export default function Pedidos() {
                               <p className="font-semibold text-xs text-[#0C1014] truncate">
                                 {cliente?.nome || 'Cliente'}
                               </p>
-                              <p className="text-[11px] text-[#6B4B36]/80 flex items-center gap-1 mt-0.5">
-                                <Package className="w-3 h-3 text-[#C48864]" />
+                              <p className="text-[11px] text-[#6B4B36]/90 flex items-center gap-1 mt-0.5">
+                                <Package className="w-3 h-3 text-[#94603D]" />
                                 {ped.itens.length} {ped.itens.length === 1 ? 'item' : 'itens'}
                               </p>
                             </div>
 
                             {/* Valor e Prazo */}
                             <div className="pt-2 border-t border-[#DFC3AE]/40 flex items-center justify-between text-xs">
-                              <span className="font-serif font-bold text-[#C48864]">
+                              <span className="font-serif font-bold text-[#94603D]">
                                 {formatBRL(ped.valorTotal)}
                               </span>
                               <span className="text-[11px] text-[#6B4B36] flex items-center gap-1">
-                                <Clock className="w-3 h-3 text-[#6B4B36]/60" />
+                                <Clock className="w-3 h-3 text-[#6B4B36]/90" />
                                 {formatDataBR(ped.prazoEntrega)}
                               </span>
                             </div>
@@ -488,7 +496,7 @@ export default function Pedidos() {
             })}
             <button
               onClick={abrirNovaColuna}
-              className="w-60 shrink-0 min-h-[200px] rounded-2xl border-2 border-dashed border-[#DFC3AE] text-[#6B4B36] hover:border-[#C48864] hover:text-[#C48864] hover:bg-white/60 transition-colors flex flex-col items-center justify-center gap-2 text-xs font-semibold"
+              className="w-60 shrink-0 min-h-[200px] rounded-2xl border-2 border-dashed border-[#DFC3AE] text-[#6B4B36] hover:border-[#C48864] hover:text-[#94603D] hover:bg-white/60 transition-colors flex flex-col items-center justify-center gap-2 text-xs font-semibold"
             >
               <Plus className="w-5 h-5" />
               Nova coluna
@@ -548,16 +556,16 @@ export default function Pedidos() {
                             {formatBRL(ped.valorTotal)}
                           </p>
                           {saldo > 0.01 && (
-                            <p className="text-[10px] text-[#D9A441]">Resta: {formatBRL(saldo)}</p>
+                            <p className="text-[10px] text-[#8A6416]">Resta: {formatBRL(saldo)}</p>
                           )}
                         </td>
                         <td className="py-3 px-4">
                           <Badge
                             className={`text-[10px] font-semibold border-none ${
                               ped.statusPagamento === 'pago'
-                                ? 'bg-[#4C8A5A]/15 text-[#4C8A5A]'
+                                ? 'bg-[#4C8A5A]/15 text-[#3F7A4E]'
                                 : ped.statusPagamento === 'parcial'
-                                  ? 'bg-[#D9A441]/15 text-[#D9A441]'
+                                  ? 'bg-[#D9A441]/15 text-[#8A6416]'
                                   : 'bg-red-100 text-red-700'
                             }`}
                           >
@@ -569,7 +577,7 @@ export default function Pedidos() {
                             variant="secondary"
                             style={{
                               backgroundColor: infoEtapa(state, ped.status).bg,
-                              color: infoEtapa(state, ped.status).cor,
+                              color: infoEtapa(state, ped.status).texto,
                               borderColor: `${infoEtapa(state, ped.status).cor}55`,
                             }}
                             className="text-[10px] font-semibold border"
@@ -587,7 +595,7 @@ export default function Pedidos() {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => setPedidoParaPagamento(ped)}
-                                className="h-7 text-[11px] border-[#DFC3AE] text-[#4C8A5A] hover:bg-emerald-50 px-2"
+                                className="h-7 text-[11px] border-[#DFC3AE] text-[#3F7A4E] hover:bg-emerald-50 px-2"
                               >
                                 Pagar
                               </Button>

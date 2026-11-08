@@ -157,7 +157,7 @@ export default function Financeiro() {
             onClick={() => setModalCategoriasAberto(true)}
             className="border-[#DFC3AE] text-[#6B4B36] hover:text-[#0C1014] text-xs h-10 px-3.5 rounded-xl flex items-center gap-1.5"
           >
-            <FolderTree className="w-3.5 h-3.5 text-[#C48864]" />
+            <FolderTree className="w-3.5 h-3.5 text-[#94603D]" />
             <span>Categorias</span>
           </Button>
           <Button
@@ -165,7 +165,7 @@ export default function Financeiro() {
               setDespesaParaEditar(null)
               setModalDespesaAberto(true)
             }}
-            className="bg-[#C48864] hover:bg-[#B0764F] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5"
+            className="bg-[#A5683F] hover:bg-[#8C5636] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4" />
             <span>Nova Despesa</span>
@@ -192,8 +192,8 @@ export default function Financeiro() {
             <div className="font-serif text-base font-bold text-[#0C1014] truncate">
               <CountUpNumber value={resumo.faturamentoTotal} isCurrency />
             </div>
-            <p className="text-[10px] text-[#6B4B36]/80 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C48864]" />
+            <p className="text-[10px] text-[#6B4B36]/90 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#A5683F]" />
               Receita prevista
             </p>
           </CardContent>
@@ -205,10 +205,10 @@ export default function Financeiro() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 block">
               Total Recebido
             </span>
-            <div className="font-serif text-base font-bold text-[#4C8A5A] truncate">
+            <div className="font-serif text-base font-bold text-[#3F7A4E] truncate">
               <CountUpNumber value={resumo.totalRecebido} isCurrency />
             </div>
-            <p className="text-[10px] text-emerald-700/80 flex items-center gap-1">
+            <p className="text-[10px] text-emerald-800 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-[#4C8A5A]" />
               Entradas efetivas
             </p>
@@ -221,10 +221,10 @@ export default function Financeiro() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 block">
               Total a Receber
             </span>
-            <div className="font-serif text-base font-bold text-[#D9A441] truncate">
+            <div className="font-serif text-base font-bold text-[#8A6416] truncate">
               <CountUpNumber value={resumo.totalAReceber} isCurrency />
             </div>
-            <p className="text-[10px] text-amber-700/80 flex items-center gap-1">
+            <p className="text-[10px] text-amber-800 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-[#D9A441]" />
               Saldo a receber
             </p>
@@ -237,10 +237,10 @@ export default function Financeiro() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-red-800 block">
               Despesas Pagas
             </span>
-            <div className="font-serif text-base font-bold text-[#B5533C] truncate">
+            <div className="font-serif text-base font-bold text-[#A84A34] truncate">
               <CountUpNumber value={resumo.despesasPagas} isCurrency />
             </div>
-            <p className="text-[10px] text-red-700/80 flex items-center gap-1">
+            <p className="text-[10px] text-red-800 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-[#B5533C]" />
               Saídas realizadas
             </p>
@@ -256,7 +256,7 @@ export default function Financeiro() {
             <div className="font-serif text-base font-bold text-[#6B4B36] truncate">
               <CountUpNumber value={resumo.despesasPendentes} isCurrency />
             </div>
-            <p className="text-[10px] text-[#6B4B36]/80 flex items-center gap-1">
+            <p className="text-[10px] text-[#6B4B36]/90 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
               Contas a pagar
             </p>
@@ -295,13 +295,13 @@ export default function Financeiro() {
         <TabsList className="bg-white p-1 rounded-xl border border-[#DFC3AE]/70 shadow-xs h-11">
           <TabsTrigger
             value="receitas"
-            className="data-[state=active]:bg-[#C48864] data-[state=active]:text-white rounded-lg text-xs font-semibold px-4"
+            className="data-[state=active]:bg-[#A5683F] data-[state=active]:text-white rounded-lg text-xs font-semibold px-4"
           >
             Receitas &amp; Pedidos ({pedidosReceitas.length})
           </TabsTrigger>
           <TabsTrigger
             value="despesas"
-            className="data-[state=active]:bg-[#C48864] data-[state=active]:text-white rounded-lg text-xs font-semibold px-4"
+            className="data-[state=active]:bg-[#A5683F] data-[state=active]:text-white rounded-lg text-xs font-semibold px-4"
           >
             Despesas &amp; Saídas ({despesasFiltradas.length})
           </TabsTrigger>
@@ -312,7 +312,7 @@ export default function Financeiro() {
           {/* Filtros de Receitas */}
           <div className="bg-white p-3.5 rounded-xl border border-[#DFC3AE]/70 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
             <div className="relative flex-1 w-full sm:max-w-xs">
-              <Search className="w-4 h-4 text-[#6B4B36]/60 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-[#6B4B36]/90 absolute left-3 top-1/2 -translate-y-1/2" />
               <Input
                 placeholder="Buscar pedido (nº) ou cliente..."
                 value={buscaReceita}
@@ -326,7 +326,10 @@ export default function Financeiro() {
                 value={filtroStatusReceita}
                 onValueChange={(val: any) => setFiltroStatusReceita(val)}
               >
-                <SelectTrigger className="h-9 text-xs border-[#DFC3AE] w-48">
+                <SelectTrigger
+                  aria-label="Filtrar receitas por situação"
+                  className="h-9 text-xs border-[#DFC3AE] w-48"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -378,19 +381,19 @@ export default function Financeiro() {
                         <td className="py-3 px-4 font-serif font-bold text-[#0C1014]">
                           {formatBRL(p.valorTotal)}
                         </td>
-                        <td className="py-3 px-4 font-bold text-[#4C8A5A]">
+                        <td className="py-3 px-4 font-bold text-[#3F7A4E]">
                           {formatBRL(p.valorPago)}
                         </td>
-                        <td className="py-3 px-4 font-bold text-[#D9A441]">
+                        <td className="py-3 px-4 font-bold text-[#8A6416]">
                           {p.saldoPendente > 0.01 ? formatBRL(p.saldoPendente) : '—'}
                         </td>
                         <td className="py-3 px-4">
                           <Badge
                             className={`text-[10px] font-semibold border-none ${
                               p.statusPagamento === 'pago'
-                                ? 'bg-[#4C8A5A]/15 text-[#4C8A5A]'
+                                ? 'bg-[#4C8A5A]/15 text-[#3F7A4E]'
                                 : p.statusPagamento === 'parcial'
-                                  ? 'bg-[#D9A441]/15 text-[#D9A441]'
+                                  ? 'bg-[#D9A441]/15 text-[#8A6416]'
                                   : 'bg-red-100 text-red-700'
                             }`}
                           >
@@ -402,12 +405,12 @@ export default function Financeiro() {
                             <Button
                               size="sm"
                               onClick={() => setPedidoParaPagamento(p)}
-                              className="h-7 text-[11px] bg-[#C48864] hover:bg-[#B0764F] text-white px-3"
+                              className="h-7 text-[11px] bg-[#A5683F] hover:bg-[#8C5636] text-white px-3"
                             >
                               Receber
                             </Button>
                           ) : (
-                            <span className="text-[11px] text-[#4C8A5A] font-medium flex items-center justify-end gap-1">
+                            <span className="text-[11px] text-[#3F7A4E] font-medium flex items-center justify-end gap-1">
                               <CheckCircle className="w-3.5 h-3.5" /> Quitado
                             </span>
                           )}
@@ -426,7 +429,7 @@ export default function Financeiro() {
           {/* Filtros de Despesas */}
           <div className="bg-white p-3.5 rounded-xl border border-[#DFC3AE]/70 shadow-xs grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
             <div className="sm:col-span-5 relative">
-              <Search className="w-4 h-4 text-[#6B4B36]/60 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-[#6B4B36]/90 absolute left-3 top-1/2 -translate-y-1/2" />
               <Input
                 placeholder="Buscar despesa ou fornecedor..."
                 value={buscaDespesa}
@@ -526,7 +529,7 @@ export default function Financeiro() {
                           {d.vencimento ? formatDataBR(d.vencimento) : '—'}
                         </td>
                         <td className="py-3 px-4 text-[#6B4B36]">{d.formaPagamento}</td>
-                        <td className="py-3 px-4 font-serif font-bold text-[#B5533C]">
+                        <td className="py-3 px-4 font-serif font-bold text-[#A84A34]">
                           {formatBRL(d.valor)}
                         </td>
                         <td className="py-3 px-4">
@@ -536,7 +539,7 @@ export default function Financeiro() {
                             title="Clique para alternar entre Pago e Pendente"
                           >
                             {d.status === 'pago' ? (
-                              <Badge className="bg-[#4C8A5A]/15 text-[#4C8A5A] hover:bg-[#4C8A5A]/25 border-none text-[10px]">
+                              <Badge className="bg-[#4C8A5A]/15 text-[#3F7A4E] hover:bg-[#4C8A5A]/25 border-none text-[10px]">
                                 Pago
                               </Badge>
                             ) : (
@@ -549,6 +552,7 @@ export default function Financeiro() {
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-1">
                             <Button
+                              aria-label="Editar despesa"
                               size="sm"
                               variant="ghost"
                               onClick={() => {
@@ -560,6 +564,7 @@ export default function Financeiro() {
                               <Edit className="w-3.5 h-3.5" />
                             </Button>
                             <Button
+                              aria-label="Excluir despesa"
                               size="sm"
                               variant="ghost"
                               onClick={() => setDespesaParaExcluir(d)}
@@ -610,7 +615,7 @@ export default function Financeiro() {
         <AlertDialogContent className="bg-white border-[#DFC3AE]">
           <AlertDialogHeader>
             <AlertDialogTitle className="font-serif text-lg font-bold text-[#0C1014] flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-[#B5533C]" />
+              <AlertTriangle className="w-5 h-5 text-[#A84A34]" />
               Excluir Despesa?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-[#6B4B36]">

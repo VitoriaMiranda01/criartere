@@ -21,7 +21,7 @@ export function DicaAjuda({ titulo, children, topico, className, lado = 'top' }:
           type="button"
           onClick={(e) => e.stopPropagation()}
           className={cn(
-            'inline-flex items-center justify-center w-5 h-5 rounded-full text-[#6B4B36]/60 hover:text-[#C48864] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C48864] align-middle shrink-0 normal-case',
+            'inline-flex items-center justify-center w-5 h-5 rounded-full text-[#6B4B36]/90 hover:text-[#94603D] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C48864] align-middle shrink-0 normal-case',
             className,
           )}
           aria-label={titulo ? `Ajuda: ${titulo}` : 'Ajuda'}
@@ -39,7 +39,7 @@ export function DicaAjuda({ titulo, children, topico, className, lado = 'top' }:
         {topico && (
           <Link
             to={`/ajuda#${topico}`}
-            className="inline-block mt-2 font-semibold text-[#C48864] hover:underline"
+            className="inline-block mt-2 font-semibold text-[#94603D] hover:underline"
           >
             Saiba mais na Ajuda →
           </Link>

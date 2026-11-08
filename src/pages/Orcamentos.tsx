@@ -153,7 +153,7 @@ export default function Orcamentos() {
             setEmEdicao(null)
             setModalAberto(true)
           }}
-          className="bg-[#C48864] hover:bg-[#B0764F] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5"
+          className="bg-[#A5683F] hover:bg-[#8C5636] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5"
         >
           <Plus className="w-4 h-4" />
           <span>Novo Orçamento</span>
@@ -163,7 +163,7 @@ export default function Orcamentos() {
       {/* FILTROS */}
       <div className="bg-white p-3.5 rounded-xl border border-[#DFC3AE]/70 shadow-xs space-y-3">
         <div className="relative">
-          <Search className="w-4 h-4 text-[#6B4B36]/60 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#6B4B36]/90 absolute left-3 top-1/2 -translate-y-1/2" />
           <Input
             placeholder="Buscar por número, cliente ou item..."
             value={busca}
@@ -172,6 +172,7 @@ export default function Orcamentos() {
           />
           {busca && (
             <button
+              aria-label="Limpar busca"
               onClick={() => setBusca('')}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6B4B36] hover:text-[#0C1014]"
             >
@@ -186,7 +187,7 @@ export default function Orcamentos() {
               onClick={() => setFiltro(f.valor)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 filtro === f.valor
-                  ? 'bg-[#C48864] text-white shadow-xs'
+                  ? 'bg-[#A5683F] text-white shadow-xs'
                   : 'bg-[#F7F3EA] text-[#6B4B36] hover:bg-[#DFC3AE]/40'
               }`}
             >
@@ -243,7 +244,12 @@ export default function Orcamentos() {
                     <p className="font-bold text-[#0C1014]">{formatBRL(o.valorTotal)}</p>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-[#6B4B36]">
+                        <Button
+                          aria-label="Mais ações do orçamento"
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-[#6B4B36]"
+                        >
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -373,11 +379,15 @@ export default function Orcamentos() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="space-y-1.5">
-            <Label className="text-xs font-bold text-[#6B4B36] uppercase tracking-wider">
+            <Label
+              htmlFor="orcamentos-campo-1"
+              className="text-xs font-bold text-[#6B4B36] uppercase tracking-wider"
+            >
               Prazo de entrega do pedido
               <Obrigatorio />
             </Label>
             <Input
+              id="orcamentos-campo-1"
               type="date"
               value={prazoConversao}
               onChange={(e) => setPrazoConversao(e.target.value)}

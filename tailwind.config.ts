@@ -33,8 +33,8 @@ export default {
       },
       colors: {
         criartere: {
-          terracota: '#C48864',
-          'terracota-dark': '#B0764F',
+          terracota: '#A5683F',
+          'terracota-dark': '#8C5636',
           'terracota-light': '#F6EDE7',
           'off-white': '#F7F3EA',
           grafite: '#0C1014',

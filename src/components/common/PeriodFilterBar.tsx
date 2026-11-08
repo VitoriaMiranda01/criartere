@@ -47,7 +47,7 @@ export const PeriodFilterBar: React.FC<PeriodFilterBarProps> = ({
               onClick={() => handleSelect(op.id)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
                 ativo
-                  ? 'bg-[#C48864] text-white shadow-xs'
+                  ? 'bg-[#A5683F] text-white shadow-xs'
                   : 'text-[#6B4B36] hover:bg-[#F7F3EA] hover:text-[#0C1014]'
               }`}
             >
@@ -60,7 +60,7 @@ export const PeriodFilterBar: React.FC<PeriodFilterBarProps> = ({
       {/* Inputs para datas quando personalizado */}
       {mostrarDatas && (
         <div className="flex items-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#DFC3AE]/40">
-          <Calendar className="w-3.5 h-3.5 text-[#C48864] shrink-0" />
+          <Calendar className="w-3.5 h-3.5 text-[#94603D] shrink-0" />
           <div className="flex items-center gap-1.5 text-xs text-[#6B4B36]">
             <Input
               type="date"

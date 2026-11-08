@@ -98,7 +98,7 @@ export default function FluxoDeCaixa() {
             <div className="font-serif text-base font-bold text-[#0C1014] truncate">
               <CountUpNumber value={resumo.saldoInicial} isCurrency />
             </div>
-            <p className="text-[10px] text-[#6B4B36]/80">Acumulado anterior</p>
+            <p className="text-[10px] text-[#6B4B36]/90">Acumulado anterior</p>
           </CardContent>
         </Card>
 
@@ -109,12 +109,12 @@ export default function FluxoDeCaixa() {
               <span className="text-[10px] font-bold uppercase tracking-wider">
                 Entradas Realizadas
               </span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-[#4C8A5A]" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-[#3F7A4E]" />
             </div>
-            <div className="font-serif text-base font-bold text-[#4C8A5A] truncate">
+            <div className="font-serif text-base font-bold text-[#3F7A4E] truncate">
               <CountUpNumber value={resumo.entradasRealizadas} isCurrency />
             </div>
-            <p className="text-[10px] text-emerald-700/80">Efetivamente no caixa</p>
+            <p className="text-[10px] text-emerald-800">Efetivamente no caixa</p>
           </CardContent>
         </Card>
 
@@ -125,12 +125,12 @@ export default function FluxoDeCaixa() {
               <span className="text-[10px] font-bold uppercase tracking-wider">
                 Saídas Realizadas
               </span>
-              <ArrowDownRight className="w-3.5 h-3.5 text-[#B5533C]" />
+              <ArrowDownRight className="w-3.5 h-3.5 text-[#A84A34]" />
             </div>
-            <div className="font-serif text-base font-bold text-[#B5533C] truncate">
+            <div className="font-serif text-base font-bold text-[#A84A34] truncate">
               <CountUpNumber value={resumo.saidasRealizadas} isCurrency />
             </div>
-            <p className="text-[10px] text-red-700/80">Despesas pagas</p>
+            <p className="text-[10px] text-red-800">Despesas pagas</p>
           </CardContent>
         </Card>
 
@@ -156,16 +156,16 @@ export default function FluxoDeCaixa() {
         {/* 5. Entradas Previstas (Borda Tracejada - Não soma no saldo) */}
         <Card className="border-2 border-dashed border-[#D9A441]/60 bg-amber-50/20 shadow-xs">
           <CardContent className="p-3.5 space-y-1">
-            <div className="flex items-center justify-between text-[#D9A441]">
+            <div className="flex items-center justify-between text-[#8A6416]">
               <span className="text-[10px] font-bold uppercase tracking-wider">
                 Entradas Previstas
               </span>
               <Clock className="w-3.5 h-3.5" />
             </div>
-            <div className="font-serif text-base font-bold text-[#D9A441] truncate">
+            <div className="font-serif text-base font-bold text-[#8A6416] truncate">
               <CountUpNumber value={resumo.entradasPrevistas} isCurrency />
             </div>
-            <p className="text-[10px] text-[#6B4B36]/80 italic">Não entra no saldo</p>
+            <p className="text-[10px] text-[#6B4B36]/90 italic">Não entra no saldo</p>
           </CardContent>
         </Card>
 
@@ -181,14 +181,14 @@ export default function FluxoDeCaixa() {
             <div className="font-serif text-base font-bold text-[#6B4B36] truncate">
               <CountUpNumber value={resumo.saidasPrevistas} isCurrency />
             </div>
-            <p className="text-[10px] text-[#6B4B36]/80 italic">Contas a pagar</p>
+            <p className="text-[10px] text-[#6B4B36]/90 italic">Contas a pagar</p>
           </CardContent>
         </Card>
       </div>
 
       {/* NOTA EXPLICATIVA SOBRE REGRAS FINANCEIRAS */}
       <div className="p-3.5 bg-white rounded-xl border border-[#DFC3AE]/80 flex items-start gap-2.5 text-xs text-[#6B4B36] shadow-xs">
-        <Info className="w-4 h-4 text-[#C48864] shrink-0 mt-0.5" />
+        <Info className="w-4 h-4 text-[#94603D] shrink-0 mt-0.5" />
         <div className="leading-relaxed">
           <strong className="text-[#0C1014]">Regra de Conciliação Criartere:</strong> O saldo de
           caixa contempla <em>somente os valores efetivamente realizados</em> (recebidos via
@@ -201,7 +201,7 @@ export default function FluxoDeCaixa() {
       <div className="bg-white p-3.5 rounded-xl border border-[#DFC3AE]/70 shadow-xs space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
           <div className="sm:col-span-4 relative">
-            <Search className="w-4 h-4 text-[#6B4B36]/60 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#6B4B36]/90 absolute left-3 top-1/2 -translate-y-1/2" />
             <Input
               placeholder="Buscar movimentação..."
               value={busca}
@@ -212,7 +212,10 @@ export default function FluxoDeCaixa() {
 
           <div className="sm:col-span-3">
             <Select value={filtroCategoria} onValueChange={setFiltroCategoria}>
-              <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
+              <SelectTrigger
+                aria-label="Filtrar por categoria"
+                className="h-9 text-xs border-[#DFC3AE]"
+              >
                 <SelectValue placeholder="Categoria..." />
               </SelectTrigger>
               <SelectContent>
@@ -230,7 +233,7 @@ export default function FluxoDeCaixa() {
 
           <div className="sm:col-span-2">
             <Select value={filtroTipo} onValueChange={(val: any) => setFiltroTipo(val)}>
-              <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
+              <SelectTrigger aria-label="Filtrar por tipo" className="h-9 text-xs border-[#DFC3AE]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -249,7 +252,10 @@ export default function FluxoDeCaixa() {
 
           <div className="sm:col-span-3">
             <Select value={filtroStatus} onValueChange={(val: any) => setFiltroStatus(val)}>
-              <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
+              <SelectTrigger
+                aria-label="Filtrar por situação"
+                className="h-9 text-xs border-[#DFC3AE]"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -321,18 +327,18 @@ export default function FluxoDeCaixa() {
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
                         {isEntrada ? (
-                          <span className="text-[#4C8A5A] font-bold flex items-center gap-1">
+                          <span className="text-[#3F7A4E] font-bold flex items-center gap-1">
                             <ArrowUpRight className="w-3.5 h-3.5" /> Entrada
                           </span>
                         ) : (
-                          <span className="text-[#B5533C] font-bold flex items-center gap-1">
+                          <span className="text-[#A84A34] font-bold flex items-center gap-1">
                             <ArrowDownRight className="w-3.5 h-3.5" /> Saída
                           </span>
                         )}
                       </td>
                       <td className="py-3 px-4 text-[#6B4B36]">{mov.formaPagamento || '—'}</td>
                       <td className="py-3 px-4 font-serif font-bold text-xs whitespace-nowrap">
-                        <span className={isEntrada ? 'text-[#4C8A5A]' : 'text-[#B5533C]'}>
+                        <span className={isEntrada ? 'text-[#3F7A4E]' : 'text-[#A84A34]'}>
                           {isEntrada ? '+' : '-'} {formatBRL(mov.valor)}
                         </span>
                       </td>
@@ -345,7 +351,7 @@ export default function FluxoDeCaixa() {
                             Pendente
                           </Badge>
                         ) : (
-                          <Badge className="bg-[#4C8A5A]/15 text-[#4C8A5A] border-none text-[10px]">
+                          <Badge className="bg-[#4C8A5A]/15 text-[#3F7A4E] border-none text-[10px]">
                             Realizado
                           </Badge>
                         )}
@@ -354,7 +360,7 @@ export default function FluxoDeCaixa() {
                         {mov.pedidoId && (
                           <button
                             onClick={() => navigate(`/pedidos`)}
-                            className="text-[#C48864] hover:underline text-[11px] font-semibold inline-flex items-center gap-0.5"
+                            className="text-[#94603D] hover:underline text-[11px] font-semibold inline-flex items-center gap-0.5"
                           >
                             <span>Ver Pedido</span>
                             <ExternalLink className="w-3 h-3" />

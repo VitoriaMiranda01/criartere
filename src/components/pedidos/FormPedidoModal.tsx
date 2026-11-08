@@ -274,7 +274,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setCadastrandoClienteInline(true)}
-                    className="text-xs text-[#C48864] hover:underline flex items-center gap-1 font-semibold"
+                    className="text-xs text-[#94603D] hover:underline flex items-center gap-1 font-semibold"
                   >
                     <UserPlus className="w-3.5 h-3.5" />
                     Cadastrar novo cliente
@@ -346,7 +346,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                       type="button"
                       size="sm"
                       onClick={handleCriarClienteInline}
-                      className="text-xs h-8 bg-[#C48864] hover:bg-[#B0764F] text-white font-semibold"
+                      className="text-xs h-8 bg-[#A5683F] hover:bg-[#8C5636] text-white font-semibold"
                     >
                       Salvar e Selecionar
                     </Button>
@@ -367,7 +367,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                   variant="outline"
                   size="sm"
                   onClick={handleAddItem}
-                  className="h-7 text-xs border-[#DFC3AE] text-[#C48864] hover:bg-[#F7F3EA]"
+                  className="h-7 text-xs border-[#DFC3AE] text-[#94603D] hover:bg-[#F7F3EA]"
                 >
                   <Plus className="w-3.5 h-3.5 mr-1" />
                   Adicionar item
@@ -546,11 +546,11 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                   <span className="text-[11px] uppercase font-bold text-[#6B4B36] tracking-wider">
                     Valor total
                   </span>
-                  <p className="text-[10px] text-[#6B4B36]/80">
+                  <p className="text-[10px] text-[#6B4B36]/90">
                     Receita prevista até o recebimento
                   </p>
                 </div>
-                <span className="font-serif text-2xl font-bold text-[#C48864] whitespace-nowrap">
+                <span className="font-serif text-2xl font-bold text-[#94603D] whitespace-nowrap">
                   {formatBRL(valorTotalFinal)}
                 </span>
               </div>
@@ -558,12 +558,15 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-[11px] font-bold text-[#6B4B36] uppercase tracking-wider">
+                <Label
+                  htmlFor="formpedidomo-campo-1"
+                  className="text-[11px] font-bold text-[#6B4B36] uppercase tracking-wider"
+                >
                   Pagamento
                   <Obrigatorio />
                 </Label>
                 <Select value={formaPagamento} onValueChange={(val: any) => setFormaPagamento(val)}>
-                  <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
+                  <SelectTrigger id="formpedidomo-campo-1" className="h-9 text-xs border-[#DFC3AE]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -593,12 +596,15 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                 />
               </div>
               <div className="space-y-1.5 col-span-2">
-                <Label className="text-[11px] font-bold text-[#6B4B36] uppercase tracking-wider">
+                <Label
+                  htmlFor="formpedidomo-campo-2"
+                  className="text-[11px] font-bold text-[#6B4B36] uppercase tracking-wider"
+                >
                   Etapa (status)
                   <Obrigatorio />
                 </Label>
                 <Select value={status} onValueChange={(val: any) => setStatus(val)}>
-                  <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
+                  <SelectTrigger id="formpedidomo-campo-2" className="h-9 text-xs border-[#DFC3AE]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -629,7 +635,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
               </Button>
               <Button
                 type="submit"
-                className="bg-[#C48864] hover:bg-[#B0764F] text-white h-10 text-xs font-semibold shadow-xs sm:flex-[2]"
+                className="bg-[#A5683F] hover:bg-[#8C5636] text-white h-10 text-xs font-semibold shadow-xs sm:flex-[2]"
               >
                 {pedidoParaEditar ? 'Salvar Alterações' : 'Cadastrar Pedido'}
               </Button>

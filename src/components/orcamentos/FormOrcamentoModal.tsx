@@ -179,12 +179,15 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
         <form onSubmit={handleSalvar} className="space-y-6 pt-2">
           {/* CLIENTE */}
           <div className="space-y-2">
-            <Label className={lbl}>
+            <Label htmlFor="formorcament-campo-1" className={lbl}>
               Cliente
               <Obrigatorio />
             </Label>
             <Select value={clienteId} onValueChange={escolherCliente}>
-              <SelectTrigger className="h-10 text-xs border-[#DFC3AE] bg-[#F7F3EA]/30">
+              <SelectTrigger
+                id="formorcament-campo-1"
+                className="h-10 text-xs border-[#DFC3AE] bg-[#F7F3EA]/30"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -214,7 +217,7 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
               />
             </div>
             {clienteId === AVULSO && (
-              <p className="text-[11px] text-[#6B4B36]/80">
+              <p className="text-[11px] text-[#6B4B36]/90">
                 Se o orçamento for aprovado, o cliente é cadastrado automaticamente ao virar pedido.
               </p>
             )}
@@ -223,11 +226,12 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
           {/* DADOS */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <Label className={lbl}>
+              <Label htmlFor="formorcament-campo-2" className={lbl}>
                 Data
                 <Obrigatorio />
               </Label>
               <Input
+                id="formorcament-campo-2"
                 type="date"
                 value={data}
                 onChange={(e) => setData(e.target.value)}
@@ -235,7 +239,7 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label className={lbl}>
+              <Label htmlFor="formorcament-campo-3" className={lbl}>
                 Disponibilidade
                 <DicaAjuda>
                   <p>Aparece no PDF. Ex.: "Pronta entrega" ou "Sob encomenda (7 dias úteis)".</p>
@@ -243,6 +247,7 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
                 <Opcional />
               </Label>
               <Input
+                id="formorcament-campo-3"
                 list="disponibilidades-orcamento"
                 value={disponibilidade}
                 onChange={(e) => setDisponibilidade(e.target.value)}
@@ -267,7 +272,7 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
               <button
                 type="button"
                 onClick={() => setItens((p) => [...p, itemVazio()])}
-                className="text-xs text-[#C48864] hover:underline flex items-center gap-1 font-semibold"
+                className="text-xs text-[#94603D] hover:underline flex items-center gap-1 font-semibold"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Adicionar item
@@ -353,6 +358,7 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
                     {formatBRL(item.subtotal)}
                   </span>
                   <Button
+                    aria-label="Remover item"
                     type="button"
                     variant="ghost"
                     size="icon"
@@ -372,11 +378,12 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className={lbl}>
+                  <Label htmlFor="formorcament-campo-4" className={lbl}>
                     Frete (R$)
                     <Opcional />
                   </Label>
                   <Input
+                    id="formorcament-campo-4"
                     type="number"
                     min="0"
                     step="0.01"
@@ -386,11 +393,12 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className={lbl}>
+                  <Label htmlFor="formorcament-campo-5" className={lbl}>
                     Desconto (R$)
                     <Opcional />
                   </Label>
                   <Input
+                    id="formorcament-campo-5"
                     type="number"
                     min="0"
                     step="0.01"
@@ -414,7 +422,7 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
                         onClick={() => alternarForma(f)}
                         className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${
                           formas.includes(f)
-                            ? 'bg-[#C48864] border-[#C48864] text-white'
+                            ? 'bg-[#A5683F] border-[#C48864] text-white'
                             : 'bg-white border-[#DFC3AE] text-[#6B4B36] hover:bg-[#F7F3EA]'
                         }`}
                       >
@@ -454,7 +462,7 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
                       onClick={() => setTipoPagamento(v)}
                       className={`px-2.5 py-2 rounded-lg text-xs font-medium border transition-colors ${
                         tipoPagamento === v
-                          ? 'bg-[#C48864] border-[#C48864] text-white'
+                          ? 'bg-[#A5683F] border-[#C48864] text-white'
                           : 'bg-white border-[#DFC3AE] text-[#6B4B36] hover:bg-[#F7F3EA]'
                       }`}
                     >
@@ -465,11 +473,15 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
               </div>
               {tipoPagamento === 'sinal' && (
                 <div className="flex items-center gap-2">
-                  <Label className="text-xs text-[#6B4B36] whitespace-nowrap">
+                  <Label
+                    htmlFor="formorcament-campo-6"
+                    className="text-xs text-[#6B4B36] whitespace-nowrap"
+                  >
                     Sinal de
                     <Obrigatorio />
                   </Label>
                   <Input
+                    id="formorcament-campo-6"
                     type="number"
                     min="1"
                     max="99"
@@ -510,11 +522,12 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
           {/* OBSERVAÇÕES E STATUS */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5 sm:col-span-2">
-              <Label className={lbl}>
+              <Label htmlFor="formorcament-campo-7" className={lbl}>
                 Observações
                 <Opcional />
               </Label>
               <Textarea
+                id="formorcament-campo-7"
                 value={observacoes}
                 onChange={(e) => setObservacoes(e.target.value)}
                 placeholder={
@@ -522,7 +535,7 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
                 }
                 className="min-h-[80px] text-xs border-[#DFC3AE]"
               />
-              <p className="text-[11px] text-[#6B4B36]/80">
+              <p className="text-[11px] text-[#6B4B36]/90">
                 {state.config.chavePix
                   ? `A chave Pix (${state.config.chavePix}) entra automaticamente no PDF.`
                   : 'Cadastre a chave Pix em Configurações para ela sair no PDF.'}
@@ -530,12 +543,12 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
             </div>
             {o && (
               <div className="space-y-1.5">
-                <Label className={lbl}>
+                <Label htmlFor="formorcament-campo-8" className={lbl}>
                   Status
                   <Obrigatorio />
                 </Label>
                 <Select value={status} onValueChange={(v) => setStatus(v as OrcamentoStatus)}>
-                  <SelectTrigger className={inp}>
+                  <SelectTrigger id="formorcament-campo-8" className={inp}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -569,7 +582,7 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
             </Button>
             <Button
               type="submit"
-              className="bg-[#C48864] hover:bg-[#B0764F] text-white text-xs font-semibold"
+              className="bg-[#A5683F] hover:bg-[#8C5636] text-white text-xs font-semibold"
             >
               {o ? 'Salvar alterações' : 'Criar orçamento'}
             </Button>

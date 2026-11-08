@@ -97,7 +97,7 @@ export function MeuPerfil() {
     <Card id="meu-perfil" className="border-[#DFC3AE]/70 bg-white shadow-xs scroll-mt-6">
       <CardHeader className="pb-3 border-b border-[#DFC3AE]/40">
         <CardTitle className="font-serif text-base font-bold text-[#0C1014] flex items-center gap-2">
-          <UserRound className="w-4 h-4 text-[#C48864]" />
+          <UserRound className="w-4 h-4 text-[#94603D]" />
           Meu perfil
         </CardTitle>
       </CardHeader>
@@ -139,7 +139,7 @@ export function MeuPerfil() {
                 variant="ghost"
                 size="sm"
                 onClick={() => inputArquivo.current?.click()}
-                className="h-7 text-[11px] text-[#C48864]"
+                className="h-7 text-[11px] text-[#94603D]"
               >
                 {fotoExibida ? 'Trocar foto' : 'Adicionar foto'}
               </Button>
@@ -156,7 +156,7 @@ export function MeuPerfil() {
                 </Button>
               )}
             </div>
-            <p className="text-[10px] text-[#6B4B36]/70 text-center max-w-[10rem]">
+            <p className="text-[10px] text-[#6B4B36]/90 text-center max-w-[10rem]">
               JPG, PNG ou WebP. A imagem é recortada em formato quadrado.
             </p>
           </div>
@@ -181,15 +181,19 @@ export function MeuPerfil() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
+              <Label
+                htmlFor="meuperfil-campo-1"
+                className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+              >
                 E-mail de acesso
               </Label>
               <Input
+                id="meuperfil-campo-1"
                 value={usuario.email}
                 disabled
                 className="h-10 text-sm border-[#DFC3AE] bg-[#F7F3EA]/50"
               />
-              <p className="text-[11px] text-[#6B4B36]/70">
+              <p className="text-[11px] text-[#6B4B36]/90">
                 O e-mail é usado para entrar no sistema e não pode ser alterado aqui.
               </p>
             </div>
@@ -197,7 +201,7 @@ export function MeuPerfil() {
               <Button
                 type="submit"
                 disabled={!alterou || salvando}
-                className="bg-[#C48864] hover:bg-[#B0764F] text-white text-xs font-semibold h-10 px-5"
+                className="bg-[#A5683F] hover:bg-[#8C5636] text-white text-xs font-semibold h-10 px-5"
               >
                 {salvando ? 'Salvando...' : 'Salvar perfil'}
               </Button>

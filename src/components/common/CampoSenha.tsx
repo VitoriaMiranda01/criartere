@@ -20,7 +20,7 @@ export const CampoSenha = React.forwardRef<
       <button
         type="button"
         onClick={() => setVisivel((v) => !v)}
-        className="absolute right-0 top-0 h-full px-3 flex items-center text-[#6B4B36]/70 hover:text-[#0C1014]"
+        className="absolute right-0 top-0 h-full px-3 flex items-center text-[#6B4B36]/90 hover:text-[#0C1014]"
         aria-label={visivel ? 'Ocultar senha' : 'Mostrar senha'}
         title={visivel ? 'Ocultar senha' : 'Mostrar senha'}
         tabIndex={-1}

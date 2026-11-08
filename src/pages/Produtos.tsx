@@ -236,7 +236,7 @@ export default function Produtos() {
 
         <Button
           onClick={abrirNovoProduto}
-          className="bg-[#C48864] hover:bg-[#B0764F] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5 self-start sm:self-auto"
+          className="bg-[#A5683F] hover:bg-[#8C5636] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5 self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Novo Produto</span>
@@ -247,7 +247,7 @@ export default function Produtos() {
       <div className="bg-white p-3.5 rounded-xl border border-[#DFC3AE]/70 shadow-xs space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
           <div className="sm:col-span-6 relative">
-            <Search className="w-4 h-4 text-[#6B4B36]/60 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#6B4B36]/90 absolute left-3 top-1/2 -translate-y-1/2" />
             <Input
               placeholder="Buscar por nome ou descrição do produto..."
               value={busca}
@@ -256,6 +256,7 @@ export default function Produtos() {
             />
             {busca && (
               <button
+                aria-label="Limpar busca"
                 onClick={() => setBusca('')}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[#6B4B36]"
               >
@@ -266,7 +267,10 @@ export default function Produtos() {
 
           <div className="sm:col-span-3">
             <Select value={categoriaFiltro} onValueChange={setCategoriaFiltro}>
-              <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
+              <SelectTrigger
+                aria-label="Filtrar por categoria"
+                className="h-9 text-xs border-[#DFC3AE]"
+              >
                 <SelectValue placeholder="Categoria..." />
               </SelectTrigger>
               <SelectContent>
@@ -284,7 +288,10 @@ export default function Produtos() {
 
           <div className="sm:col-span-3">
             <Select value={filtroStatus} onValueChange={(val: any) => setFiltroStatus(val)}>
-              <SelectTrigger className="h-9 text-xs border-[#DFC3AE]">
+              <SelectTrigger
+                aria-label="Filtrar por situação"
+                className="h-9 text-xs border-[#DFC3AE]"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -307,7 +314,7 @@ export default function Produtos() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {produtosFiltrados.length === 0 ? (
           <div className="col-span-full bg-white p-12 rounded-2xl border border-dashed border-[#DFC3AE] text-center space-y-3">
-            <Package className="w-8 h-8 text-[#C48864] mx-auto opacity-70" />
+            <Package className="w-8 h-8 text-[#94603D] mx-auto opacity-70" />
             <p className="text-sm font-semibold text-[#0C1014]">Nenhum produto encontrado</p>
             <p className="text-xs text-[#6B4B36]">
               Ajuste os filtros ou cadastre um novo produto no catálogo.
@@ -367,16 +374,16 @@ export default function Produtos() {
                   <div className="pt-2 border-t border-[#DFC3AE]/40 space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] text-[#6B4B36]">Preço de Venda:</span>
-                      <span className="font-serif font-bold text-base text-[#C48864]">
+                      <span className="font-serif font-bold text-base text-[#94603D]">
                         {formatBRL(prod.precoVenda)}
                       </span>
                     </div>
 
                     {prod.custo > 0 && (
-                      <div className="flex items-center justify-between text-[11px] text-[#6B4B36]/80">
+                      <div className="flex items-center justify-between text-[11px] text-[#6B4B36]/90">
                         <span>Custo: {formatBRL(prod.custo)}</span>
                         {margem !== null && (
-                          <span className="text-[#4C8A5A] font-semibold">
+                          <span className="text-[#3F7A4E] font-semibold">
                             Lucro: {formatBRL(margem)}
                           </span>
                         )}
@@ -402,6 +409,7 @@ export default function Produtos() {
                       Editar
                     </Button>
                     <Button
+                      aria-label="Excluir produto"
                       size="sm"
                       variant="ghost"
                       onClick={() => setProdutoParaExcluir(prod)}
@@ -473,9 +481,9 @@ export default function Produtos() {
                       </>
                     ) : (
                       <span className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-[#6B4B36] text-center px-3">
-                        <ImagePlus className="w-7 h-7 text-[#C48864]" />
+                        <ImagePlus className="w-7 h-7 text-[#94603D]" />
                         <span className="text-xs font-semibold">Enviar imagem</span>
-                        <span className="text-[10px] text-[#6B4B36]/70">
+                        <span className="text-[10px] text-[#6B4B36]/90">
                           Clique ou arraste aqui
                           <br />
                           JPG, PNG ou WebP
@@ -601,12 +609,18 @@ export default function Produtos() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
+                    <Label
+                      htmlFor="produtos-campo-1"
+                      className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+                    >
                       Categoria
                       <Obrigatorio />
                     </Label>
                     <Select value={categoria} onValueChange={setCategoria}>
-                      <SelectTrigger className="h-10 text-xs border-[#DFC3AE]">
+                      <SelectTrigger
+                        id="produtos-campo-1"
+                        className="h-10 text-xs border-[#DFC3AE]"
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -657,7 +671,7 @@ export default function Produtos() {
               <Button
                 type="submit"
                 disabled={salvando}
-                className="bg-[#C48864] hover:bg-[#B0764F] text-white h-10 text-xs font-semibold"
+                className="bg-[#A5683F] hover:bg-[#8C5636] text-white h-10 text-xs font-semibold"
               >
                 {salvando ? 'Enviando imagem...' : 'Salvar Produto'}
               </Button>
@@ -674,7 +688,7 @@ export default function Produtos() {
         <AlertDialogContent className="bg-white border-[#DFC3AE]">
           <AlertDialogHeader>
             <AlertDialogTitle className="font-serif text-lg font-bold text-[#0C1014] flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-[#B5533C]" />
+              <AlertTriangle className="w-5 h-5 text-[#A84A34]" />
               Excluir Produto do Catálogo?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-[#6B4B36]">

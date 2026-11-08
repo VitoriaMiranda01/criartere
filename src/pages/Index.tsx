@@ -1,3 +1,4 @@
+import { corLegivel } from '@/lib/cores'
 import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { hojeISO, inicioDoMesISO } from '@/lib/datas'
 import { etapasDoKanban } from '@/store/etapas'
@@ -166,13 +167,13 @@ export default function Index() {
               <span className="font-semibold uppercase tracking-wider text-[10px]">
                 Faturamento Total
               </span>
-              <TrendingUp className="w-3.5 h-3.5 text-[#C48864]" />
+              <TrendingUp className="w-3.5 h-3.5 text-[#94603D]" />
             </div>
             <div className="font-serif text-lg font-bold text-[#0C1014] truncate">
               <CountUpNumber value={resumo.faturamentoTotal} isCurrency />
             </div>
-            <p className="text-[10px] text-[#6B4B36]/80 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C48864]" />
+            <p className="text-[10px] text-[#6B4B36]/90 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#A5683F]" />
               Receita prevista
               <DicaAjuda
                 titulo="Entendendo os números"
@@ -202,12 +203,12 @@ export default function Index() {
               <span className="font-semibold uppercase tracking-wider text-[10px]">
                 Total Recebido
               </span>
-              <CreditCard className="w-3.5 h-3.5 text-[#4C8A5A]" />
+              <CreditCard className="w-3.5 h-3.5 text-[#3F7A4E]" />
             </div>
-            <div className="font-serif text-lg font-bold text-[#4C8A5A] truncate">
+            <div className="font-serif text-lg font-bold text-[#3F7A4E] truncate">
               <CountUpNumber value={resumo.totalRecebido} isCurrency />
             </div>
-            <p className="text-[10px] text-[#6B4B36]/80 flex items-center gap-1">
+            <p className="text-[10px] text-[#6B4B36]/90 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-[#4C8A5A]" />
               Entradas realizadas
             </p>
@@ -221,12 +222,12 @@ export default function Index() {
               <span className="font-semibold uppercase tracking-wider text-[10px]">
                 Total a Receber
               </span>
-              <Clock className="w-3.5 h-3.5 text-[#D9A441]" />
+              <Clock className="w-3.5 h-3.5 text-[#8A6416]" />
             </div>
-            <div className="font-serif text-lg font-bold text-[#D9A441] truncate">
+            <div className="font-serif text-lg font-bold text-[#8A6416] truncate">
               <CountUpNumber value={resumo.totalAReceber} isCurrency />
             </div>
-            <p className="text-[10px] text-[#6B4B36]/80 flex items-center gap-1">
+            <p className="text-[10px] text-[#6B4B36]/90 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-[#D9A441]" />
               Saldos pendentes
             </p>
@@ -240,12 +241,12 @@ export default function Index() {
               <span className="font-semibold uppercase tracking-wider text-[10px]">
                 Despesas Pagas
               </span>
-              <ArrowDownRight className="w-3.5 h-3.5 text-[#B5533C]" />
+              <ArrowDownRight className="w-3.5 h-3.5 text-[#A84A34]" />
             </div>
-            <div className="font-serif text-lg font-bold text-[#B5533C] truncate">
+            <div className="font-serif text-lg font-bold text-[#A84A34] truncate">
               <CountUpNumber value={resumo.despesasPagas} isCurrency />
             </div>
-            <p className="text-[10px] text-[#6B4B36]/80 flex items-center gap-1">
+            <p className="text-[10px] text-[#6B4B36]/90 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-[#B5533C]" />
               Saídas realizadas
             </p>
@@ -264,7 +265,7 @@ export default function Index() {
             <div className="font-serif text-lg font-bold text-[#6B4B36] truncate">
               <CountUpNumber value={resumo.despesasPendentes} isCurrency />
             </div>
-            <p className="text-[10px] text-[#6B4B36]/80 flex items-center gap-1">
+            <p className="text-[10px] text-[#6B4B36]/90 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
               A pagar no período
             </p>
@@ -278,11 +279,11 @@ export default function Index() {
               <span className="font-semibold uppercase tracking-wider text-[10px] text-[#0C1014]">
                 Resultado
               </span>
-              <Sparkles className="w-3.5 h-3.5 text-[#C48864]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#94603D]" />
             </div>
             <div
               className={`font-serif text-lg font-bold truncate ${
-                resumo.resultadoFinanceiro >= 0 ? 'text-[#0C1014]' : 'text-[#B5533C]'
+                resumo.resultadoFinanceiro >= 0 ? 'text-[#0C1014]' : 'text-[#A84A34]'
               }`}
             >
               <CountUpNumber value={resumo.resultadoFinanceiro} isCurrency />
@@ -296,12 +297,12 @@ export default function Index() {
           <CardContent className="p-3.5 space-y-1">
             <div className="flex items-center justify-between text-xs text-[#6B4B36]">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Vendas</span>
-              <ShoppingBag className="w-3.5 h-3.5 text-[#C48864]" />
+              <ShoppingBag className="w-3.5 h-3.5 text-[#94603D]" />
             </div>
             <div className="font-serif text-lg font-bold text-[#0C1014]">
               <CountUpNumber value={resumo.quantidadeVendas} prefix="" />
             </div>
-            <p className="text-[10px] text-[#6B4B36]/80 truncate">
+            <p className="text-[10px] text-[#6B4B36]/90 truncate">
               Ticket: {formatBRL(resumo.ticketMedio)}
             </p>
           </CardContent>
@@ -314,7 +315,7 @@ export default function Index() {
           <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B4B36]">
             Status Operacionais dos Pedidos
           </span>
-          <span className="text-[11px] text-[#6B4B36]/80">
+          <span className="text-[11px] text-[#6B4B36]/90">
             Clique para filtrar na tela de pedidos
           </span>
         </div>
@@ -335,7 +336,7 @@ export default function Index() {
                 </div>
                 <span
                   className="px-2 py-0.5 rounded-md text-xs font-bold text-white shrink-0"
-                  style={{ backgroundColor: chip.cor }}
+                  style={{ backgroundColor: corLegivel(chip.cor) }}
                 >
                   {count}
                 </span>
@@ -520,7 +521,7 @@ export default function Index() {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/pedidos')}
-                className="text-xs text-[#C48864] hover:text-[#B0764F] hover:bg-[#F7F3EA] p-1 h-auto"
+                className="text-xs text-[#94603D] hover:text-[#B0764F] hover:bg-[#F7F3EA] p-1 h-auto"
               >
                 Ver todos
                 <ChevronRight className="w-3.5 h-3.5 ml-1" />
@@ -541,7 +542,7 @@ export default function Index() {
                         <span className="font-bold text-xs text-[#0C1014]">{ped.codigo}</span>
                         <span className="text-xs text-[#6B4B36]">{cliente?.nome || 'Cliente'}</span>
                       </div>
-                      <p className="text-[11px] text-[#6B4B36]/80">
+                      <p className="text-[11px] text-[#6B4B36]/90">
                         {ped.itens.length} {ped.itens.length === 1 ? 'item' : 'itens'} &bull; Criado
                         em {formatDataBR(ped.dataCriacao)}
                       </p>
@@ -555,10 +556,10 @@ export default function Index() {
                         variant="secondary"
                         className={`text-[10px] px-2 py-0 border-none ${
                           ped.status === 'entregue'
-                            ? 'bg-[#4C8A5A]/15 text-[#4C8A5A]'
+                            ? 'bg-[#4C8A5A]/15 text-[#3F7A4E]'
                             : ped.status === 'cancelado'
                               ? 'bg-red-100 text-red-700'
-                              : 'bg-[#C48864]/15 text-[#C48864]'
+                              : 'bg-[#C48864]/15 text-[#94603D]'
                         }`}
                       >
                         {ped.status.replace('_', ' ')}
@@ -587,7 +588,7 @@ export default function Index() {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/financeiro')}
-                className="text-xs text-[#C48864] hover:text-[#B0764F] hover:bg-[#F7F3EA] p-1 h-auto"
+                className="text-xs text-[#94603D] hover:text-[#B0764F] hover:bg-[#F7F3EA] p-1 h-auto"
               >
                 Financeiro
                 <ChevronRight className="w-3.5 h-3.5 ml-1" />
@@ -615,17 +616,17 @@ export default function Index() {
                             {cliente?.nome || 'Cliente'}
                           </span>
                         </div>
-                        <p className="text-[11px] text-[#6B4B36]/80 flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-[#D9A441]" />
+                        <p className="text-[11px] text-[#6B4B36]/90 flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-[#8A6416]" />
                           Prazo: {formatDataBR(ped.prazoEntrega)} &bull; Forma: {ped.formaPagamento}
                         </p>
                       </div>
 
                       <div className="text-right space-y-0.5">
-                        <p className="font-serif font-bold text-xs text-[#D9A441]">
+                        <p className="font-serif font-bold text-xs text-[#8A6416]">
                           Falta: {formatBRL(ped.saldoPendente)}
                         </p>
-                        <p className="text-[10px] text-[#6B4B36]/70">
+                        <p className="text-[10px] text-[#6B4B36]/90">
                           Total: {formatBRL(ped.valorTotal)}
                         </p>
                       </div>

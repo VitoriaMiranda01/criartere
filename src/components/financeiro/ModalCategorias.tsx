@@ -92,7 +92,7 @@ export const ModalCategorias: React.FC<ModalCategoriasProps> = ({ aberto, onFech
         <DialogContent className="sm:max-w-md bg-white border-[#DFC3AE] p-6 max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="font-serif text-xl font-bold text-[#0C1014] flex items-center gap-2">
-              <FolderTree className="w-5 h-5 text-[#C48864]" />
+              <FolderTree className="w-5 h-5 text-[#94603D]" />
               Categorias de Despesas
             </DialogTitle>
           </DialogHeader>
@@ -108,7 +108,7 @@ export const ModalCategorias: React.FC<ModalCategoriasProps> = ({ aberto, onFech
             <Button
               type="submit"
               size="sm"
-              className="bg-[#C48864] hover:bg-[#B0764F] text-white text-xs h-9 font-semibold shrink-0"
+              className="bg-[#A5683F] hover:bg-[#8C5636] text-white text-xs h-9 font-semibold shrink-0"
             >
               <Plus className="w-3.5 h-3.5 mr-1" />
               Adicionar
@@ -135,6 +135,7 @@ export const ModalCategorias: React.FC<ModalCategoriasProps> = ({ aberto, onFech
                         autoFocus
                       />
                       <Button
+                        aria-label="Salvar nome da categoria"
                         size="icon"
                         variant="ghost"
                         onClick={() => handleSalvarEdicao(cat)}
@@ -143,6 +144,7 @@ export const ModalCategorias: React.FC<ModalCategoriasProps> = ({ aberto, onFech
                         <Check className="w-3.5 h-3.5" />
                       </Button>
                       <Button
+                        aria-label="Cancelar edição"
                         size="icon"
                         variant="ghost"
                         onClick={() => setCategoriaEditando(null)}
@@ -214,7 +216,7 @@ export const ModalCategorias: React.FC<ModalCategoriasProps> = ({ aberto, onFech
         <AlertDialogContent className="bg-white border-[#DFC3AE]">
           <AlertDialogHeader>
             <AlertDialogTitle className="font-serif text-lg font-bold text-[#0C1014] flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-[#B5533C]" />
+              <AlertTriangle className="w-5 h-5 text-[#A84A34]" />
               Excluir Categoria de Despesa?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-[#6B4B36]">

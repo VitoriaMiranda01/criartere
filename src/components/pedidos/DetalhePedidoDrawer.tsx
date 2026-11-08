@@ -60,7 +60,7 @@ export const DetalhePedidoDrawer: React.FC<DetalhePedidoDrawerProps> = ({
   const saldoRestante = Math.max(0, pedido.valorTotal - totalPago)
 
   const etapa = infoEtapa(state, pedido.status)
-  const statusInfo = { label: etapa.nome, cor: etapa.cor, bg: etapa.bg }
+  const statusInfo = { label: etapa.nome, cor: etapa.cor, texto: etapa.texto, bg: etapa.bg }
 
   const handleConfirmarCancelamento = () => {
     dispatch({
@@ -88,7 +88,7 @@ export const DetalhePedidoDrawer: React.FC<DetalhePedidoDrawerProps> = ({
                 <Badge
                   style={{
                     backgroundColor: statusInfo.bg,
-                    color: statusInfo.cor,
+                    color: statusInfo.texto,
                     borderColor: statusInfo.cor,
                   }}
                   className="border text-xs font-semibold capitalize"
@@ -101,9 +101,9 @@ export const DetalhePedidoDrawer: React.FC<DetalhePedidoDrawerProps> = ({
               <Badge
                 className={`text-xs font-semibold border-none ${
                   pedido.statusPagamento === 'pago'
-                    ? 'bg-[#4C8A5A]/15 text-[#4C8A5A]'
+                    ? 'bg-[#4C8A5A]/15 text-[#3F7A4E]'
                     : pedido.statusPagamento === 'parcial'
-                      ? 'bg-[#D9A441]/15 text-[#D9A441]'
+                      ? 'bg-[#D9A441]/15 text-[#8A6416]'
                       : 'bg-red-100 text-red-700'
                 }`}
               >
@@ -131,7 +131,7 @@ export const DetalhePedidoDrawer: React.FC<DetalhePedidoDrawerProps> = ({
                 <Button
                   size="sm"
                   onClick={() => setModalPagamentoAberto(true)}
-                  className="h-8 text-xs bg-[#C48864] hover:bg-[#B0764F] text-white"
+                  className="h-8 text-xs bg-[#A5683F] hover:bg-[#8C5636] text-white"
                 >
                   <CreditCard className="w-3.5 h-3.5 mr-1" />
                   Registrar Pagamento
@@ -143,7 +143,7 @@ export const DetalhePedidoDrawer: React.FC<DetalhePedidoDrawerProps> = ({
                   size="sm"
                   variant="ghost"
                   onClick={() => setModalCancelarAberto(true)}
-                  className="h-8 text-xs text-[#B5533C] hover:bg-red-50"
+                  className="h-8 text-xs text-[#A84A34] hover:bg-red-50"
                 >
                   <Ban className="w-3.5 h-3.5 mr-1" />
                   Cancelar Pedido
@@ -189,7 +189,7 @@ export const DetalhePedidoDrawer: React.FC<DetalhePedidoDrawerProps> = ({
                 {/* Bloco Cliente */}
                 <div className="bg-[#F7F3EA]/60 p-4 rounded-xl border border-[#DFC3AE]/50 space-y-2">
                   <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#6B4B36]">
-                    <User className="w-3.5 h-3.5 text-[#C48864]" />
+                    <User className="w-3.5 h-3.5 text-[#94603D]" />
                     <span>Dados do Cliente</span>
                   </div>
                   <div className="text-sm">
@@ -208,7 +208,7 @@ export const DetalhePedidoDrawer: React.FC<DetalhePedidoDrawerProps> = ({
                 {/* Itens do Pedido */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#6B4B36]">
-                    <Package className="w-3.5 h-3.5 text-[#C48864]" />
+                    <Package className="w-3.5 h-3.5 text-[#94603D]" />
                     <span>Itens do Pedido ({pedido.itens.length})</span>
                   </div>
                   <div className="border border-[#DFC3AE]/60 rounded-xl overflow-hidden divide-y divide-[#DFC3AE]/40">
@@ -242,20 +242,20 @@ export const DetalhePedidoDrawer: React.FC<DetalhePedidoDrawerProps> = ({
                     </div>
                   )}
                   {pedido.valorDesconto > 0 && (
-                    <div className="flex justify-between text-[#4C8A5A]">
+                    <div className="flex justify-between text-[#3F7A4E]">
                       <span>Desconto aplicado:</span>
                       <span>- {formatBRL(pedido.valorDesconto)}</span>
                     </div>
                   )}
                   <div className="flex justify-between pt-2 border-t border-[#DFC3AE]/50 text-sm font-bold text-[#0C1014]">
                     <span>Valor Final:</span>
-                    <span className="font-serif text-base text-[#C48864]">
+                    <span className="font-serif text-base text-[#94603D]">
                       {formatBRL(pedido.valorTotal)}
                     </span>
                   </div>
                   <div className="flex justify-between text-[11px] text-[#6B4B36] pt-1">
                     <span>Saldo restante a pagar:</span>
-                    <span className="font-bold text-[#D9A441]">{formatBRL(saldoRestante)}</span>
+                    <span className="font-bold text-[#8A6416]">{formatBRL(saldoRestante)}</span>
                   </div>
                 </div>
 
@@ -300,7 +300,7 @@ export const DetalhePedidoDrawer: React.FC<DetalhePedidoDrawerProps> = ({
                     <Button
                       size="sm"
                       onClick={() => setModalPagamentoAberto(true)}
-                      className="h-8 text-xs bg-[#C48864] hover:bg-[#B0764F] text-white"
+                      className="h-8 text-xs bg-[#A5683F] hover:bg-[#8C5636] text-white"
                     >
                       + Novo Pagamento
                     </Button>
@@ -319,19 +319,19 @@ export const DetalhePedidoDrawer: React.FC<DetalhePedidoDrawerProps> = ({
                         className="p-3 bg-white rounded-lg border border-[#DFC3AE]/50 flex items-center justify-between text-xs"
                       >
                         <div className="space-y-0.5">
-                          <p className="font-bold text-[#4C8A5A] text-sm">{formatBRL(pag.valor)}</p>
+                          <p className="font-bold text-[#3F7A4E] text-sm">{formatBRL(pag.valor)}</p>
                           <p className="text-[#6B4B36]">
                             {pag.formaPagamento} &bull; Em {formatDataBR(pag.data)}
                           </p>
                           {pag.observacoes && (
-                            <p className="text-[11px] text-[#6B4B36]/80 italic">
+                            <p className="text-[11px] text-[#6B4B36]/90 italic">
                               &ldquo;{pag.observacoes}&rdquo;
                             </p>
                           )}
                         </div>
                         <Badge
                           variant="outline"
-                          className="text-[10px] text-[#4C8A5A] border-[#4C8A5A]"
+                          className="text-[10px] text-[#3F7A4E] border-[#4C8A5A]"
                         >
                           Recebido
                         </Badge>
@@ -349,7 +349,7 @@ export const DetalhePedidoDrawer: React.FC<DetalhePedidoDrawerProps> = ({
                 <div className="relative pl-6 space-y-4 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#DFC3AE]">
                   {historico.map((ev) => (
                     <div key={ev.id} className="relative text-xs">
-                      <span className="absolute -left-6 top-1 w-2.5 h-2.5 rounded-full bg-[#C48864] ring-4 ring-white" />
+                      <span className="absolute -left-6 top-1 w-2.5 h-2.5 rounded-full bg-[#A5683F] ring-4 ring-white" />
                       <p className="font-bold text-[#0C1014]">{ev.descricao}</p>
                       <p className="text-[11px] text-[#6B4B36]">{ev.dataHora}</p>
                     </div>
@@ -373,7 +373,7 @@ export const DetalhePedidoDrawer: React.FC<DetalhePedidoDrawerProps> = ({
         <AlertDialogContent className="bg-white border-[#DFC3AE]">
           <AlertDialogHeader>
             <AlertDialogTitle className="font-serif text-lg font-bold text-[#0C1014] flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-[#B5533C]" />
+              <AlertTriangle className="w-5 h-5 text-[#A84A34]" />
               Confirmar Cancelamento do Pedido?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-[#6B4B36] space-y-2">

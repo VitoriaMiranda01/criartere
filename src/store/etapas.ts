@@ -1,6 +1,7 @@
 /* Etapas do pedido (colunas do Kanban): padrões e funções de apoio. */
 import type { EtapaPedido } from '@/types/criartere'
 import type { CriartereState } from './types'
+import { corLegivel } from '@/lib/cores'
 
 /** Etapas padrão: usadas antes de os dados do servidor carregarem. */
 export const ETAPAS_PADRAO: EtapaPedido[] = [
@@ -52,7 +53,7 @@ export function todasEtapas(state: Pick<CriartereState, 'etapas'>): EtapaPedido[
 export function infoEtapa(state: Pick<CriartereState, 'etapas'>, chave: string) {
   const e = state.etapas.find((x) => x.chave === chave)
   const cor = e?.cor || '#6B4B36'
-  return { nome: e?.nome || chave.replace(/_/g, ' '), cor, bg: `${cor}14` }
+  return { nome: e?.nome || chave.replace(/_/g, ' '), cor, texto: corLegivel(cor), bg: `${cor}14` }
 }
 
 /** Gera uma chave única (minúsculas, sem acento) a partir do nome da etapa. */

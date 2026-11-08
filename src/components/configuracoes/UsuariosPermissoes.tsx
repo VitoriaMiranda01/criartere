@@ -80,7 +80,7 @@ export function UsuariosPermissoes() {
       <CardHeader className="pb-3 border-b border-[#DFC3AE]/40">
         <CardTitle className="font-serif text-base font-bold text-[#0C1014] flex items-center justify-between gap-2">
           <span className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-[#C48864]" />
+            <Users className="w-4 h-4 text-[#94603D]" />
             Usuários e permissões
             <DicaAjuda topico="configuracoes">
               <p>
@@ -110,7 +110,7 @@ export function UsuariosPermissoes() {
         </p>
 
         <div className="relative">
-          <Search className="w-4 h-4 text-[#6B4B36]/60 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#6B4B36]/90 absolute left-3 top-1/2 -translate-y-1/2" />
           <Input
             placeholder="Buscar por nome ou e-mail..."
             value={busca}

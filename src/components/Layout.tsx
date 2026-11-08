@@ -176,18 +176,18 @@ export default function Layout() {
                 to={item.path}
                 className={`flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all group relative ${
                   isActive
-                    ? 'bg-[#C48864]/12 text-[#C48864] font-semibold shadow-xs'
+                    ? 'bg-[#C48864]/12 text-[#94603D] font-semibold shadow-xs'
                     : 'text-[#6B4B36] hover:bg-[#F7F3EA] hover:text-[#0C1014]'
                 }`}
               >
                 {/* Indicador lateral sutil */}
                 {isActive && (
-                  <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-[#C48864] rounded-r-md" />
+                  <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-[#A5683F] rounded-r-md" />
                 )}
                 <div className="flex items-center gap-3">
                   <Icon
                     className={`w-4 h-4 transition-colors ${
-                      isActive ? 'text-[#C48864]' : 'text-[#6B4B36]/80 group-hover:text-[#0C1014]'
+                      isActive ? 'text-[#94603D]' : 'text-[#6B4B36]/90 group-hover:text-[#0C1014]'
                     }`}
                   />
                   <span>{item.label}</span>
@@ -246,6 +246,7 @@ export default function Layout() {
       <header className="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-[#DFC3AE]/60 sticky top-0 z-40">
         <div className="flex items-center gap-2">
           <Button
+            aria-label="Abrir menu"
             variant="ghost"
             size="icon"
             onClick={() => setMobileMenuAberto(true)}
@@ -292,6 +293,7 @@ export default function Layout() {
                 <span className="font-serif text-xl font-bold text-[#0C1014]">Criartere</span>
               </div>
               <Button
+                aria-label="Fechar menu"
                 variant="ghost"
                 size="icon"
                 onClick={() => setMobileMenuAberto(false)}
@@ -316,7 +318,7 @@ export default function Layout() {
                     onClick={() => setMobileMenuAberto(false)}
                     className={`flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-[#C48864]/15 text-[#C48864] font-semibold'
+                        ? 'bg-[#C48864]/15 text-[#94603D] font-semibold'
                         : 'text-[#6B4B36] hover:bg-[#F7F3EA]'
                     }`}
                   >
@@ -385,7 +387,7 @@ export default function Layout() {
             {/* Campo de Busca Global */}
             <div className="relative w-80">
               <div className="relative">
-                <Search className="w-4 h-4 text-[#6B4B36]/60 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-[#6B4B36]/90 absolute left-3 top-1/2 -translate-y-1/2" />
                 <Input
                   type="text"
                   placeholder="Buscar pedidos (nº) ou clientes..."
@@ -396,6 +398,7 @@ export default function Layout() {
                 />
                 {buscaGlobal && (
                   <button
+                    aria-label="Limpar busca"
                     onClick={() => setBuscaGlobal('')}
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[#6B4B36] hover:text-[#0C1014]"
                   >
@@ -439,7 +442,7 @@ export default function Layout() {
                                   </span>
                                   <span className="text-[#6B4B36]">{cli?.nome || 'Cliente'}</span>
                                 </div>
-                                <span className="font-medium text-[#C48864]">
+                                <span className="font-medium text-[#94603D]">
                                   R$ {p.valorTotal.toFixed(2)}
                                 </span>
                               </button>
@@ -481,7 +484,7 @@ export default function Layout() {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#DFC3AE]/70 bg-white hover:bg-[#F7F3EA] text-xs font-medium text-[#6B4B36] transition-colors"
               title="Pedidos aguardando pagamento"
             >
-              <Clock className="w-3.5 h-3.5 text-[#D9A441]" />
+              <Clock className="w-3.5 h-3.5 text-[#8A6416]" />
               <span>Aguardando:</span>
               <span className="font-bold text-[#0C1014]">{pedidosAguardando}</span>
             </NavLink>
