@@ -376,7 +376,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
 
               <div className="rounded-xl border border-[#DFC3AE]/60 bg-[#F7F3EA]/40 p-2.5 space-y-2">
                 {/* Cabeçalho das colunas (computador) */}
-                <div className="hidden sm:grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_60px_88px_96px] gap-2 px-0.5 text-[10px] uppercase font-semibold text-[#6B4B36]">
+                <div className="hidden sm:grid grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)_78px_104px_88px] gap-2 px-0.5 text-[10px] uppercase font-semibold text-[#6B4B36]">
                   <span>
                     Catálogo
                     <Opcional />
@@ -385,22 +385,22 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                     Descrição do item
                     <Obrigatorio />
                   </span>
-                  <span>
-                    Qtd
+                  <span className="whitespace-nowrap">
+                    Quantidade
                     <Obrigatorio />
                   </span>
-                  <span>
-                    Unit. (R$)
+                  <span className="whitespace-nowrap">
+                    Valor unitário
                     <Obrigatorio />
                   </span>
-                  <span className="text-right pr-8">Subtotal</span>
+                  <span className="text-right pr-8 whitespace-nowrap">Subtotal</span>
                 </div>
 
-                <div className="space-y-2 max-h-[34vh] overflow-y-auto pr-0.5">
+                <div className="space-y-2 max-h-[34vh] overflow-y-auto p-0.5 -m-0.5">
                   {itens.map((item, index) => (
                     <div
                       key={item.id}
-                      className="grid grid-cols-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_60px_88px_96px] gap-2 items-center"
+                      className="grid grid-cols-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)_78px_104px_88px] gap-2 items-center"
                     >
                       <Select
                         value={item.produtoId || 'custom'}
@@ -422,7 +422,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="custom" className="text-xs italic text-[#6B4B36]">
-                            Item personalizado / sob medida
+                            Personalizado
                           </SelectItem>
                           {produtosAtivos.map((p) => (
                             <SelectItem key={p.id} value={p.id} className="text-xs">
@@ -432,7 +432,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                         </SelectContent>
                       </Select>
                       <Input
-                        placeholder="Nome do item no pedido"
+                        placeholder="Ex.: Chaveiro 3D azul"
                         aria-label="Descrição do item"
                         value={item.nome}
                         onChange={(e) => handleChangeItemNome(index, e.target.value)}
@@ -442,6 +442,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                         type="number"
                         min="1"
                         aria-label="Quantidade"
+                        placeholder="Qtd."
                         value={item.quantidade}
                         onChange={(e) =>
                           handleChangeItemQuantidade(index, parseInt(e.target.value, 10) || 1)
@@ -453,6 +454,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                         step="0.01"
                         min="0"
                         aria-label="Valor unitário"
+                        placeholder="0,00"
                         value={item.valorUnitario}
                         onChange={(e) =>
                           handleChangeItemValorUnitario(index, parseFloat(e.target.value) || 0)
