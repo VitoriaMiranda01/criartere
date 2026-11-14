@@ -21,7 +21,7 @@ import {
 } from '@/loja/api'
 import { PrecisaEntrar } from './PrecisaEntrar'
 
-const FORMAS = ['Pix', 'Cartão', 'Dinheiro', 'A combinar'] as const
+const FORMAS = ['Pix', 'Cartão', 'Dinheiro'] as const
 
 const classeCampo =
   'h-11 rounded-lg border-[#DFC3AE] focus-visible:ring-[#C48864] bg-[#F7F3EA]/40 text-sm placeholder:text-[#6B4B36]/50'
@@ -185,7 +185,7 @@ export default function Finalizar() {
 
           <fieldset className="space-y-2">
             <legend className={cn(classeRotulo, 'mb-2')}>Como prefere pagar?</legend>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               {FORMAS.map((f) => (
                 <label
                   key={f}
