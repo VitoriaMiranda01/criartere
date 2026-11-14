@@ -413,3 +413,14 @@ html[data-area='loja'] [data-sonner-toast][data-styled='true'] [data-button] {
   padding: 0 10px;
   font-weight: 600;
 }
+
+/* Conteúdo das páginas pré-geradas (para buscadores e prévias de link que não
+   executam JavaScript). Quem abre no navegador vê a loja normal assim que ela carrega. */
+#root > .conteudo-estatico {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

@@ -12,6 +12,12 @@
   RewriteRule ^(.*)$ https://criartere.com.br/$1 [R=301,L]
 
   RewriteRule ^index\.html$ - [L]
+
+  # Páginas da loja pré-geradas no build (SEO e prévias de link no WhatsApp/Instagram).
+  # Se o arquivo não existir, segue para o app normalmente.
+  RewriteCond %{REQUEST_URI} ^/(loja(/produto/[a-z0-9-]+)?)/?$
+  RewriteCond %{DOCUMENT_ROOT}/_paginas/%1.html -f
+  RewriteRule ^ /_paginas/%1.html [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]
@@ -20,7 +26,7 @@
 # PWA: tipos e cache
 AddType application/manifest+json .webmanifest
 <IfModule mod_headers.c>
-  <FilesMatch "^(sw\.js|index\.html|manifest\.webmanifest)$">
+  <FilesMatch "^(sw\.js|.+\.html|manifest\.webmanifest)$">
     Header set Cache-Control "no-cache"
   </FilesMatch>
 </IfModule>

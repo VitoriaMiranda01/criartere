@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { FaWhatsapp } from 'react-icons/fa'
 import { Heart, Minus, Plus, ShoppingBag, ImageOff, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { caminhoProduto } from './seo-dados'
 import { useLoja } from './LojaContext'
 import {
   ProdutoVitrine,
@@ -227,7 +228,7 @@ export function CardProduto({ produto }: { produto: ProdutoVitrine }) {
     <article className="group flex flex-col bg-white rounded-2xl border border-[#DFC3AE]/60 overflow-hidden shadow-[0_2px_12px_rgba(12,16,20,0.04)] hover:shadow-[0_10px_30px_rgba(12,16,20,0.08)] hover:border-[#C48864]/60 transition-all">
       <div className="relative">
         <Link
-          to={`/loja/produto/${produto.id}`}
+          to={caminhoProduto(produto)}
           className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C48864]"
         >
           <ImagemProduto
@@ -251,7 +252,7 @@ export function CardProduto({ produto }: { produto: ProdutoVitrine }) {
           <BadgeDisponibilidade produto={produto} />
         </div>
 
-        <Link to={`/loja/produto/${produto.id}`} className="hover:underline underline-offset-4">
+        <Link to={caminhoProduto(produto)} className="hover:underline underline-offset-4">
           <h3 className="font-serif text-lg font-semibold text-[#0C1014] leading-snug line-clamp-2">
             {produto.nome}
           </h3>

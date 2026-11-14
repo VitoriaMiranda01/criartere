@@ -4,6 +4,7 @@
    publicados e não expõe custo nem estoque. Favoritos e carrinho são protegidos
    por RLS: cada cliente só enxerga e altera os próprios. */
 import { supabase } from '@/lib/supabase'
+import { caminhoProduto } from './seo-dados'
 
 export type Disponibilidade = 'pronta_entrega' | 'sob_encomenda'
 
@@ -143,7 +144,8 @@ export const NOME_DISPONIBILIDADE: Record<Disponibilidade, string> = {
   sob_encomenda: 'Sob encomenda',
 }
 
-export const linkProduto = (id: string) => `${window.location.origin}/loja/produto/${id}`
+export const linkProduto = (produto: { id: string; nome: string }) =>
+  `${window.location.origin}${caminhoProduto(produto)}`
 
 /** Número no formato do wa.me (só dígitos, com DDI 55 quando faltar). */
 export function numeroWhatsApp(bruto: string): string {
@@ -158,7 +160,7 @@ export function numeroWhatsApp(bruto: string): string {
 export function linkWhatsAppProduto(whatsapp: string, produto: { id: string; nome: string }) {
   const mensagem =
     `Olá! Tenho interesse no produto *${produto.nome}*. Poderia me passar mais informações?\n` +
-    linkProduto(produto.id)
+    linkProduto(produto)
   const numero = numeroWhatsApp(whatsapp)
   return `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`
 }

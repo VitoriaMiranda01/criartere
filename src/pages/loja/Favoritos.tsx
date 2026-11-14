@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom'
 import { Heart } from 'lucide-react'
-import { useTituloPagina } from '@/hooks/use-titulo-pagina'
+import { useSeo } from '@/lib/seo'
 import { useLoja } from '@/loja/LojaContext'
 import { CardProduto, CarregandoLoja, EstadoVazio } from '@/loja/componentes'
 import { PrecisaEntrar } from './PrecisaEntrar'
 
 export default function Favoritos() {
-  useTituloPagina('Meus favoritos')
+  useSeo({ titulo: 'Meus favoritos', indexar: false })
   const { usuario, sessaoVerificada, favoritos, produtos, carregandoProdutos, carregandoConta } =
     useLoja()
 

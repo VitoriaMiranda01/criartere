@@ -15,5 +15,6 @@ Disallow: /financeiro
 Disallow: /fluxo-de-caixa
 Disallow: /relatorios
 Disallow: /configuracoes
+Disallow: /_paginas/
 
 Sitemap: https://criartere.com.br/sitemap.xml

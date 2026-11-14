@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom'
 import { Compass } from 'lucide-react'
-import { useTituloPagina } from '@/hooks/use-titulo-pagina'
+import { useSeo } from '@/lib/seo'
 import { EstadoVazio } from '@/loja/componentes'
 
 /** Endereço inexistente dentro da loja (/loja/...) */
 export default function NaoEncontrada() {
-  useTituloPagina('Página não encontrada')
+  useSeo({ titulo: 'Página não encontrada', indexar: false })
   return (
     <EstadoVazio
       icone={Compass}

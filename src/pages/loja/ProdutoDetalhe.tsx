@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
 import { ArrowLeft, Check, PackageX, ShoppingBag } from 'lucide-react'
-import { useTituloPagina } from '@/hooks/use-titulo-pagina'
+import { useSeo } from '@/lib/seo'
+import { caminhoProduto, descricaoProduto, idDoCaminho, jsonLdProduto } from '@/loja/seo-dados'
 import { useLoja } from '@/loja/LojaContext'
 import {
   BadgeDisponibilidade,
@@ -16,16 +17,39 @@ import {
 import { formatarPreco } from '@/loja/api'
 
 export default function ProdutoDetalhe() {
-  const { id } = useParams()
-  const { produtos, carregandoProdutos, adicionarCarrinho } = useLoja()
+  const { id: parametro } = useParams()
+  const location = useLocation()
+  const id = idDoCaminho(parametro)
+  const { produtos, carregandoProdutos, erroProdutos, adicionarCarrinho } = useLoja()
   const produto = produtos.find((p) => p.id === id)
-  useTituloPagina(produto?.nome ?? 'Produto', { indexar: !!produto })
+  useSeo(
+    produto
+      ? {
+          titulo: produto.categoria ? `${produto.nome} – ${produto.categoria}` : produto.nome,
+          descricao: descricaoProduto(produto),
+          caminho: caminhoProduto(produto),
+          imagem: produto.imagemUrl,
+          tipo: 'product',
+          indexar: true,
+          jsonLd: jsonLdProduto(produto),
+        }
+      : {
+          titulo: 'Produto indisponível',
+          indexar: false,
+          ativo: !carregandoProdutos && !erroProdutos,
+        },
+  )
 
   const [quantidade, setQuantidade] = useState(1)
   const [adicionando, setAdicionando] = useState(false)
   const [adicionado, setAdicionado] = useState(false)
 
   if (carregandoProdutos) return <CarregandoLoja />
+
+  // Endereço antigo (só o código) ou nome desatualizado: vai para o endereço amigável
+  if (produto && location.pathname !== caminhoProduto(produto)) {
+    return <Navigate to={caminhoProduto(produto)} replace />
+  }
 
   if (!produto) {
     return (

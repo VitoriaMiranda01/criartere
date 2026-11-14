@@ -1,10 +1,11 @@
 /* Vite config for building the frontend react app: https://vite.dev/config/ */
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import fs from 'fs'
 // @ts-expect-error - uidPlugin is a custom plugin
 import uidPlugin from './vite-plugin-react-uid'
+import { seoPrerender } from './scripts/seo-prerender'
 
 /** Carimba uma versão nova no service worker a cada build: o app instalado
     percebe a atualização, oferece recarregar e apaga os arquivos antigos. */
@@ -26,7 +27,9 @@ function versaoServiceWorker() {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), 'VITE_')
+  return {
   server: {
     host: '::',
     port: 8080,
@@ -50,6 +53,13 @@ export default defineConfig(({ mode }) => ({
     mode === 'development' ? uidPlugin() : undefined,
     react(),
     versaoServiceWorker(),
+    // SEO: páginas da loja pré-geradas e sitemap com os produtos publicados
+    mode === 'development'
+      ? undefined
+      : seoPrerender({
+          supabaseUrl: env.VITE_SUPABASE_URL || 'https://kitarrykwoaxlrydethm.supabase.co',
+          chave: env.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_cZrsEHE3NBApXxQRheeGjA_ouLJg4Pq',
+        }),
   ].filter(Boolean),
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode ?? process.env.NODE_ENV ?? 'production'),
@@ -66,4 +76,5 @@ export default defineConfig(({ mode }) => ({
       }
     ],
   },
-}))
+}
+})

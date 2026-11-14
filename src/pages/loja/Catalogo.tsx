@@ -7,7 +7,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useTituloPagina } from '@/hooks/use-titulo-pagina'
+import { useSeo } from '@/lib/seo'
+import { DESCRICAO_LOJA, jsonLdCatalogo } from '@/loja/seo-dados'
 import { cn } from '@/lib/utils'
 import { useLoja } from '@/loja/LojaContext'
 import { CardProduto, CarregandoLoja, EstadoVazio } from '@/loja/componentes'
@@ -26,8 +27,15 @@ const OPCOES_ORDEM = [
 ] as const
 
 export default function Catalogo() {
-  useTituloPagina('Loja virtual', { indexar: true })
-  const { produtos, carregandoProdutos, erroProdutos, recarregarVitrine } = useLoja()
+  const { produtos, carregandoProdutos, erroProdutos, recarregarVitrine, contato } = useLoja()
+  useSeo({
+    titulo: 'Loja virtual: impressão 3D, papelaria e personalizados',
+    descricao: DESCRICAO_LOJA,
+    caminho: '/loja',
+    indexar: true,
+    jsonLd: produtos.length ? jsonLdCatalogo(produtos, contato ?? undefined) : undefined,
+    ativo: !carregandoProdutos && !erroProdutos,
+  })
   const [busca, setBusca] = useState('')
   const [categoria, setCategoria] = useState<string>('')
   const [ordem, setOrdem] = useState<'nome' | 'menor' | 'maior' | 'novos'>('nome')
@@ -196,7 +204,10 @@ export default function Catalogo() {
           }
         />
       ) : (
-        <section aria-label="Produtos">
+        <section aria-labelledby="titulo-produtos">
+          <h2 id="titulo-produtos" className="sr-only">
+            Produtos
+          </h2>
           <p className="text-xs text-[#6B4B36] mb-3">
             {lista.length} {lista.length === 1 ? 'produto' : 'produtos'}
           </p>

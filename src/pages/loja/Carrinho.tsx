@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom'
 import { ShoppingBag, Trash2, Info } from 'lucide-react'
-import { useTituloPagina } from '@/hooks/use-titulo-pagina'
+import { useSeo } from '@/lib/seo'
 import { useLoja } from '@/loja/LojaContext'
 import { CarregandoLoja, EstadoVazio, ImagemProduto, SeletorQuantidade } from '@/loja/componentes'
 import { formatarPreco } from '@/loja/api'
+import { caminhoProduto } from '@/loja/seo-dados'
 import { PrecisaEntrar } from './PrecisaEntrar'
 
 export default function Carrinho() {
-  useTituloPagina('Meu carrinho')
+  useSeo({ titulo: 'Meu carrinho', indexar: false })
   const {
     usuario,
     sessaoVerificada,
@@ -74,7 +75,7 @@ export default function Carrinho() {
           {linhas.map(({ item, produto }) => (
             <li key={item.id} className="p-4 sm:p-5 flex gap-4">
               {produto ? (
-                <Link to={`/loja/produto/${produto.id}`} className="shrink-0">
+                <Link to={caminhoProduto(produto)} className="shrink-0">
                   <ImagemProduto
                     produto={produto}
                     className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl border border-[#DFC3AE]/50"
@@ -92,7 +93,7 @@ export default function Carrinho() {
                   <div className="min-w-0">
                     {produto ? (
                       <Link
-                        to={`/loja/produto/${produto.id}`}
+                        to={caminhoProduto(produto)}
                         className="font-serif text-base sm:text-lg font-semibold leading-snug hover:underline underline-offset-4 line-clamp-2"
                       >
                         {produto.nome}

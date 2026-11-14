@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { ArrowRight, Heart, ShoppingBag } from 'lucide-react'
-import { useTituloPagina } from '@/hooks/use-titulo-pagina'
+import { useSeo } from '@/lib/seo'
 import { supabase } from '@/lib/supabase'
 import { CampoSenha } from '@/components/common/CampoSenha'
 import { Obrigatorio } from '@/components/common/MarcadorCampo'
@@ -29,7 +29,11 @@ export default function Entrar() {
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
 
-  useTituloPagina(modo === 'entrar' ? 'Entrar na loja' : 'Criar conta na loja', { indexar: true })
+  useSeo({
+    titulo: modo === 'entrar' ? 'Entrar na loja' : 'Criar conta na loja',
+    caminho: '/loja/entrar',
+    indexar: false,
+  })
 
   if (!sessaoVerificada) return <CarregandoLoja />
   if (usuario) return <Navigate to={voltarPara} replace />

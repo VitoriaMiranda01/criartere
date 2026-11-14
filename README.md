@@ -43,6 +43,16 @@ Os dados ficam no projeto Supabase **Criartere** (`kitarrykwoaxlrydethm`).
 - Sem checkout, pagamento online ou frete nesta versão.
 - Código: `src/loja/` (dados, contexto e componentes) e `src/pages/loja/` (telas).
 
+### SEO da loja
+
+- Endereços amigáveis: `/loja/produto/<nome-do-produto>-<id>` (links antigos só com o id continuam funcionando).
+- Cada página define título, descrição, endereço canônico, prévia de compartilhamento (foto do produto)
+  e dados estruturados do Google (`Product` com preço e disponibilidade; `Store` + `ItemList` no catálogo) — `src/lib/seo.ts` e `src/loja/seo-dados.ts`.
+- **No build** (`scripts/seo-prerender.ts`), os produtos publicados são lidos da vitrine e é gerado
+  `dist/_paginas/...` (HTML com as metatags certas para WhatsApp, Instagram, Facebook e buscadores que não executam JavaScript)
+  e o `sitemap.xml`. O `.htaccess` entrega essas páginas; se o Supabase não responder, o build segue sem elas.
+- Produtos novos aparecem na loja na hora; as páginas pré-geradas e o sitemap são atualizados a cada nova publicação do site.
+
 ## 🔒 Segurança
 
 - RLS em todas as tabelas: só administradores acessam os dados da loja; visitantes (anon) não têm permissão alguma.
