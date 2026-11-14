@@ -1,7 +1,13 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { ArrowRight, Heart, ShoppingBag } from 'lucide-react'
 import { FcGoogle } from 'react-icons/fc'
+import {
+  carregarGoogle,
+  gerarNonce,
+  GOOGLE_CLIENT_ID,
+  RespostaCredencial,
+} from '@/loja/googleLogin'
 import { useSeo } from '@/lib/seo'
 import { supabase } from '@/lib/supabase'
 import { CampoSenha } from '@/components/common/CampoSenha'
@@ -46,7 +52,7 @@ export default function Entrar() {
   if (!sessaoVerificada) return <CarregandoLoja />
   if (usuario) return <Navigate to={voltarPara} replace />
 
-  // Login com Google: sai para a tela do Google e volta já logado para a página de origem
+  // Plano B (se o botão oficial do Google não carregar): login pela página do Google
   const entrarComGoogle = async () => {
     setErro('')
     setCarregandoGoogle(true)
@@ -149,19 +155,25 @@ export default function Entrar() {
             : 'É rápido e gratuito: salve favoritos e monte seu carrinho.'}
         </p>
 
-        <button
-          type="button"
-          onClick={entrarComGoogle}
-          disabled={carregandoGoogle}
-          className="w-full h-11 rounded-lg border border-[#DFC3AE] bg-white hover:bg-[#F7F3EA] text-sm font-semibold text-[#0C1014] inline-flex items-center justify-center gap-2.5 transition-colors disabled:opacity-60"
-        >
-          {carregandoGoogle ? (
-            <span className="inline-block w-4 h-4 border-2 border-[#C48864] border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <FcGoogle className="w-5 h-5" aria-hidden="true" />
-          )}
-          Continuar com Google
-        </button>
+        <BotaoGoogle
+          modo={modo}
+          alternativo={
+            <button
+              type="button"
+              onClick={entrarComGoogle}
+              disabled={carregandoGoogle}
+              className="w-full h-11 rounded-lg border border-[#DFC3AE] bg-white hover:bg-[#F7F3EA] text-sm font-semibold text-[#0C1014] inline-flex items-center justify-center gap-2.5 transition-colors disabled:opacity-60"
+            >
+              {carregandoGoogle ? (
+                <span className="inline-block w-4 h-4 border-2 border-[#C48864] border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <FcGoogle className="w-5 h-5" aria-hidden="true" />
+              )}
+              Continuar com Google
+            </button>
+          }
+          onErro={setErro}
+        />
 
         <div className="flex items-center gap-3 my-3.5" aria-hidden="true">
           <span className="h-px flex-1 bg-[#DFC3AE]/70" />
@@ -261,6 +273,96 @@ export default function Entrar() {
           </Link>
         </div>
       </div>
+    </div>
+  )
+}
+
+/**
+ * Botão oficial "Continuar com Google". A janela do Google é aberta pelo próprio
+ * site (mostra criartere.com.br). Se a biblioteca do Google não carregar
+ * (internet lenta, bloqueador), mostra o botão alternativo.
+ */
+function BotaoGoogle({
+  modo,
+  alternativo,
+  onErro,
+}: {
+  modo: 'entrar' | 'cadastrar'
+  alternativo: React.ReactNode
+  onErro: (mensagem: string) => void
+}) {
+  const caixa = useRef<HTMLDivElement>(null)
+  const [estado, setEstado] = useState<'carregando' | 'pronto' | 'falhou'>('carregando')
+  const [entrando, setEntrando] = useState(false)
+
+  useEffect(() => {
+    let ativo = true
+    ;(async () => {
+      try {
+        const [google, nonce] = await Promise.all([carregarGoogle(), gerarNonce()])
+        if (!ativo || !caixa.current) return
+        google.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          nonce: nonce.hash,
+          ux_mode: 'popup',
+          use_fedcm_for_prompt: true,
+          use_fedcm_for_button: true,
+          itp_support: true,
+          context: modo === 'cadastrar' ? 'signup' : 'signin',
+          callback: async (resposta: RespostaCredencial) => {
+            setEntrando(true)
+            onErro('')
+            const { error } = await supabase.auth.signInWithIdToken({
+              provider: 'google',
+              token: resposta.credential,
+              nonce: nonce.original,
+            })
+            if (error) {
+              setEntrando(false)
+              onErro(
+                'Não foi possível entrar com o Google agora. Tente novamente ou use seu e-mail.',
+              )
+            }
+            // Com sucesso, a sessão é detectada pela loja e a página redireciona
+          },
+        })
+        const largura = Math.min(400, Math.max(200, Math.floor(caixa.current.offsetWidth)))
+        caixa.current.innerHTML = ''
+        google.renderButton(caixa.current, {
+          type: 'standard',
+          theme: 'outline',
+          size: 'large',
+          shape: 'rectangular',
+          text: modo === 'cadastrar' ? 'signup_with' : 'continue_with',
+          logo_alignment: 'center',
+          locale: 'pt-BR',
+          width: largura,
+        })
+        setEstado('pronto')
+      } catch {
+        if (ativo) setEstado('falhou')
+      }
+    })()
+    return () => {
+      ativo = false
+      window.google?.accounts?.id?.cancel()
+    }
+  }, [modo, onErro])
+
+  if (estado === 'falhou') return <>{alternativo}</>
+
+  return (
+    <div className="relative min-h-[44px] flex items-center justify-center">
+      <div
+        ref={caixa}
+        className={`w-full flex justify-center ${estado === 'pronto' && !entrando ? '' : 'invisible'}`}
+      />
+      {(estado === 'carregando' || entrando) && (
+        <div className="absolute inset-0 rounded-lg border border-[#DFC3AE] bg-white flex items-center justify-center gap-2.5 text-sm font-semibold text-[#6B4B36]">
+          <span className="inline-block w-4 h-4 border-2 border-[#C48864] border-t-transparent rounded-full animate-spin" />
+          {entrando ? 'Entrando...' : 'Continuar com Google'}
+        </div>
+      )}
     </div>
   )
 }
