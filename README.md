@@ -50,7 +50,8 @@ Os dados ficam no projeto Supabase **Criartere** (`kitarrykwoaxlrydethm`).
 - **Pedidos pelo site (sem pagamento online):** em `/finalizar` o cliente informa nome, WhatsApp, forma de
   pagamento preferida e observações. A função `criar_pedido_loja()` registra o pedido como **orçamento
   "Aguardando"** (origem `loja`, selo "Site" no painel), usando os preços do banco, vincula/cria o cliente e
-  esvazia o carrinho; depois abre o WhatsApp da loja com o resumo. Entrega e frete são combinados no WhatsApp.
+  esvazia o carrinho; depois abre o WhatsApp da loja com o resumo. O cliente escolhe **retirada** ou **entrega**
+  (com endereço, que também atualiza o cadastro do cliente); o frete é combinado no WhatsApp.
   A loja confirma e usa "Aprovado → virar pedido". O cliente acompanha em `/meus-pedidos` (`meus_pedidos_loja()`).
 - Código: `src/loja/` (dados, contexto e componentes) e `src/pages/loja/` (telas).
 

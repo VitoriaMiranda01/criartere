@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { ArrowLeft, MessageCircle, ShoppingBag, Truck } from 'lucide-react'
+import { ArrowLeft, MessageCircle, ShoppingBag, Store, Truck } from 'lucide-react'
 import { FaWhatsapp } from 'react-icons/fa'
 import { useSeo } from '@/lib/seo'
 import { cn } from '@/lib/utils'
@@ -45,8 +45,14 @@ export default function Finalizar() {
   const [whatsapp, setWhatsapp] = useState('')
   const [forma, setForma] = useState<string>('Pix')
   const [observacoes, setObservacoes] = useState('')
+  const [entrega, setEntrega] = useState<'retirada' | 'entrega' | null>(null)
+  const [endereco, setEndereco] = useState('')
+  const [cidadeUf, setCidadeUf] = useState('')
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState('')
+
+  // O aviso de erro some assim que a pessoa corrige algum campo
+  useEffect(() => setErro(''), [nome, whatsapp, entrega, endereco, cidadeUf])
 
   // Preenche com os dados do último pedido (ou o nome da conta)
   useEffect(() => {
@@ -57,6 +63,8 @@ export default function Finalizar() {
       .then((d) => {
         if (!ativo || !d) return
         setWhatsapp((w) => w || mascararTelefone(d.whatsapp))
+        setEndereco((e) => e || d.endereco)
+        setCidadeUf((c) => c || d.cidadeUf)
       })
       .catch(() => undefined)
     return () => {
@@ -89,6 +97,10 @@ export default function Finalizar() {
     setErro('')
     if (!nome.trim()) return setErro('Informe seu nome.')
     if (whatsapp.replace(/\D/g, '').length < 10) return setErro('Informe seu WhatsApp com DDD.')
+    if (!entrega) return setErro('Escolha se prefere retirar ou receber o pedido.')
+    if (entrega === 'entrega' && (!endereco.trim() || !cidadeUf.trim())) {
+      return setErro('Informe o endereço e a cidade para a entrega.')
+    }
     setEnviando(true)
     try {
       const pedido = await enviarPedido({
@@ -96,6 +108,9 @@ export default function Finalizar() {
         whatsapp,
         formaPagamento: forma,
         observacoes,
+        entrega,
+        endereco: endereco.trim(),
+        cidadeUf: cidadeUf.trim(),
       })
       const link = numeroWhatsApp(contato?.whatsapp ?? '')
         ? linkWhatsAppPedido(contato!.whatsapp, pedido, nome.trim(), observacoes)
@@ -125,7 +140,7 @@ export default function Finalizar() {
         <h1 className="font-serif text-3xl sm:text-4xl font-semibold">Finalizar pedido</h1>
         <p className="text-sm text-[#6B4B36] mt-1">
           Confira seus dados. Depois de enviar, você fala com a Criartere pelo WhatsApp para
-          combinar a entrega e o pagamento.
+          confirmar o pedido, o frete e o pagamento.
         </p>
       </header>
 
@@ -199,15 +214,96 @@ export default function Finalizar() {
             </p>
           </fieldset>
 
-          <div className="flex gap-3 rounded-xl bg-[#F7F3EA] border border-[#DFC3AE]/60 p-4">
-            <Truck className="w-5 h-5 text-[#A5683F] shrink-0 mt-0.5" aria-hidden="true" />
-            <div>
-              <p className="text-sm font-semibold text-[#0C1014]">Entrega a combinar</p>
-              <p className="text-xs text-[#6B4B36] mt-0.5">
-                Retirada, entrega ou envio, prazo e frete são combinados pelo WhatsApp.
-              </p>
+          <fieldset className="space-y-2">
+            <legend className={cn(classeRotulo, 'mb-2')}>
+              Como prefere receber?
+              <Obrigatorio />
+            </legend>
+            <div className="grid sm:grid-cols-2 gap-2">
+              {(
+                [
+                  {
+                    valor: 'retirada',
+                    titulo: 'Retirar na loja',
+                    texto: 'Combinamos o local e o horário pelo WhatsApp.',
+                    Icone: Store,
+                  },
+                  {
+                    valor: 'entrega',
+                    titulo: 'Receber em casa',
+                    texto: 'Entrega ou envio. O frete é combinado pelo WhatsApp.',
+                    Icone: Truck,
+                  },
+                ] as const
+              ).map(({ valor, titulo, texto, Icone }) => (
+                <label
+                  key={valor}
+                  className={cn(
+                    'flex gap-3 rounded-xl border p-4 cursor-pointer transition-colors',
+                    'has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#C48864]',
+                    entrega === valor
+                      ? 'border-[#A5683F] bg-[#F6EDE7]'
+                      : 'border-[#DFC3AE] bg-white hover:border-[#C48864]',
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name="entrega"
+                    value={valor}
+                    checked={entrega === valor}
+                    onChange={() => setEntrega(valor)}
+                    className="sr-only"
+                  />
+                  <Icone
+                    className={cn(
+                      'w-5 h-5 shrink-0 mt-0.5',
+                      entrega === valor ? 'text-[#A5683F]' : 'text-[#6B4B36]/70',
+                    )}
+                    aria-hidden="true"
+                  />
+                  <span>
+                    <span className="block text-sm font-semibold text-[#0C1014]">{titulo}</span>
+                    <span className="block text-xs text-[#6B4B36] mt-0.5">{texto}</span>
+                  </span>
+                </label>
+              ))}
             </div>
-          </div>
+
+            {entrega === 'entrega' && (
+              <div className="grid sm:grid-cols-[1fr_200px] gap-4 pt-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="pedido-endereco" className={classeRotulo}>
+                    Endereço
+                    <Obrigatorio />
+                  </Label>
+                  <Input
+                    id="pedido-endereco"
+                    autoComplete="street-address"
+                    placeholder="Rua, número, complemento e bairro"
+                    maxLength={300}
+                    value={endereco}
+                    onChange={(e) => setEndereco(e.target.value)}
+                    className={classeCampo}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="pedido-cidade" className={classeRotulo}>
+                    Cidade/UF
+                    <Obrigatorio />
+                  </Label>
+                  <Input
+                    id="pedido-cidade"
+                    autoComplete="address-level2"
+                    placeholder="Ex.: Niterói/RJ"
+                    maxLength={80}
+                    value={cidadeUf}
+                    onChange={(e) => setCidadeUf(e.target.value)}
+                    className={classeCampo}
+                  />
+                </div>
+              </div>
+            )}
+          </fieldset>
 
           <div className="space-y-1.5">
             <Label htmlFor="pedido-obs" className={classeRotulo}>
@@ -253,8 +349,8 @@ export default function Finalizar() {
               <span>{formatarPreco(total)}</span>
             </div>
             <div className="flex justify-between text-[#6B4B36]">
-              <span>Entrega</span>
-              <span>A combinar</span>
+              <span>{entrega === 'retirada' ? 'Retirada' : 'Frete'}</span>
+              <span>{entrega === 'retirada' ? 'Sem custo' : 'A combinar'}</span>
             </div>
             <div className="flex justify-between items-baseline pt-2">
               <span className="font-semibold">Total</span>

@@ -198,7 +198,7 @@ export function mensagemErroLoja(e: unknown): string {
   const m = e instanceof Error ? e.message : String(e)
   if (/fetch|network/i.test(m)) return 'Verifique sua conexão com a internet.'
   if (
-    /não está disponível|Quantidade inválida|Entre na sua conta|carrinho está vazio|WhatsApp válido|Informe seu nome|vários pedidos/.test(
+    /não está disponível|Quantidade inválida|Entre na sua conta|carrinho está vazio|WhatsApp válido|Informe seu nome|vários pedidos|retirada ou entrega|endereço e a cidade/.test(
       m,
     )
   )
@@ -219,6 +219,7 @@ export interface PedidoCriado {
   numero: string
   total: number
   formaPagamento: string
+  entrega: string // ex.: "Retirada na loja" ou "Entrega em ... (frete a combinar)"
   itens: ItemPedidoLoja[]
 }
 
@@ -245,6 +246,9 @@ export async function enviarPedido(dados: {
   whatsapp: string
   formaPagamento: string
   observacoes: string
+  entrega: 'retirada' | 'entrega'
+  endereco: string
+  cidadeUf: string
 }): Promise<PedidoCriado> {
   const r = check(
     await supabase.rpc('criar_pedido_loja', {
@@ -252,6 +256,9 @@ export async function enviarPedido(dados: {
       p_whatsapp: dados.whatsapp,
       p_forma_pagamento: dados.formaPagamento,
       p_observacoes: dados.observacoes,
+      p_entrega: dados.entrega,
+      p_endereco: dados.entrega === 'entrega' ? dados.endereco : null,
+      p_cidade_uf: dados.entrega === 'entrega' ? dados.cidadeUf : null,
     }),
   ) as Row
   return {
@@ -259,6 +266,7 @@ export async function enviarPedido(dados: {
     numero: String(r.numero),
     total: Number(r.total ?? 0),
     formaPagamento: String(r.formaPagamento ?? ''),
+    entrega: String(r.entrega ?? 'A combinar'),
     itens: ((r.itens as Row[]) ?? []).map(mapItemPedido),
   }
 }
@@ -277,13 +285,28 @@ export async function listarMeusPedidos(): Promise<PedidoLoja[]> {
 }
 
 /** Nome e WhatsApp usados no último pedido (para preencher o formulário). */
-export async function buscarMeusDadosPedido(): Promise<{ nome: string; whatsapp: string } | null> {
+export async function buscarMeusDadosPedido(): Promise<{
+  nome: string
+  whatsapp: string
+  endereco: string
+  cidadeUf: string
+} | null> {
   const data = check(await supabase.rpc('meus_dados_pedido'))
   const r = ((data ?? []) as Row[])[0]
-  return r ? { nome: String(r.nome ?? ''), whatsapp: String(r.whatsapp ?? '') } : null
+  return r
+    ? {
+        nome: String(r.nome ?? ''),
+        whatsapp: String(r.whatsapp ?? ''),
+        endereco: String(r.endereco ?? ''),
+        cidadeUf: String(r.cidade_uf ?? ''),
+      }
+    : null
 }
 
 const qtd = (n: number) => (Number.isInteger(n) ? String(n) : n.toLocaleString('pt-BR'))
+
+/** "Entrega em Rua X — Cidade (frete a combinar)" → "Rua X — Cidade (frete a combinar)" */
+export const textoEntrega = (t: string) => t.replace(/^Entrega em /, '')
 
 /** Mensagem do WhatsApp com o resumo do pedido. */
 export function mensagemPedidoWhatsApp(pedido: PedidoCriado, nome: string, observacoes: string) {
@@ -295,11 +318,16 @@ export function mensagemPedidoWhatsApp(pedido: PedidoCriado, nome: string, obser
     ``,
     `*Total dos produtos:* ${formatarPreco(pedido.total)}`,
     `*Pagamento:* ${pedido.formaPagamento}`,
-    `*Entrega:* a combinar`,
+    `*Entrega:* ${textoEntrega(pedido.entrega)}`,
     `*Nome:* ${nome}`,
   ]
   if (observacoes.trim()) linhas.push(`*Observações:* ${observacoes.trim()}`)
-  linhas.push(``, `Podemos combinar a entrega e o pagamento?`)
+  linhas.push(
+    ``,
+    pedido.entrega.startsWith('Retirada')
+      ? `Podemos combinar a retirada e o pagamento?`
+      : `Podemos combinar o frete e o pagamento?`,
+  )
   return linhas.join('\n')
 }
 

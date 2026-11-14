@@ -2,7 +2,7 @@ import { Link, Navigate, useLocation } from 'react-router-dom'
 import { CheckCircle2, ClipboardList } from 'lucide-react'
 import { FaWhatsapp } from 'react-icons/fa'
 import { useSeo } from '@/lib/seo'
-import { formatarPreco, PedidoCriado } from '@/loja/api'
+import { formatarPreco, PedidoCriado, textoEntrega } from '@/loja/api'
 
 interface Estado {
   pedido: PedidoCriado
@@ -61,10 +61,11 @@ export default function PedidoEnviado() {
               </li>
             ))}
           </ul>
+          <p className="border-t border-[#DFC3AE]/70 mt-3 pt-3 text-sm text-[#3a2c22]">
+            <span className="font-semibold">Entrega:</span> {textoEntrega(pedido.entrega)}
+          </p>
           <div className="border-t border-[#DFC3AE]/70 mt-3 pt-3 flex justify-between text-sm">
-            <span className="text-[#6B4B36]">
-              Total dos produtos · {pedido.formaPagamento} · entrega a combinar
-            </span>
+            <span className="text-[#6B4B36]">Total dos produtos · {pedido.formaPagamento}</span>
             <strong className="font-serif text-lg text-[#A5683F]">
               {formatarPreco(pedido.total)}
             </strong>
