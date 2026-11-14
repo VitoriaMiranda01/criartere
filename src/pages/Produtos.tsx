@@ -18,6 +18,10 @@ import {
   X,
   ImagePlus,
   Store,
+  Star,
+  ChevronLeft,
+  ChevronRight,
+  Images,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -70,9 +74,11 @@ export default function Produtos() {
   const [precoVendaStr, setPrecoVendaStr] = useState('')
   const [custoStr, setCustoStr] = useState('')
   const [categoria, setCategoria] = useState('Impressão 3D')
-  const [imagemUrl, setImagemUrl] = useState('')
-  const [novaImagem, setNovaImagem] = useState<ImagemPreparada | null>(null)
-  const [previaImagem, setPreviaImagem] = useState<string | null>(null)
+  // Fotos do produto, em ordem (a primeira é a principal). Fotos novas ainda não foram enviadas.
+  const [fotos, setFotos] = useState<FotoForm[]>([])
+  const [fotoSelecionada, setFotoSelecionada] = useState<string | null>(null)
+  const selecionada = fotos.find((f) => f.chave === fotoSelecionada) ?? fotos[0]
+  const indiceSelecionada = selecionada ? fotos.indexOf(selecionada) : -1
   const [arrastando, setArrastando] = useState(false)
   const [salvando, setSalvando] = useState(false)
   const inputImagem = useRef<HTMLInputElement>(null)
@@ -98,8 +104,7 @@ export default function Produtos() {
     setPrecoVendaStr('')
     setCustoStr('')
     setCategoria('Impressão 3D')
-    setImagemUrl('')
-    limparNovaImagem()
+    limparFotos([])
     setAtivo(true)
     setPublicadoLoja(true)
     setEstoqueStr('12')
@@ -114,8 +119,14 @@ export default function Produtos() {
     setPrecoVendaStr(prod.precoVenda.toString())
     setCustoStr(prod.custo ? prod.custo.toString() : '')
     setCategoria(prod.categoria)
-    setImagemUrl(prod.imagemUrl && prod.imagemUrl !== '/placeholder.svg' ? prod.imagemUrl : '')
-    limparNovaImagem()
+    limparFotos(
+      (prod.imagens?.length
+        ? prod.imagens
+        : prod.imagemUrl && prod.imagemUrl !== '/placeholder.svg'
+          ? [prod.imagemUrl]
+          : []
+      ).map((url) => ({ chave: url, url })),
+    )
     setAtivo(prod.ativo)
     setPublicadoLoja(prod.publicadoLoja ?? true)
     setEstoqueStr(prod.estoqueAproximado ? prod.estoqueAproximado.toString() : '0')
@@ -123,30 +134,61 @@ export default function Produtos() {
     setModalFormAberto(true)
   }
 
-  const limparNovaImagem = () => {
-    setNovaImagem(null)
-    setPreviaImagem((anterior) => {
-      if (anterior) URL.revokeObjectURL(anterior)
-      return null
+  // Troca a lista de fotos liberando as prévias das fotos novas que saíram
+  const limparFotos = (novas: FotoForm[]) =>
+    setFotos((atuais) => {
+      atuais.forEach((f) => {
+        if (f.previa && !novas.some((n) => n.chave === f.chave)) URL.revokeObjectURL(f.previa)
+      })
+      return novas
     })
-  }
 
-  const escolherImagem = async (arquivo?: File | null) => {
-    if (!arquivo) return
-    try {
-      const imagem = await prepararImagemProduto(arquivo)
-      limparNovaImagem()
-      setNovaImagem(imagem)
-      setPreviaImagem(URL.createObjectURL(imagem.blob))
-    } catch (err) {
-      toast.error((err as Error).message)
+  const adicionarFotos = async (arquivos?: FileList | File[] | null) => {
+    const lista = Array.from(arquivos ?? [])
+    if (!lista.length) return
+    const vagas = MAX_FOTOS - fotos.length
+    if (vagas <= 0) {
+      toast.error(`Cada produto pode ter até ${MAX_FOTOS} fotos.`)
+      return
     }
+    if (lista.length > vagas) {
+      toast.warning(
+        `Só ${vagas === 1 ? 'mais 1 foto cabe' : `mais ${vagas} fotos cabem`} neste produto (máximo de ${MAX_FOTOS}).`,
+      )
+    }
+    const preparadas: FotoForm[] = []
+    for (const arquivo of lista.slice(0, vagas)) {
+      try {
+        const imagem = await prepararImagemProduto(arquivo)
+        preparadas.push({
+          chave: crypto.randomUUID(),
+          nova: imagem,
+          previa: URL.createObjectURL(imagem.blob),
+        })
+      } catch (err) {
+        toast.error(`${arquivo.name}: ${(err as Error).message}`)
+      }
+    }
+    if (preparadas.length) setFotos((atuais) => [...atuais, ...preparadas].slice(0, MAX_FOTOS))
   }
 
-  const removerImagem = () => {
-    limparNovaImagem()
-    setImagemUrl('')
-  }
+  const removerFoto = (chave: string) => limparFotos(fotos.filter((f) => f.chave !== chave))
+
+  const tornarPrincipal = (chave: string) =>
+    setFotos((atuais) => {
+      const foto = atuais.find((f) => f.chave === chave)
+      return foto ? [foto, ...atuais.filter((f) => f.chave !== chave)] : atuais
+    })
+
+  const moverFoto = (chave: string, direcao: -1 | 1) =>
+    setFotos((atuais) => {
+      const i = atuais.findIndex((f) => f.chave === chave)
+      const j = i + direcao
+      if (i < 0 || j < 0 || j >= atuais.length) return atuais
+      const novas = [...atuais]
+      ;[novas[i], novas[j]] = [novas[j], novas[i]]
+      return novas
+    })
 
   const handleSalvarProduto = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -167,21 +209,27 @@ export default function Produtos() {
     }
 
     const id = produtoEditando ? produtoEditando.id : novoId()
-    let urlFinal = imagemUrl
-    if (novaImagem) {
-      setSalvando(true)
-      try {
-        // No modo desenvolvedor a imagem fica só neste aparelho (não é enviada)
-        urlFinal = state.modoDemo
-          ? URL.createObjectURL(novaImagem.blob)
-          : await enviarImagemProduto(id, novaImagem)
-      } catch (err) {
-        setSalvando(false)
-        setErro(`Não foi possível enviar a imagem. ${mensagemErro(err)}`)
-        return
+    // Envia as fotos novas (na ordem escolhida) e monta a lista final de endereços
+    const urls: string[] = []
+    if (fotos.some((f) => f.nova)) setSalvando(true)
+    try {
+      for (const foto of fotos) {
+        if (foto.url) urls.push(foto.url)
+        else if (foto.nova) {
+          // No modo desenvolvedor a imagem fica só neste aparelho (não é enviada)
+          urls.push(
+            state.modoDemo
+              ? URL.createObjectURL(foto.nova.blob)
+              : await enviarImagemProduto(id, foto.nova),
+          )
+        }
       }
+    } catch (err) {
       setSalvando(false)
+      setErro(`Não foi possível enviar as fotos. ${mensagemErro(err)}`)
+      return
     }
+    setSalvando(false)
 
     const payload: Produto = {
       id,
@@ -190,7 +238,8 @@ export default function Produtos() {
       precoVenda,
       custo,
       categoria,
-      imagemUrl: urlFinal || '/placeholder.svg',
+      imagemUrl: urls[0] || '/placeholder.svg',
+      imagens: urls,
       ativo,
       publicadoLoja,
       estoqueAproximado: estoque,
@@ -202,7 +251,7 @@ export default function Produtos() {
         ? `Produto "${payload.nome}" atualizado!`
         : `Produto "${payload.nome}" cadastrado com sucesso!`,
     )
-    limparNovaImagem()
+    limparFotos([])
     setModalFormAberto(false)
   }
 
@@ -376,6 +425,14 @@ export default function Produtos() {
                     </div>
                   )}
 
+                  {(prod.imagens?.length ?? 0) > 1 && (
+                    <div className="absolute bottom-2.5 right-2.5">
+                      <Badge className="bg-white/90 backdrop-blur-xs text-[#6B4B36] border border-[#DFC3AE]/50 text-[10px] font-semibold px-2 py-0.5 gap-1">
+                        <Images className="w-3 h-3" /> {prod.imagens!.length} fotos
+                      </Badge>
+                    </div>
+                  )}
+
                   <div className="absolute bottom-2.5 left-2.5">
                     <Badge className="bg-white/90 backdrop-blur-xs text-[#6B4B36] border border-[#DFC3AE]/50 text-[10px] font-semibold px-2 py-0.5">
                       {prod.categoria}
@@ -463,16 +520,27 @@ export default function Produtos() {
               {/* COLUNA ESQUERDA: IMAGEM + ATIVO */}
               <div className="space-y-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider">
-                    Imagem
+                  <Label className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider flex items-center gap-1">
+                    Fotos
                     <Opcional />
+                    <DicaAjuda titulo="Fotos do produto">
+                      <p>
+                        Envie até {MAX_FOTOS} fotos. A primeira é a <strong>foto principal</strong>:
+                        aparece no catálogo, nos pedidos e quando o link do produto é compartilhado.
+                        As demais aparecem na galeria da página do produto na loja.
+                      </p>
+                    </DicaAjuda>
                   </Label>
+
+                  {/* Foto principal (ou área para enviar a primeira foto) */}
                   <div
                     role="button"
                     tabIndex={0}
-                    onClick={() => inputImagem.current?.click()}
+                    onClick={() => fotos.length < MAX_FOTOS && inputImagem.current?.click()}
                     onKeyDown={(e) =>
-                      (e.key === 'Enter' || e.key === ' ') && inputImagem.current?.click()
+                      (e.key === 'Enter' || e.key === ' ') &&
+                      fotos.length < MAX_FOTOS &&
+                      inputImagem.current?.click()
                     }
                     onDragOver={(e) => {
                       e.preventDefault()
@@ -482,35 +550,40 @@ export default function Produtos() {
                     onDrop={(e) => {
                       e.preventDefault()
                       setArrastando(false)
-                      escolherImagem(e.dataTransfer.files?.[0])
+                      adicionarFotos(e.dataTransfer.files)
                     }}
                     className={`relative w-36 h-36 sm:w-[200px] sm:h-[200px] mx-auto sm:mx-0 rounded-xl border-2 border-dashed overflow-hidden cursor-pointer group transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C48864] ${
                       arrastando
                         ? 'border-[#C48864] bg-[#C48864]/10'
                         : 'border-[#DFC3AE] bg-[#F7F3EA]/60 hover:border-[#C48864]'
                     }`}
-                    aria-label="Escolher imagem do produto"
+                    aria-label={fotos.length ? 'Adicionar mais fotos' : 'Enviar fotos do produto'}
                   >
-                    {previaImagem || imagemUrl ? (
+                    {fotos.length ? (
                       <>
                         <img
-                          src={previaImagem || imagemUrl}
-                          alt="Imagem do produto"
+                          src={fotos[0].previa || fotos[0].url}
+                          alt="Foto principal do produto"
                           className="w-full h-full object-cover"
                         />
-                        <span className="absolute inset-0 bg-black/40 text-white text-xs font-semibold flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <ImagePlus className="w-5 h-5" />
-                          Trocar imagem
+                        <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-[#8C5636] shadow-xs">
+                          <Star className="w-3 h-3 fill-[#C48864] text-[#C48864]" /> Principal
                         </span>
+                        {fotos.length < MAX_FOTOS && (
+                          <span className="absolute inset-0 bg-black/40 text-white text-xs font-semibold flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <ImagePlus className="w-5 h-5" />
+                            Adicionar fotos
+                          </span>
+                        )}
                       </>
                     ) : (
                       <span className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-[#6B4B36] text-center px-3">
                         <ImagePlus className="w-7 h-7 text-[#94603D]" />
-                        <span className="text-xs font-semibold">Enviar imagem</span>
+                        <span className="text-xs font-semibold">Enviar fotos</span>
                         <span className="text-[10px] text-[#6B4B36]/90">
                           Clique ou arraste aqui
                           <br />
-                          JPG, PNG ou WebP
+                          Até {MAX_FOTOS} fotos · JPG, PNG ou WebP
                         </span>
                       </span>
                     )}
@@ -518,22 +591,101 @@ export default function Produtos() {
                   <input
                     ref={inputImagem}
                     type="file"
+                    multiple
                     accept="image/jpeg,image/png,image/webp"
                     className="hidden"
                     onChange={(e) => {
-                      escolherImagem(e.target.files?.[0])
+                      adicionarFotos(e.target.files)
                       e.target.value = ''
                     }}
                   />
-                  {(previaImagem || imagemUrl) && (
-                    <button
-                      type="button"
-                      onClick={removerImagem}
-                      className="text-[11px] text-red-600 hover:underline flex items-center gap-1 mx-auto sm:mx-0"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                      Remover imagem
-                    </button>
+
+                  {/* Todas as fotos: ordem, principal e remoção */}
+                  {fotos.length > 0 && (
+                    <div className="w-36 sm:w-[200px] mx-auto sm:mx-0 space-y-1.5">
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {fotos.map((foto, i) => (
+                          <button
+                            key={foto.chave}
+                            type="button"
+                            onClick={() => setFotoSelecionada(foto.chave)}
+                            aria-label={`Selecionar foto ${i + 1}${i === 0 ? ' (principal)' : ''}`}
+                            aria-pressed={selecionada?.chave === foto.chave}
+                            className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
+                              selecionada?.chave === foto.chave
+                                ? 'border-[#A5683F]'
+                                : 'border-[#DFC3AE]/70 hover:border-[#C48864]'
+                            }`}
+                          >
+                            <img
+                              src={foto.previa || foto.url}
+                              alt={`Foto ${i + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                            {i === 0 && (
+                              <Star className="absolute top-0.5 left-0.5 w-3 h-3 fill-[#C48864] text-white drop-shadow" />
+                            )}
+                          </button>
+                        ))}
+                        {fotos.length < MAX_FOTOS && (
+                          <button
+                            type="button"
+                            onClick={() => inputImagem.current?.click()}
+                            aria-label="Adicionar mais fotos"
+                            className="aspect-square rounded-lg border border-dashed border-[#DFC3AE] bg-[#F7F3EA]/60 text-[#94603D] hover:border-[#C48864] flex items-center justify-center"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                      {selecionada && (
+                        <div className="flex items-center justify-between gap-1 rounded-lg border border-[#DFC3AE]/70 bg-[#F7F3EA] p-1">
+                          <button
+                            type="button"
+                            onClick={() => moverFoto(selecionada.chave, -1)}
+                            disabled={indiceSelecionada <= 0}
+                            aria-label="Mover foto para a esquerda"
+                            className="w-7 h-7 rounded-md flex items-center justify-center text-[#6B4B36] hover:bg-white disabled:opacity-30"
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </button>
+                          {indiceSelecionada === 0 ? (
+                            <span className="flex-1 text-center text-[10px] font-semibold text-[#8C5636]">
+                              Foto principal
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => tornarPrincipal(selecionada.chave)}
+                              className="flex-1 h-7 rounded-md text-[10px] font-semibold text-[#8C5636] hover:bg-white flex items-center justify-center gap-1"
+                            >
+                              <Star className="w-3 h-3" /> Tornar principal
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => moverFoto(selecionada.chave, 1)}
+                            disabled={indiceSelecionada >= fotos.length - 1}
+                            aria-label="Mover foto para a direita"
+                            className="w-7 h-7 rounded-md flex items-center justify-center text-[#6B4B36] hover:bg-white disabled:opacity-30"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removerFoto(selecionada.chave)}
+                            aria-label="Remover foto selecionada"
+                            className="w-7 h-7 rounded-md flex items-center justify-center text-red-600 hover:bg-white"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+                      <p className="text-[10px] text-[#6B4B36]/90 leading-snug">
+                        {fotos.length} de {MAX_FOTOS} fotos · toque numa miniatura para mudar a
+                        ordem, escolher a principal ou remover.
+                      </p>
+                    </div>
                   )}
                 </div>
 
@@ -720,7 +872,7 @@ export default function Produtos() {
                 disabled={salvando}
                 className="bg-[#A5683F] hover:bg-[#8C5636] text-white h-10 text-xs font-semibold"
               >
-                {salvando ? 'Enviando imagem...' : 'Salvar Produto'}
+                {salvando ? 'Enviando fotos...' : 'Salvar Produto'}
               </Button>
             </DialogFooter>
           </form>
@@ -781,4 +933,13 @@ function FotoProduto({ url, nome }: { url?: string; nome: string }) {
       loading="lazy"
     />
   )
+}
+
+const MAX_FOTOS = 8
+
+interface FotoForm {
+  chave: string
+  url?: string // foto já salva
+  nova?: ImagemPreparada // foto escolhida agora (enviada ao salvar)
+  previa?: string // endereço temporário para mostrar a foto nova
 }

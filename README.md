@@ -45,6 +45,7 @@ Os dados ficam no projeto Supabase **Criartere** (`kitarrykwoaxlrydethm`).
   (só mostra "Pronta entrega" quando o estoque é maior que zero, ou "Sob encomenda").
 - **Clientes** (papel `cliente`) criam conta em `/entrar` e têm **favoritos** (`favoritos`) e
   **carrinho** (`carrinhos` + `carrinho_itens`), protegidos por RLS: cada um só vê e altera os próprios.
+- **Várias fotos por produto** (até 8, campo `produtos.imagens`): a primeira é a principal (também gravada em `imagem_url`); a página do produto mostra a galeria.
 - **Consultar pelo WhatsApp** usa o número de *Configurações → WhatsApp oficial* e envia o nome e o link do produto.
 - Sem checkout, pagamento online ou frete nesta versão.
 - Código: `src/loja/` (dados, contexto e componentes) e `src/pages/loja/` (telas).

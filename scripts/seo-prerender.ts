@@ -174,14 +174,14 @@ export function seoPrerender(opcoes: { supabaseUrl: string; chave: string }) {
             descricao: String(r.descricao ?? ''),
             preco: Number(r.preco ?? 0),
             categoria: String(r.categoria ?? ''),
-            imagemUrl:
-              r.imagem_url && !String(r.imagem_url).endsWith('/placeholder.svg')
-                ? String(r.imagem_url)
-                : undefined,
+            imagens: (Array.isArray(r.imagens) ? (r.imagens as string[]) : [r.imagem_url as string])
+              .filter((u) => u && !String(u).endsWith('/placeholder.svg'))
+              .map(String),
             disponibilidade: (r.disponibilidade === 'pronta_entrega'
               ? 'pronta_entrega'
               : 'sob_encomenda') as ProdutoSeo['disponibilidade'],
           }))
+          .map((p) => ({ ...p, imagemUrl: p.imagens[0] }))
           .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
         const c = contatos[0]
         if (c)

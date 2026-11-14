@@ -14,7 +14,8 @@ export interface ProdutoVitrine {
   descricao: string
   preco: number
   categoria: string
-  imagemUrl?: string
+  imagemUrl?: string // foto principal
+  imagens: string[] // todas as fotos (a primeira é a principal)
   disponibilidade: Disponibilidade
   criadoEm: string
 }
@@ -33,19 +34,24 @@ export interface ItemCarrinho {
 
 type Row = Record<string, unknown>
 
-const mapProduto = (r: Row): ProdutoVitrine => ({
-  id: String(r.id),
-  nome: String(r.nome ?? ''),
-  descricao: String(r.descricao ?? ''),
-  preco: Number(r.preco ?? 0),
-  categoria: String(r.categoria ?? ''),
-  imagemUrl:
-    r.imagem_url && !String(r.imagem_url).endsWith('/placeholder.svg')
-      ? String(r.imagem_url)
-      : undefined,
-  disponibilidade: r.disponibilidade === 'pronta_entrega' ? 'pronta_entrega' : 'sob_encomenda',
-  criadoEm: String(r.criado_em ?? ''),
-})
+const fotoValida = (u: unknown): u is string =>
+  typeof u === 'string' && u !== '' && !u.endsWith('/placeholder.svg')
+
+const mapProduto = (r: Row): ProdutoVitrine => {
+  const lista = Array.isArray(r.imagens) ? (r.imagens as unknown[]).filter(fotoValida) : []
+  const imagens = lista.length ? lista : fotoValida(r.imagem_url) ? [r.imagem_url] : []
+  return {
+    id: String(r.id),
+    nome: String(r.nome ?? ''),
+    descricao: String(r.descricao ?? ''),
+    preco: Number(r.preco ?? 0),
+    categoria: String(r.categoria ?? ''),
+    imagemUrl: imagens[0],
+    imagens,
+    disponibilidade: r.disponibilidade === 'pronta_entrega' ? 'pronta_entrega' : 'sob_encomenda',
+    criadoEm: String(r.criado_em ?? ''),
+  }
+}
 
 function check<T>(res: { data: T; error: { message: string } | null }): T {
   if (res.error) throw new Error(res.error.message)

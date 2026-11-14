@@ -82,6 +82,7 @@ const mapProduto = (r: Row): Produto => ({
   custo: num(r.custo),
   categoria: r.categoria,
   imagemUrl: opt(r.imagem_url),
+  imagens: Array.isArray(r.imagens) ? (r.imagens as string[]) : [],
   ativo: r.ativo,
   publicadoLoja: r.publicado_loja ?? true,
   estoqueAproximado: opt(r.estoque_aproximado),
@@ -196,7 +197,9 @@ const produtoParaRow = (p: Produto) => ({
   preco_venda: p.precoVenda,
   custo: p.custo,
   categoria: p.categoria ?? '',
-  imagem_url: p.imagemUrl || null,
+  imagem_url: p.imagens?.[0] || p.imagemUrl || null,
+  imagens:
+    p.imagens ?? (p.imagemUrl && !p.imagemUrl.endsWith('/placeholder.svg') ? [p.imagemUrl] : []),
   ativo: p.ativo,
   publicado_loja: p.publicadoLoja ?? true,
   estoque_aproximado: p.estoqueAproximado ?? null,
@@ -411,12 +414,12 @@ export async function enviarImagemProduto(
   return supabase.storage.from('produtos').getPublicUrl(caminho).data.publicUrl
 }
 
-/** Apaga imagens antigas do produto, mantendo só a atual (ou todas, se urlAtual for null). */
-export async function limparImagensProduto(produtoId: string, urlAtual: string | null) {
+/** Apaga do armazenamento as fotos que o produto não usa mais (todas, se a lista estiver vazia). */
+export async function limparImagensProduto(produtoId: string, urlsEmUso: string[]) {
   const { data } = await supabase.storage.from('produtos').list(produtoId, { limit: 100 })
   const apagar = (data ?? [])
     .map((f) => `${produtoId}/${f.name}`)
-    .filter((caminho) => !urlAtual || !urlAtual.endsWith(caminho))
+    .filter((caminho) => !urlsEmUso.some((url) => url.endsWith(caminho)))
   if (apagar.length) await supabase.storage.from('produtos').remove(apagar)
 }
 
@@ -539,13 +542,13 @@ export async function persistirAcao(
       check(await supabase.from('produtos').upsert(produtoParaRow(p)))
       await limparImagensProduto(
         p.id,
-        p.imagemUrl?.includes('/produtos/') ? p.imagemUrl : null,
+        (p.imagens ?? [p.imagemUrl ?? '']).filter((u) => u.includes('/produtos/')),
       ).catch(() => undefined)
       return []
 
     case 'EXCLUIR_PRODUTO':
       check(await supabase.from('produtos').delete().eq('id', p))
-      await limparImagensProduto(p, null).catch(() => undefined)
+      await limparImagensProduto(p, []).catch(() => undefined)
       return []
 
     case 'SALVAR_DESPESA':

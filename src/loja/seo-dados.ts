@@ -16,6 +16,7 @@ export interface ProdutoSeo {
   preco: number
   categoria: string
   imagemUrl?: string
+  imagens?: string[]
   disponibilidade: 'pronta_entrega' | 'sob_encomenda'
 }
 
@@ -107,7 +108,7 @@ export function jsonLdProduto(p: ProdutoSeo) {
     '@id': `${SITE}${caminhoProduto(p)}#produto`,
     name: p.nome,
     description: p.descricao || p.nome,
-    image: [p.imagemUrl || IMAGEM_PADRAO],
+    image: p.imagens?.length ? p.imagens : [p.imagemUrl || IMAGEM_PADRAO],
     sku: p.id,
     ...(p.categoria ? { category: p.categoria } : {}),
     brand: { '@type': 'Brand', name: NOME_LOJA },

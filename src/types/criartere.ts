@@ -39,7 +39,8 @@ export interface Produto {
   precoVenda: number
   custo: number
   categoria: string
-  imagemUrl?: string
+  imagemUrl?: string // foto principal (sempre igual à primeira de `imagens`)
+  imagens?: string[] // todas as fotos, em ordem; a primeira é a principal
   ativo: boolean
   publicadoLoja?: boolean // aparece na loja virtual (padrão: sim)
   estoqueAproximado?: number

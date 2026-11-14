@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
-import { ArrowLeft, Check, PackageX, ShoppingBag } from 'lucide-react'
+import { ArrowLeft, Check, ChevronLeft, ChevronRight, PackageX, ShoppingBag } from 'lucide-react'
 import { useSeo } from '@/lib/seo'
 import { caminhoProduto, descricaoProduto, idDoCaminho, jsonLdProduto } from '@/loja/seo-dados'
 import { useLoja } from '@/loja/LojaContext'
@@ -14,7 +14,7 @@ import {
   ImagemProduto,
   SeletorQuantidade,
 } from '@/loja/componentes'
-import { formatarPreco } from '@/loja/api'
+import { formatarPreco, ProdutoVitrine } from '@/loja/api'
 
 export default function ProdutoDetalhe() {
   const { id: parametro } = useParams()
@@ -93,10 +93,7 @@ export default function ProdutoDetalhe() {
       </Link>
 
       <article className="grid md:grid-cols-2 gap-6 md:gap-10 items-start">
-        <div className="relative rounded-3xl overflow-hidden border border-[#DFC3AE]/60 bg-white">
-          <ImagemProduto produto={produto} quadrada className="w-full" />
-          <BotaoFavorito produto={produto} className="absolute top-4 right-4 w-11 h-11" />
-        </div>
+        <GaleriaProduto key={produto.id} produto={produto} />
 
         <div className="space-y-5">
           <div className="space-y-3">
@@ -163,6 +160,91 @@ export default function ProdutoDetalhe() {
             ))}
           </div>
         </section>
+      )}
+    </div>
+  )
+}
+
+/** Fotos do produto: foto grande com setas (ou deslizar no celular) e miniaturas abaixo. */
+function GaleriaProduto({ produto }: { produto: ProdutoVitrine }) {
+  const fotos = produto.imagens.length ? produto.imagens : [undefined]
+  const [atual, setAtual] = useState(0)
+  const [toqueInicio, setToqueInicio] = useState<number | null>(null)
+  const total = fotos.length
+  const ir = (i: number) => setAtual((i + total) % total)
+
+  return (
+    <div className="space-y-3">
+      <div
+        className="relative rounded-3xl overflow-hidden border border-[#DFC3AE]/60 bg-white"
+        onTouchStart={(e) => setToqueInicio(e.touches[0].clientX)}
+        onTouchEnd={(e) => {
+          if (toqueInicio === null || total < 2) return
+          const dx = e.changedTouches[0].clientX - toqueInicio
+          if (Math.abs(dx) > 40) ir(atual + (dx < 0 ? 1 : -1))
+          setToqueInicio(null)
+        }}
+      >
+        <ImagemProduto
+          key={fotos[atual] ?? 'sem-foto'}
+          produto={{
+            nome: total > 1 ? `${produto.nome} — foto ${atual + 1} de ${total}` : produto.nome,
+            imagemUrl: fotos[atual],
+          }}
+          quadrada
+          className="w-full"
+        />
+        <BotaoFavorito produto={produto} className="absolute top-4 right-4 w-11 h-11" />
+        {total > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={() => ir(atual - 1)}
+              aria-label="Foto anterior"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur shadow-sm flex items-center justify-center text-[#0C1014] hover:bg-white"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => ir(atual + 1)}
+              aria-label="Próxima foto"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur shadow-sm flex items-center justify-center text-[#0C1014] hover:bg-white"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-[#0C1014]/70 px-2.5 py-0.5 text-xs font-semibold text-white">
+              {atual + 1} / {total}
+            </span>
+          </>
+        )}
+      </div>
+
+      {total > 1 && (
+        <div
+          className="flex gap-2 overflow-x-auto sem-barra pb-1"
+          role="tablist"
+          aria-label="Fotos do produto"
+        >
+          {fotos.map((url, i) => (
+            <button
+              key={url ?? i}
+              type="button"
+              role="tab"
+              aria-selected={i === atual}
+              aria-label={`Ver foto ${i + 1}`}
+              onClick={() => setAtual(i)}
+              className={`shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-colors ${
+                i === atual ? 'border-[#A5683F]' : 'border-transparent opacity-70 hover:opacity-100'
+              }`}
+            >
+              <ImagemProduto
+                produto={{ nome: `${produto.nome} — miniatura ${i + 1}`, imagemUrl: url }}
+                className="w-full h-full"
+              />
+            </button>
+          ))}
+        </div>
       )}
     </div>
   )
