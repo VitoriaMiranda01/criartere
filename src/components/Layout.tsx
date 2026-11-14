@@ -23,6 +23,8 @@ import {
   Code2,
   ChevronLeft,
   ChevronRight,
+  Store,
+  ExternalLink,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -295,6 +297,28 @@ export default function Layout() {
                 </NavLink>
               )
             })}
+
+            {/* Atalho para a loja virtual (abre em outra aba) */}
+            <div className="pt-2 mt-2 border-t border-[#DFC3AE]/50">
+              <a
+                href="/"
+                target="_blank"
+                rel="noopener"
+                title={menuRecolhido ? 'Ver loja (abre em outra aba)' : undefined}
+                aria-label="Ver loja (abre em outra aba)"
+                className={`flex items-center rounded-lg text-sm font-medium transition-all group text-[#6B4B36] hover:bg-[#F7F3EA] hover:text-[#0C1014] ${
+                  menuRecolhido ? 'justify-center px-0 py-2.5' : 'justify-between px-3.5 py-2.5'
+                }`}
+              >
+                <span className="flex items-center gap-3">
+                  <Store className="w-4 h-4 shrink-0 text-[#6B4B36]/90 group-hover:text-[#0C1014]" />
+                  {!menuRecolhido && <span>Ver loja</span>}
+                </span>
+                {!menuRecolhido && (
+                  <ExternalLink className="w-3.5 h-3.5 text-[#6B4B36]/60 group-hover:text-[#0C1014]" />
+                )}
+              </a>
+            </div>
           </nav>
 
           {/* Rodapé da Sidebar */}
@@ -437,6 +461,22 @@ export default function Layout() {
                     </NavLink>
                   )
                 })}
+
+                <div className="pt-2 mt-2 border-t border-[#DFC3AE]/50">
+                  <a
+                    href="/"
+                    target="_blank"
+                    rel="noopener"
+                    onClick={() => setMobileMenuAberto(false)}
+                    className="flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium text-[#6B4B36] hover:bg-[#F7F3EA]"
+                  >
+                    <span className="flex items-center gap-3">
+                      <Store className="w-4 h-4" />
+                      <span>Ver loja</span>
+                    </span>
+                    <ExternalLink className="w-3.5 h-3.5 text-[#6B4B36]/60" />
+                  </a>
+                </div>
               </nav>
 
               <div className="p-4 border-t border-[#DFC3AE]/50 space-y-2 bg-[#F7F3EA]/30">
