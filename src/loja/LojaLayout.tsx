@@ -256,8 +256,20 @@ function LojaEstrutura() {
             )}
           </div>
         </div>
-        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 pb-6 flex flex-wrap items-center justify-between gap-2 text-xs text-[#6B4B36]/90">
+        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 pb-24 flex flex-wrap items-center justify-between gap-2 text-xs text-[#6B4B36]/90">
           <span>Criartere &copy; {new Date().getFullYear()}</span>
+          <p>
+            Feito com carinho por{' '}
+            <a
+              href={`https://wa.me/5521979371559?text=${encodeURIComponent('Olá! Tenho interesse em construir meu site.')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-[#A5683F] transition-colors hover:text-[#0C1014]"
+            >
+              Vitória Miranda
+            </a>
+            .
+          </p>
         </div>
       </footer>
 
