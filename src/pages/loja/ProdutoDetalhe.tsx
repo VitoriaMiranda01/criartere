@@ -59,7 +59,7 @@ export default function ProdutoDetalhe() {
         texto="Este produto não está mais disponível na loja. Que tal conhecer outras criações?"
         acao={
           <Link
-            to="/loja"
+            to="/"
             className="inline-flex h-10 px-5 items-center rounded-lg bg-[#A5683F] hover:bg-[#8C5636] text-white text-sm font-semibold"
           >
             Ver catálogo
@@ -86,7 +86,7 @@ export default function ProdutoDetalhe() {
   return (
     <div className="space-y-12">
       <Link
-        to="/loja"
+        to="/"
         className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#6B4B36] hover:text-[#0C1014]"
       >
         <ArrowLeft className="w-4 h-4" /> Voltar ao catálogo

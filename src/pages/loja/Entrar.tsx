@@ -18,8 +18,14 @@ interface EstadoNavegacao {
 export default function Entrar() {
   const location = useLocation()
   const navState = (location.state ?? {}) as EstadoNavegacao
+  // Só volta para páginas da loja (nunca para o painel nem para outro site)
   const voltarPara =
-    navState.voltarPara && navState.voltarPara.startsWith('/loja') ? navState.voltarPara : '/loja'
+    navState.voltarPara &&
+    navState.voltarPara.startsWith('/') &&
+    !navState.voltarPara.startsWith('//') &&
+    !navState.voltarPara.startsWith('/admin')
+      ? navState.voltarPara
+      : '/'
 
   const { usuario, sessaoVerificada } = useLoja()
   const [modo, setModo] = useState<'entrar' | 'cadastrar'>(navState.modo ?? 'entrar')
@@ -31,7 +37,7 @@ export default function Entrar() {
 
   useSeo({
     titulo: modo === 'entrar' ? 'Entrar na loja' : 'Criar conta na loja',
-    caminho: '/loja/entrar',
+    caminho: '/entrar',
     indexar: false,
   })
 
@@ -59,7 +65,7 @@ export default function Entrar() {
       const { data, error } = await supabase.auth.signUp({
         email: emailLimpo,
         password: senha,
-        options: { data: { nome: nome.trim() }, emailRedirectTo: `${window.location.origin}/loja` },
+        options: { data: { nome: nome.trim() }, emailRedirectTo: window.location.origin },
       })
       if (error) {
         setErro(
@@ -208,7 +214,7 @@ export default function Entrar() {
             {modo === 'entrar' ? 'Ainda não tem conta? Criar conta' : 'Já tenho conta. Entrar'}
           </button>
           <p>
-            <Link to="/loja" className="text-xs text-[#6B4B36] hover:text-[#0C1014]">
+            <Link to="/" className="text-xs text-[#6B4B36] hover:text-[#0C1014]">
               Continuar navegando sem entrar
             </Link>
           </p>

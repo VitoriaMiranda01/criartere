@@ -32,18 +32,18 @@ Os dados ficam no projeto Supabase **Criartere** (`kitarrykwoaxlrydethm`).
 
 ## 🧭 Endereços
 
-- `https://criartere.com.br/` → sempre leva à **loja virtual** (`/loja`).
+- `https://criartere.com.br/` → **loja virtual** (catálogo). Páginas da loja: `/produto/<nome>-<id>`, `/favoritos`, `/carrinho`, `/entrar`.
 - `https://criartere.com.br/admin` → **painel administrativo** (login em `/admin/login`).
-- Endereços antigos do painel (`/pedidos`, `/login`…) redirecionam para `/admin/...`.
+- Endereços antigos redirecionam: `/loja/...` → raiz do site; `/pedidos`, `/login`… → `/admin/...`.
 
-## 🛍️ Loja virtual (`/loja`)
+## 🛍️ Loja virtual (raiz do site)
 
-- **Catálogo público** em `/loja` (é para onde `criartere.com.br` sempre leva).
+- **Catálogo público** na página inicial (`criartere.com.br`).
   Usa o mesmo cadastro de produtos do painel: aparecem os produtos **ativos** e com
   **"Publicado na loja virtual"** ligado (campo `produtos.publicado_loja`).
 - Os visitantes leem a vitrine pela função `vitrine_produtos()`, que **não expõe custo nem estoque**
   (só mostra "Pronta entrega" quando o estoque é maior que zero, ou "Sob encomenda").
-- **Clientes** (papel `cliente`) criam conta em `/loja/entrar` e têm **favoritos** (`favoritos`) e
+- **Clientes** (papel `cliente`) criam conta em `/entrar` e têm **favoritos** (`favoritos`) e
   **carrinho** (`carrinhos` + `carrinho_itens`), protegidos por RLS: cada um só vê e altera os próprios.
 - **Consultar pelo WhatsApp** usa o número de *Configurações → WhatsApp oficial* e envia o nome e o link do produto.
 - Sem checkout, pagamento online ou frete nesta versão.
@@ -51,11 +51,11 @@ Os dados ficam no projeto Supabase **Criartere** (`kitarrykwoaxlrydethm`).
 
 ### SEO da loja
 
-- Endereços amigáveis: `/loja/produto/<nome-do-produto>-<id>` (links antigos só com o id continuam funcionando).
+- Endereços amigáveis: `/produto/<nome-do-produto>-<id>` (links antigos só com o id continuam funcionando).
 - Cada página define título, descrição, endereço canônico, prévia de compartilhamento (foto do produto)
   e dados estruturados do Google (`Product` com preço e disponibilidade; `Store` + `ItemList` no catálogo) — `src/lib/seo.ts` e `src/loja/seo-dados.ts`.
 - **No build** (`scripts/seo-prerender.ts`), os produtos publicados são lidos da vitrine e é gerado
-  `dist/_paginas/...` (HTML com as metatags certas para WhatsApp, Instagram, Facebook e buscadores que não executam JavaScript)
+  `dist/_paginas/produto/...` e o catálogo no próprio `index.html` (HTML com as metatags certas para WhatsApp, Instagram, Facebook e buscadores que não executam JavaScript)
   e o `sitemap.xml`. O `.htaccess` entrega essas páginas; se o Supabase não responder, o build segue sem elas.
 - Produtos novos aparecem na loja na hora; as páginas pré-geradas e o sitemap são atualizados a cada nova publicação do site.
 

@@ -4,7 +4,7 @@ import { SITE, SUFIXO_TITULO, IMAGEM_PADRAO, jsonSeguro } from '@/loja/seo-dados
 export interface OpcoesSeo {
   titulo?: string
   descricao?: string
-  caminho?: string // ex.: /loja/produto/vaso-...; vira o endereço canônico
+  caminho?: string // ex.: /produto/vaso-...; vira o endereço canônico
   imagem?: string
   tipo?: 'website' | 'product'
   indexar?: boolean

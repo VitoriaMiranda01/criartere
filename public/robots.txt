@@ -1,12 +1,10 @@
 # Criartere — a loja virtual é pública; o painel administrativo (/admin) exige login.
 User-agent: *
-Allow: /loja
-Disallow: /loja/favoritos
-Disallow: /loja/carrinho
-Disallow: /loja/entrar
+Allow: /
+Disallow: /favoritos
+Disallow: /carrinho
+Disallow: /entrar
 Disallow: /admin
 Disallow: /_paginas/
-Allow: /logo.png
-Allow: /og-image.png
 
 Sitemap: https://criartere.com.br/sitemap.xml

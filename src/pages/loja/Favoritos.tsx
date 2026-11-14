@@ -43,7 +43,7 @@ export default function Favoritos() {
           texto="Toque no coração de um produto para guardá-lo aqui."
           acao={
             <Link
-              to="/loja"
+              to="/"
               className="inline-flex h-10 px-5 items-center rounded-lg bg-[#A5683F] hover:bg-[#8C5636] text-white text-sm font-semibold"
             >
               Explorar o catálogo

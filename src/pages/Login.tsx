@@ -290,7 +290,7 @@ function AvisoContaCliente({ email, onSair }: { email: string; onSair: () => voi
         </p>
         <div className="mt-6 flex flex-col gap-2">
           <Link
-            to="/loja"
+            to="/"
             className="h-11 rounded-lg bg-[#A5683F] hover:bg-[#8C5636] text-white text-sm font-medium inline-flex items-center justify-center gap-2"
           >
             <Store className="w-4 h-4" /> Ir para a loja virtual

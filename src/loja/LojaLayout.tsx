@@ -84,7 +84,7 @@ function LojaEstrutura() {
           </button>
 
           <Link
-            to="/loja"
+            to="/"
             className="flex items-center gap-2.5 shrink-0"
             aria-label="Criartere — início da loja"
           >
@@ -98,20 +98,20 @@ function LojaEstrutura() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-6 ml-8" aria-label="Loja">
-            <NavLink to="/loja" end className={linkNav}>
+            <NavLink to="/" end className={linkNav}>
               Catálogo
             </NavLink>
-            <NavLink to="/loja/favoritos" className={linkNav}>
+            <NavLink to="/favoritos" className={linkNav}>
               Favoritos
             </NavLink>
-            <NavLink to="/loja/carrinho" className={linkNav}>
+            <NavLink to="/carrinho" className={linkNav}>
               Carrinho
             </NavLink>
           </nav>
 
           <div className="ml-auto flex items-center gap-1 sm:gap-2">
             <Link
-              to="/loja/favoritos"
+              to="/favoritos"
               className="relative p-2 rounded-full text-[#6B4B36] hover:bg-white hover:text-[#0C1014]"
               aria-label={`Favoritos (${favoritos.size})`}
             >
@@ -119,7 +119,7 @@ function LojaEstrutura() {
               <Contador valor={favoritos.size} />
             </Link>
             <Link
-              to="/loja/carrinho"
+              to="/carrinho"
               className="relative p-2 rounded-full text-[#6B4B36] hover:bg-white hover:text-[#0C1014]"
               aria-label={`Carrinho (${quantidadeNoCarrinho} itens)`}
             >
@@ -150,12 +150,12 @@ function LojaEstrutura() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link to="/loja/favoritos">
+                    <Link to="/favoritos">
                       <Heart className="w-4 h-4 mr-2" /> Meus favoritos
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/loja/carrinho">
+                    <Link to="/carrinho">
                       <ShoppingBag className="w-4 h-4 mr-2" /> Meu carrinho
                     </Link>
                   </DropdownMenuItem>
@@ -174,7 +174,7 @@ function LojaEstrutura() {
               </DropdownMenu>
             ) : (
               <Link
-                to="/loja/entrar"
+                to="/entrar"
                 className="ml-1 inline-flex items-center gap-1.5 h-9 px-3 sm:px-4 rounded-full bg-[#A5683F] hover:bg-[#8C5636] text-white text-sm font-semibold"
               >
                 <User className="w-4 h-4" />
@@ -190,9 +190,9 @@ function LojaEstrutura() {
             aria-label="Loja"
           >
             {[
-              { to: '/loja', label: 'Catálogo', icon: Store, end: true },
-              { to: '/loja/favoritos', label: 'Favoritos', icon: Heart },
-              { to: '/loja/carrinho', label: 'Carrinho', icon: ShoppingBag },
+              { to: '/', label: 'Catálogo', icon: Store, end: true },
+              { to: '/favoritos', label: 'Favoritos', icon: Heart },
+              { to: '/carrinho', label: 'Carrinho', icon: ShoppingBag },
             ].map((l) => (
               <NavLink
                 key={l.to}

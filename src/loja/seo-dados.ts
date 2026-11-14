@@ -40,9 +40,9 @@ export function slug(texto: string): string {
   )
 }
 
-/** Endereço amigável do produto: /loja/produto/vaso-geometrico-<id> */
+/** Endereço amigável do produto: /produto/vaso-geometrico-<id> */
 export const caminhoProduto = (p: { id: string; nome: string }) =>
-  `/loja/produto/${slug(p.nome)}-${p.id}`
+  `/produto/${slug(p.nome)}-${p.id}`
 
 /** Aceita tanto o endereço novo (nome-id) quanto o antigo (só o id). */
 export function idDoCaminho(parametro: string | undefined): string {
@@ -91,7 +91,7 @@ export function jsonLdLoja(contato?: ContatoSeo) {
     '@id': `${SITE}/#loja`,
     name: NOME_LOJA,
     description: DESCRICAO_LOJA,
-    url: `${SITE}/loja`,
+    url: `${SITE}/`,
     logo: `${SITE}/logo.png`,
     image: IMAGEM_PADRAO,
     currenciesAccepted: 'BRL',
@@ -121,7 +121,7 @@ export function jsonLdProduto(p: ProdutoSeo) {
           ? 'https://schema.org/InStock'
           : 'https://schema.org/MadeToOrder',
       itemCondition: 'https://schema.org/NewCondition',
-      seller: { '@type': 'Organization', name: NOME_LOJA, url: `${SITE}/loja` },
+      seller: { '@type': 'Organization', name: NOME_LOJA, url: `${SITE}/` },
     },
   }
 }
@@ -134,7 +134,7 @@ export function jsonLdCatalogo(produtos: ProdutoSeo[], contato?: ContatoSeo) {
       {
         '@type': 'CollectionPage',
         name: 'Catálogo Criartere',
-        url: `${SITE}/loja`,
+        url: `${SITE}/`,
         inLanguage: 'pt-BR',
         description: DESCRICAO_LOJA,
         mainEntity: {

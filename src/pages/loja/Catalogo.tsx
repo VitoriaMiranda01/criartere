@@ -31,7 +31,7 @@ export default function Catalogo() {
   useSeo({
     titulo: 'Loja virtual: impressão 3D, papelaria e personalizados',
     descricao: DESCRICAO_LOJA,
-    caminho: '/loja',
+    caminho: '/',
     indexar: true,
     jsonLd: produtos.length ? jsonLdCatalogo(produtos, contato ?? undefined) : undefined,
     ativo: !carregandoProdutos && !erroProdutos,

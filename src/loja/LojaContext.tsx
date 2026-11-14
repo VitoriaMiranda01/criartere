@@ -156,7 +156,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
     (mensagem: string) => {
       if (usuarioRef.current) return false
       toast(mensagem, { description: 'Entre ou crie sua conta gratuitamente.' })
-      navigate('/loja/entrar', { state: { voltarPara: location.pathname + location.search } })
+      navigate('/entrar', { state: { voltarPara: location.pathname + location.search } })
       return true
     },
     [navigate, location.pathname, location.search],
@@ -197,7 +197,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
         await adicionarAoCarrinho(produto.id, quantidade)
         setCarrinho(await listarCarrinho())
         toast.success(`${produto.nome} adicionado ao carrinho`, {
-          action: { label: 'Ver carrinho', onClick: () => navigate('/loja/carrinho') },
+          action: { label: 'Ver carrinho', onClick: () => navigate('/carrinho') },
         })
         return true
       } catch (e) {
@@ -240,7 +240,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
   const sair = useCallback(async () => {
     await supabase.auth.signOut()
     toast('Você saiu da sua conta.')
-    navigate('/loja')
+    navigate('/')
   }, [navigate])
 
   const quantidadeNoCarrinho = carrinho.reduce((s, i) => s + i.quantidade, 0)

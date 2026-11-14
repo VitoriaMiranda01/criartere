@@ -4,8 +4,8 @@
    executá-lo, mas o WhatsApp, Instagram, Facebook e outros buscadores leem só o
    HTML. Por isso, a cada publicação, este plugin busca os produtos publicados
    (pela mesma vitrine pública que a loja usa) e grava:
-     - dist/_paginas/loja.html                     → /loja
-     - dist/_paginas/loja/produto/<nome-id>.html   → /loja/produto/<nome-id>
+     - dist/index.html (catálogo)                  → / (também é a base do app)
+     - dist/_paginas/produto/<nome-id>.html        → /produto/<nome-id>
      - dist/sitemap.xml                            → todas as páginas públicas
    Cada página é o próprio index.html com título, descrição, prévia (foto do
    produto) e dados estruturados corretos; o app abre normalmente em seguida.
@@ -81,7 +81,7 @@ function montarHtml(modelo: string, p: Pagina): string {
 }
 
 const conteudoProduto = (p: ProdutoSeo) => `<main class="conteudo-estatico">
-<p><a href="/loja">Criartere — Loja virtual</a>${p.categoria ? ` › ${esc(p.categoria)}` : ''}</p>
+<p><a href="/">Criartere — Loja virtual</a>${p.categoria ? ` › ${esc(p.categoria)}` : ''}</p>
 <h1>${esc(p.nome)}</h1>
 ${p.imagemUrl ? `<img src="${esc(p.imagemUrl)}" alt="${esc(p.nome)}" width="480" height="480" style="max-width:100%;height:auto" />` : ''}
 ${p.descricao ? `<p>${esc(p.descricao)}</p>` : ''}
@@ -199,12 +199,13 @@ export function seoPrerender(opcoes: { supabaseUrl: string; chave: string }) {
       }
 
       if (produtos.length) {
-        gravar(
-          '/loja',
+        // A página inicial (/) é o catálogo: o próprio index.html recebe as metatags e a lista de produtos
+        fs.writeFileSync(
+          arquivoIndex,
           montarHtml(modelo, {
             titulo: 'Loja virtual: impressão 3D, papelaria e personalizados',
             descricao: DESCRICAO_LOJA,
-            caminho: '/loja',
+            caminho: '/',
             tipo: 'website',
             jsonLd: jsonLdCatalogo(produtos, contato),
             conteudo: conteudoCatalogo(produtos),
@@ -229,7 +230,7 @@ export function seoPrerender(opcoes: { supabaseUrl: string; chave: string }) {
       fs.writeFileSync(
         path.join(pastaSaida, 'sitemap.xml'),
         sitemap([
-          { caminho: '/loja', prioridade: '1.0', frequencia: 'daily' },
+          { caminho: '/', prioridade: '1.0', frequencia: 'daily' },
           ...produtos.map((p) => ({
             caminho: caminhoProduto(p),
             prioridade: '0.8',

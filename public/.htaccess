@@ -13,13 +13,14 @@
 
   RewriteRule ^index\.html$ - [L]
 
-  # Endereço principal sempre leva à loja virtual; o painel fica em /admin
-  RewriteRule ^$ /loja [R=301,L]
+  # A loja fica na raiz do site; endereços antigos /loja/... redirecionam (o painel fica em /admin)
+  RewriteRule ^loja/?$ / [R=301,L]
+  RewriteRule ^loja/(.+)$ /$1 [R=301,L]
   RewriteRule ^(login|pedidos|orcamentos|clientes|produtos|financeiro|fluxo-de-caixa|relatorios|configuracoes|ajuda)/?$ /admin/$1 [R=301,L,QSA]
 
   # Páginas da loja pré-geradas no build (SEO e prévias de link no WhatsApp/Instagram).
   # Se o arquivo não existir, segue para o app normalmente.
-  RewriteCond %{REQUEST_URI} ^/(loja(/produto/[a-z0-9-]+)?)/?$
+  RewriteCond %{REQUEST_URI} ^/(produto/[a-z0-9-]+)/?$
   RewriteCond %{DOCUMENT_ROOT}/_paginas/%1.html -f
   RewriteRule ^ /_paginas/%1.html [L]
   RewriteCond %{REQUEST_FILENAME} !-f

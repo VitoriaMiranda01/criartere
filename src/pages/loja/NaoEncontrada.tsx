@@ -3,7 +3,7 @@ import { Compass } from 'lucide-react'
 import { useSeo } from '@/lib/seo'
 import { EstadoVazio } from '@/loja/componentes'
 
-/** Endereço inexistente dentro da loja (/loja/...) */
+/** Endereço inexistente na loja */
 export default function NaoEncontrada() {
   useSeo({ titulo: 'Página não encontrada', indexar: false })
   return (
@@ -13,7 +13,7 @@ export default function NaoEncontrada() {
       texto="Este endereço não existe ou mudou. Que tal voltar ao catálogo?"
       acao={
         <Link
-          to="/loja"
+          to="/"
           className="inline-flex h-10 px-5 items-center rounded-lg bg-[#A5683F] hover:bg-[#8C5636] text-white text-sm font-semibold"
         >
           Ver catálogo

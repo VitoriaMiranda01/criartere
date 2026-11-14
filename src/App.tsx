@@ -19,7 +19,6 @@ const FluxoDeCaixa = lazy(() => import('./pages/FluxoDeCaixa'))
 const Relatorios = lazy(() => import('./pages/Relatorios'))
 const Configuracoes = lazy(() => import('./pages/Configuracoes'))
 const Ajuda = lazy(() => import('./pages/Ajuda'))
-const NotFound = lazy(() => import('./pages/NotFound'))
 // Loja virtual (pública)
 const LojaLayout = lazy(() => import('./loja/LojaLayout'))
 const LojaCatalogo = lazy(() => import('./pages/loja/Catalogo'))
@@ -42,6 +41,13 @@ function CarregandoTela() {
   )
 }
 
+/** /loja → /, /loja/produto/x → /produto/x (links já compartilhados continuam valendo) */
+function EnderecoAntigoLoja() {
+  const { pathname, search, hash } = useLocation()
+  const novo = pathname.replace(/^\/loja\/?/, '/')
+  return <Navigate to={`${novo}${search}${hash}`} replace />
+}
+
 /** Leva endereços antigos (ex.: /pedidos?busca=0012) para o painel em /admin, mantendo filtros. */
 function EnderecoAntigoAdmin() {
   const { pathname, search, hash } = useLocation()
@@ -58,7 +64,7 @@ const App = () => (
           <Suspense fallback={<CarregandoTela />}>
             <Routes>
               {/* Loja virtual: catálogo público, favoritos e carrinho dos clientes */}
-              <Route path="/loja" element={<LojaLayout />}>
+              <Route path="/" element={<LojaLayout />}>
                 <Route index element={<LojaCatalogo />} />
                 <Route path="produto/:id" element={<LojaProduto />} />
                 <Route path="favoritos" element={<LojaFavoritos />} />
@@ -67,8 +73,8 @@ const App = () => (
                 <Route path="*" element={<LojaNaoEncontrada />} />
               </Route>
 
-              {/* Endereço principal: sempre a loja virtual */}
-              <Route path="/" element={<Navigate to="/loja" replace />} />
+              {/* Endereços antigos da loja (/loja/...) → raiz do site */}
+              <Route path="/loja/*" element={<EnderecoAntigoLoja />} />
 
               {/* Painel administrativo: criartere.com.br/admin */}
               <Route path="/admin/login" element={<Login />} />
@@ -102,8 +108,7 @@ const App = () => (
                 <Route key={p} path={`/${p}`} element={<EnderecoAntigoAdmin />} />
               ))}
 
-              {/* Rota não encontrada */}
-              <Route path="*" element={<NotFound />} />
+              {/* Endereços inexistentes caem na página "não encontrada" da loja (rota * acima) */}
             </Routes>
           </Suspense>
         </ErroTela>

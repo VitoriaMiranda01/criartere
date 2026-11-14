@@ -50,7 +50,7 @@ export default function Carrinho() {
           texto="Adicione produtos do catálogo para organizar suas compras."
           acao={
             <Link
-              to="/loja"
+              to="/"
               className="inline-flex h-10 px-5 items-center rounded-lg bg-[#A5683F] hover:bg-[#8C5636] text-white text-sm font-semibold"
             >
               Explorar o catálogo
@@ -158,7 +158,7 @@ export default function Carrinho() {
             diretamente com a Criartere pelo WhatsApp.
           </p>
           <Link
-            to="/loja"
+            to="/"
             className="block text-center text-sm font-semibold text-[#6B4B36] hover:text-[#0C1014] underline-offset-4 hover:underline"
           >
             Continuar comprando
