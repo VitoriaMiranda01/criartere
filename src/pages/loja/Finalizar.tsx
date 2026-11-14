@@ -129,202 +129,207 @@ export default function Finalizar() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <Link
-        to="/carrinho"
-        className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#6B4B36] hover:text-[#0C1014]"
-      >
-        <ArrowLeft className="w-4 h-4" /> Voltar ao carrinho
-      </Link>
-      <header>
-        <h1 className="font-serif text-3xl sm:text-4xl font-semibold">Finalizar pedido</h1>
-        <p className="text-sm text-[#6B4B36] mt-1">
-          Confira seus dados. Depois de enviar, você fala com a Criartere pelo WhatsApp para
-          confirmar o pedido, o frete e o pagamento.
+    <div className="w-full space-y-4">
+      <header className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+        <div>
+          <Link
+            to="/carrinho"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#6B4B36] hover:text-[#0C1014]"
+          >
+            <ArrowLeft className="w-4 h-4" /> Voltar ao carrinho
+          </Link>
+          <h1 className="font-serif text-3xl font-semibold mt-1">Finalizar pedido</h1>
+        </div>
+        <p className="text-sm text-[#6B4B36] sm:max-w-md sm:text-right">
+          Depois de enviar, você fala com a Criartere pelo WhatsApp para confirmar o pedido, o frete
+          e o pagamento.
         </p>
       </header>
 
       <form
         onSubmit={enviar}
         noValidate
-        className="grid lg:grid-cols-[1fr_380px] gap-6 items-start"
+        className="grid lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] gap-4 lg:gap-6 items-start"
       >
-        <section className="bg-white rounded-2xl border border-[#DFC3AE]/60 p-5 sm:p-7 space-y-5">
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="pedido-nome" className={classeRotulo}>
-                Nome
-                <Obrigatorio />
-              </Label>
-              <Input
-                id="pedido-nome"
-                autoComplete="name"
-                value={nome}
-                maxLength={80}
-                onChange={(e) => setNome(e.target.value)}
-                className={classeCampo}
-              />
+        <section className="bg-white rounded-2xl border border-[#DFC3AE]/60 p-5 sm:p-6 grid xl:grid-cols-2 gap-x-8 gap-y-4 items-start">
+          <div className="space-y-4">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="pedido-nome" className={classeRotulo}>
+                  Nome
+                  <Obrigatorio />
+                </Label>
+                <Input
+                  id="pedido-nome"
+                  autoComplete="name"
+                  value={nome}
+                  maxLength={80}
+                  onChange={(e) => setNome(e.target.value)}
+                  className={classeCampo}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="pedido-whatsapp" className={classeRotulo}>
+                  WhatsApp
+                  <Obrigatorio />
+                </Label>
+                <Input
+                  id="pedido-whatsapp"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel-national"
+                  placeholder="(21) 99999-9999"
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(mascararTelefone(e.target.value))}
+                  className={classeCampo}
+                />
+              </div>
             </div>
+
+            <fieldset className="space-y-2">
+              <legend className={cn(classeRotulo, 'mb-2')}>Como prefere pagar?</legend>
+              <div className="grid grid-cols-3 gap-2">
+                {FORMAS.map((f) => (
+                  <label
+                    key={f}
+                    className={cn(
+                      'h-11 rounded-lg border text-sm font-semibold flex items-center justify-center cursor-pointer transition-colors',
+                      'has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#C48864]',
+                      forma === f
+                        ? 'border-[#A5683F] bg-[#F6EDE7] text-[#8C5636]'
+                        : 'border-[#DFC3AE] bg-white text-[#6B4B36] hover:border-[#C48864]',
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      name="forma-pagamento"
+                      value={f}
+                      checked={forma === f}
+                      onChange={() => setForma(f)}
+                      className="sr-only"
+                    />
+                    {f}
+                  </label>
+                ))}
+              </div>
+              <p className="text-[11px] text-[#6B4B36]/80">
+                Nada é cobrado pelo site: o pagamento é combinado com a loja.
+              </p>
+            </fieldset>
             <div className="space-y-1.5">
-              <Label htmlFor="pedido-whatsapp" className={classeRotulo}>
-                WhatsApp
-                <Obrigatorio />
+              <Label htmlFor="pedido-obs" className={classeRotulo}>
+                Observações
+                <Opcional />
               </Label>
-              <Input
-                id="pedido-whatsapp"
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel-national"
-                placeholder="(21) 99999-9999"
-                value={whatsapp}
-                onChange={(e) => setWhatsapp(mascararTelefone(e.target.value))}
-                className={classeCampo}
+              <Textarea
+                id="pedido-obs"
+                rows={2}
+                maxLength={1000}
+                value={observacoes}
+                onChange={(e) => setObservacoes(e.target.value)}
+                placeholder="Cores, personalização, data em que precisa..."
+                className="rounded-lg border-[#DFC3AE] focus-visible:ring-[#C48864] bg-[#F7F3EA]/40 text-sm placeholder:text-[#6B4B36]/50 resize-none"
               />
             </div>
           </div>
 
-          <fieldset className="space-y-2">
-            <legend className={cn(classeRotulo, 'mb-2')}>Como prefere pagar?</legend>
-            <div className="grid grid-cols-3 gap-2">
-              {FORMAS.map((f) => (
-                <label
-                  key={f}
-                  className={cn(
-                    'h-11 rounded-lg border text-sm font-semibold flex items-center justify-center cursor-pointer transition-colors',
-                    'has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#C48864]',
-                    forma === f
-                      ? 'border-[#A5683F] bg-[#F6EDE7] text-[#8C5636]'
-                      : 'border-[#DFC3AE] bg-white text-[#6B4B36] hover:border-[#C48864]',
-                  )}
-                >
-                  <input
-                    type="radio"
-                    name="forma-pagamento"
-                    value={f}
-                    checked={forma === f}
-                    onChange={() => setForma(f)}
-                    className="sr-only"
-                  />
-                  {f}
-                </label>
-              ))}
-            </div>
-            <p className="text-[11px] text-[#6B4B36]/80">
-              Nada é cobrado pelo site: o pagamento é combinado com a loja.
-            </p>
-          </fieldset>
-
-          <fieldset className="space-y-2">
-            <legend className={cn(classeRotulo, 'mb-2')}>
-              Como prefere receber?
-              <Obrigatorio />
-            </legend>
-            <div className="grid sm:grid-cols-2 gap-2">
-              {(
-                [
-                  {
-                    valor: 'retirada',
-                    titulo: 'Retirar na loja',
-                    texto: 'Combinamos o local e o horário pelo WhatsApp.',
-                    Icone: Store,
-                  },
-                  {
-                    valor: 'entrega',
-                    titulo: 'Receber em casa',
-                    texto: 'Entrega ou envio. O frete é combinado pelo WhatsApp.',
-                    Icone: Truck,
-                  },
-                ] as const
-              ).map(({ valor, titulo, texto, Icone }) => (
-                <label
-                  key={valor}
-                  className={cn(
-                    'flex gap-3 rounded-xl border p-4 cursor-pointer transition-colors',
-                    'has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#C48864]',
-                    entrega === valor
-                      ? 'border-[#A5683F] bg-[#F6EDE7]'
-                      : 'border-[#DFC3AE] bg-white hover:border-[#C48864]',
-                  )}
-                >
-                  <input
-                    type="radio"
-                    name="entrega"
-                    value={valor}
-                    checked={entrega === valor}
-                    onChange={() => setEntrega(valor)}
-                    className="sr-only"
-                  />
-                  <Icone
+          <div className="space-y-4">
+            <fieldset className="space-y-2">
+              <legend className={cn(classeRotulo, 'mb-2')}>
+                Como prefere receber?
+                <Obrigatorio />
+              </legend>
+              <div className="grid sm:grid-cols-2 gap-2">
+                {(
+                  [
+                    {
+                      valor: 'retirada',
+                      titulo: 'Retirar na loja',
+                      texto: 'Combinamos o local e o horário pelo WhatsApp.',
+                      Icone: Store,
+                    },
+                    {
+                      valor: 'entrega',
+                      titulo: 'Receber em casa',
+                      texto: 'Entrega ou envio. O frete é combinado pelo WhatsApp.',
+                      Icone: Truck,
+                    },
+                  ] as const
+                ).map(({ valor, titulo, texto, Icone }) => (
+                  <label
+                    key={valor}
                     className={cn(
-                      'w-5 h-5 shrink-0 mt-0.5',
-                      entrega === valor ? 'text-[#A5683F]' : 'text-[#6B4B36]/70',
+                      'flex gap-3 rounded-xl border p-3 cursor-pointer transition-colors',
+                      'has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#C48864]',
+                      entrega === valor
+                        ? 'border-[#A5683F] bg-[#F6EDE7]'
+                        : 'border-[#DFC3AE] bg-white hover:border-[#C48864]',
                     )}
-                    aria-hidden="true"
-                  />
-                  <span>
-                    <span className="block text-sm font-semibold text-[#0C1014]">{titulo}</span>
-                    <span className="block text-xs text-[#6B4B36] mt-0.5">{texto}</span>
-                  </span>
-                </label>
-              ))}
-            </div>
-
-            {entrega === 'entrega' && (
-              <div className="grid sm:grid-cols-[1fr_200px] gap-4 pt-2">
-                <div className="space-y-1.5">
-                  <Label htmlFor="pedido-endereco" className={classeRotulo}>
-                    Endereço
-                    <Obrigatorio />
-                  </Label>
-                  <Input
-                    id="pedido-endereco"
-                    autoComplete="street-address"
-                    placeholder="Rua, número, complemento e bairro"
-                    maxLength={300}
-                    value={endereco}
-                    onChange={(e) => setEndereco(e.target.value)}
-                    className={classeCampo}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="pedido-cidade" className={classeRotulo}>
-                    Cidade/UF
-                    <Obrigatorio />
-                  </Label>
-                  <Input
-                    id="pedido-cidade"
-                    autoComplete="address-level2"
-                    placeholder="Ex.: Niterói/RJ"
-                    maxLength={80}
-                    value={cidadeUf}
-                    onChange={(e) => setCidadeUf(e.target.value)}
-                    className={classeCampo}
-                  />
-                </div>
+                  >
+                    <input
+                      type="radio"
+                      name="entrega"
+                      value={valor}
+                      checked={entrega === valor}
+                      onChange={() => setEntrega(valor)}
+                      className="sr-only"
+                    />
+                    <Icone
+                      className={cn(
+                        'w-5 h-5 shrink-0 mt-0.5',
+                        entrega === valor ? 'text-[#A5683F]' : 'text-[#6B4B36]/70',
+                      )}
+                      aria-hidden="true"
+                    />
+                    <span>
+                      <span className="block text-sm font-semibold text-[#0C1014]">{titulo}</span>
+                      <span className="block text-xs text-[#6B4B36] mt-0.5">{texto}</span>
+                    </span>
+                  </label>
+                ))}
               </div>
-            )}
-          </fieldset>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="pedido-obs" className={classeRotulo}>
-              Observações
-              <Opcional />
-            </Label>
-            <Textarea
-              id="pedido-obs"
-              rows={3}
-              maxLength={1000}
-              value={observacoes}
-              onChange={(e) => setObservacoes(e.target.value)}
-              placeholder="Cores, personalização, data em que precisa..."
-              className="rounded-lg border-[#DFC3AE] focus-visible:ring-[#C48864] bg-[#F7F3EA]/40 text-sm placeholder:text-[#6B4B36]/50 resize-none"
-            />
+              {entrega === 'entrega' && (
+                <div className="grid sm:grid-cols-[1fr_180px] gap-4 pt-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="pedido-endereco" className={classeRotulo}>
+                      Endereço
+                      <Obrigatorio />
+                    </Label>
+                    <Input
+                      id="pedido-endereco"
+                      autoComplete="street-address"
+                      placeholder="Rua, número, complemento e bairro"
+                      maxLength={300}
+                      value={endereco}
+                      onChange={(e) => setEndereco(e.target.value)}
+                      className={classeCampo}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="pedido-cidade" className={classeRotulo}>
+                      Cidade/UF
+                      <Obrigatorio />
+                    </Label>
+                    <Input
+                      id="pedido-cidade"
+                      autoComplete="address-level2"
+                      placeholder="Ex.: Niterói/RJ"
+                      maxLength={80}
+                      value={cidadeUf}
+                      onChange={(e) => setCidadeUf(e.target.value)}
+                      className={classeCampo}
+                    />
+                  </div>
+                </div>
+              )}
+            </fieldset>
           </div>
         </section>
 
-        <aside className="bg-white rounded-2xl border border-[#DFC3AE]/60 p-5 space-y-4 lg:sticky lg:top-24">
+        <aside className="bg-white rounded-2xl border border-[#DFC3AE]/60 p-5 space-y-4 lg:sticky lg:top-20">
           <h2 className="font-serif text-xl font-semibold">Seu pedido</h2>
-          <ul className="space-y-3 max-h-64 overflow-y-auto pr-1">
+          <ul className="space-y-3 max-h-[28vh] overflow-y-auto pr-1">
             {linhas.map(({ item, produto }) => (
               <li key={item.id} className="flex items-center gap-3">
                 <ImagemProduto

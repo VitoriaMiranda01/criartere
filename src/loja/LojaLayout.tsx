@@ -54,8 +54,10 @@ function Contador({ valor }: { valor: number }) {
 
 function LojaEstrutura() {
   const { usuario, favoritos, quantidadeNoCarrinho, sair, contato, sessaoVerificada } = useLoja()
-  // Tela de entrar/criar conta: ocupa só a altura da tela (sem rodapé, sem rolagem)
-  const telaFocada = useLocation().pathname === '/entrar'
+  // Telas de entrar/criar conta e de finalizar pedido: ocupam só a altura da tela
+  // (sem rodapé, sem rolagem)
+  const caminho = useLocation().pathname
+  const telaFocada = caminho === '/entrar' || caminho === '/finalizar'
   const [menuAberto, setMenuAberto] = useState(false)
   const ehAdmin = usuario?.papel === 'admin' || usuario?.papel === 'desenvolvedor'
   const whatsapp = numeroWhatsApp(contato?.whatsapp ?? '')
@@ -298,7 +300,7 @@ function LojaEstrutura() {
         </div>
       </footer>
 
-      {whatsapp && (
+      {whatsapp && caminho !== '/finalizar' && (
         <a
           href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(
             'Olá! Vim do site da Criartere e gostaria de mais informações.',
