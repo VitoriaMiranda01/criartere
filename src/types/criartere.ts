@@ -41,6 +41,7 @@ export interface Produto {
   categoria: string
   imagemUrl?: string
   ativo: boolean
+  publicadoLoja?: boolean // aparece na loja virtual (padrão: sim)
   estoqueAproximado?: number
 }
 

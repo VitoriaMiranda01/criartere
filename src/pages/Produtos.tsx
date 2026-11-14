@@ -8,7 +8,17 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
 import { Produto } from '@/types/criartere'
 import { formatBRL } from '@/store/periodUtils'
-import { Package, Plus, Search, Edit, Trash2, AlertTriangle, X, ImagePlus } from 'lucide-react'
+import {
+  Package,
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  AlertTriangle,
+  X,
+  ImagePlus,
+  Store,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -67,6 +77,7 @@ export default function Produtos() {
   const [salvando, setSalvando] = useState(false)
   const inputImagem = useRef<HTMLInputElement>(null)
   const [ativo, setAtivo] = useState(true)
+  const [publicadoLoja, setPublicadoLoja] = useState(true)
   const [estoqueStr, setEstoqueStr] = useState('10')
   const [erro, setErro] = useState('')
 
@@ -90,6 +101,7 @@ export default function Produtos() {
     setImagemUrl('')
     limparNovaImagem()
     setAtivo(true)
+    setPublicadoLoja(true)
     setEstoqueStr('12')
     setErro('')
     setModalFormAberto(true)
@@ -105,6 +117,7 @@ export default function Produtos() {
     setImagemUrl(prod.imagemUrl && prod.imagemUrl !== '/placeholder.svg' ? prod.imagemUrl : '')
     limparNovaImagem()
     setAtivo(prod.ativo)
+    setPublicadoLoja(prod.publicadoLoja ?? true)
     setEstoqueStr(prod.estoqueAproximado ? prod.estoqueAproximado.toString() : '0')
     setErro('')
     setModalFormAberto(true)
@@ -179,6 +192,7 @@ export default function Produtos() {
       categoria,
       imagemUrl: urlFinal || '/placeholder.svg',
       ativo,
+      publicadoLoja,
       estoqueAproximado: estoque,
     }
 
@@ -347,6 +361,20 @@ export default function Produtos() {
                       </Badge>
                     )}
                   </div>
+
+                  {prod.ativo && (
+                    <div className="absolute top-2.5 left-2.5">
+                      {prod.publicadoLoja !== false ? (
+                        <Badge className="bg-white/90 backdrop-blur-xs text-[#8C5636] border border-[#DFC3AE]/50 text-[10px] font-semibold px-2 py-0.5 gap-1">
+                          <Store className="w-3 h-3" /> Na loja
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-white/90 backdrop-blur-xs text-[#6B4B36]/80 border border-[#DFC3AE]/50 text-[10px] font-semibold px-2 py-0.5">
+                          Fora da loja
+                        </Badge>
+                      )}
+                    </div>
+                  )}
 
                   <div className="absolute bottom-2.5 left-2.5">
                     <Badge className="bg-white/90 backdrop-blur-xs text-[#6B4B36] border border-[#DFC3AE]/50 text-[10px] font-semibold px-2 py-0.5">
@@ -517,12 +545,35 @@ export default function Produtos() {
                     Ativo no catálogo
                     <DicaAjuda titulo="Ativo × Inativo">
                       <p>
-                        Produtos inativos não aparecem para escolha em pedidos e orçamentos, mas o
-                        histórico de vendas continua. Útil para itens fora de linha.
+                        Produtos inativos não aparecem para escolha em pedidos e orçamentos nem na
+                        loja virtual, mas o histórico de vendas continua. Útil para itens fora de
+                        linha.
                       </p>
                     </DicaAjuda>
                   </Label>
                   <Switch id="ativo" checked={ativo} onCheckedChange={setAtivo} />
+                </div>
+
+                <div className="flex items-center justify-between gap-2 p-2.5 bg-[#F7F3EA] rounded-xl border border-[#DFC3AE]/60">
+                  <Label
+                    htmlFor="publicado-loja"
+                    className="text-xs font-bold text-[#0C1014] cursor-pointer flex items-center gap-1"
+                  >
+                    Publicado na loja virtual
+                    <DicaAjuda titulo="Loja virtual">
+                      <p>
+                        Quando ligado (e o produto está ativo), ele aparece no catálogo público da
+                        loja com foto, nome, descrição, preço e categoria. O custo e o estoque nunca
+                        são mostrados aos clientes. Com estoque acima de zero o produto aparece como
+                        "Pronta entrega"; com zero, como "Sob encomenda".
+                      </p>
+                    </DicaAjuda>
+                  </Label>
+                  <Switch
+                    id="publicado-loja"
+                    checked={publicadoLoja}
+                    onCheckedChange={setPublicadoLoja}
+                  />
                 </div>
               </div>
 

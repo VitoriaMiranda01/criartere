@@ -2,13 +2,13 @@ import { useTituloPagina } from '@/hooks/use-titulo-pagina'
 import { CampoSenha } from '@/components/common/CampoSenha'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import React, { useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useCriartere } from '@/store/CriartereContext'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ArrowRight, ShieldCheck } from 'lucide-react'
+import { ArrowRight, ShieldCheck, Store, LogOut } from 'lucide-react'
 
 export default function Login() {
   const { state, dispatch } = useCriartere()
@@ -22,6 +22,16 @@ export default function Login() {
   const [carregando, setCarregando] = useState(false)
 
   useTituloPagina(modo === 'entrar' ? 'Entrar' : 'Criar conta', { indexar: true })
+
+  // Logado com uma conta de cliente da loja virtual: não acessa o painel
+  if (state.autenticado && state.clienteLoja) {
+    return (
+      <AvisoContaCliente
+        email={state.usuarioAtual.email}
+        onSair={() => dispatch({ type: 'LOGOUT' })}
+      />
+    )
+  }
 
   // Já logado: vai direto para o painel
   if (state.autenticado) {
@@ -252,6 +262,46 @@ export default function Login() {
           <span>Criartere &copy; {new Date().getFullYear()}</span>
           <span>&bull;</span>
           <span>Sistema de Gestão</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/** Conta de cliente tentando abrir o painel: explica e oferece a loja ou trocar de conta. */
+function AvisoContaCliente({ email, onSair }: { email: string; onSair: () => void }) {
+  useTituloPagina('Acesso restrito')
+  return (
+    <div className="min-h-[100dvh] w-full bg-[#F7F3EA] flex items-center justify-center p-4 font-sans">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-[0_8px_30px_rgba(12,16,20,0.06)] border border-[#DFC3AE]/60 p-8 text-center">
+        <img src="/logo.png" alt="Logo Criartere" className="w-14 h-14 mx-auto mb-4" />
+        <h1 className="font-serif text-xl font-semibold text-[#0C1014]">
+          Somente administradores podem acessar este site.
+        </h1>
+        <p className="text-sm text-[#6B4B36] mt-2">
+          {email ? (
+            <>
+              A conta <strong className="text-[#0C1014]">{email}</strong> é de cliente da loja
+              virtual.
+            </>
+          ) : (
+            'Esta conta é de cliente da loja virtual.'
+          )}
+        </p>
+        <div className="mt-6 flex flex-col gap-2">
+          <Link
+            to="/loja"
+            className="h-11 rounded-lg bg-[#A5683F] hover:bg-[#8C5636] text-white text-sm font-medium inline-flex items-center justify-center gap-2"
+          >
+            <Store className="w-4 h-4" /> Ir para a loja virtual
+          </Link>
+          <button
+            type="button"
+            onClick={onSair}
+            className="h-11 rounded-lg border border-[#DFC3AE] text-[#6B4B36] hover:text-[#0C1014] text-sm font-medium inline-flex items-center justify-center gap-2"
+          >
+            <LogOut className="w-4 h-4" /> Sair e entrar com outra conta
+          </button>
         </div>
       </div>
     </div>

@@ -35,6 +35,7 @@ const initialState: CriartereState = {
   carregando: false,
   autorizado: false,
   acessoNegado: false,
+  clienteLoja: false,
   falhaVerificacao: false,
   modoDemo: false,
   usuarioAtual: {
@@ -529,6 +530,8 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
         carregando: true,
         sessaoVerificada: true,
         acessoNegado: false,
+        clienteLoja: false,
+        autorizado: false,
         falhaVerificacao: false,
       })
       try {
@@ -550,13 +553,23 @@ export function CriartereProvider({ children }: { children: React.ReactNode }) {
           return
         }
         if (perfil?.papel !== 'admin') {
-          // Conta existe, mas não é administradora: encerra a sessão e avisa no login
-          negarAcesso = true
-          await supabase.auth.signOut()
+          // Conta de cliente da loja virtual: continua logada (para usar a loja),
+          // mas não acessa o painel nem carrega nenhum dado administrativo.
+          mesclar({
+            clienteLoja: true,
+            autorizado: false,
+            usuarioAtual: {
+              id: userId,
+              nome: perfil?.nome || nomeMeta || '',
+              email,
+              papel: 'Cliente',
+            },
+          })
           return
         }
         mesclar({
           autorizado: true,
+          clienteLoja: false,
           usuarioAtual: {
             id: userId,
             nome: perfil.nome || nomeMeta || email.split('@')[0],

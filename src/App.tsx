@@ -20,6 +20,13 @@ const Relatorios = lazy(() => import('./pages/Relatorios'))
 const Configuracoes = lazy(() => import('./pages/Configuracoes'))
 const Ajuda = lazy(() => import('./pages/Ajuda'))
 const NotFound = lazy(() => import('./pages/NotFound'))
+// Loja virtual (pública)
+const LojaLayout = lazy(() => import('./loja/LojaLayout'))
+const LojaCatalogo = lazy(() => import('./pages/loja/Catalogo'))
+const LojaProduto = lazy(() => import('./pages/loja/ProdutoDetalhe'))
+const LojaFavoritos = lazy(() => import('./pages/loja/Favoritos'))
+const LojaCarrinho = lazy(() => import('./pages/loja/Carrinho'))
+const LojaEntrar = lazy(() => import('./pages/loja/Entrar'))
 
 // Telas carregadas sob demanda (o site abre mais rápido)
 function CarregandoTela() {
@@ -43,6 +50,15 @@ const App = () => (
         <ErroTela>
           <Suspense fallback={<CarregandoTela />}>
             <Routes>
+              {/* Loja virtual: catálogo público, favoritos e carrinho dos clientes */}
+              <Route path="/loja" element={<LojaLayout />}>
+                <Route index element={<LojaCatalogo />} />
+                <Route path="produto/:id" element={<LojaProduto />} />
+                <Route path="favoritos" element={<LojaFavoritos />} />
+                <Route path="carrinho" element={<LojaCarrinho />} />
+                <Route path="entrar" element={<LojaEntrar />} />
+              </Route>
+
               {/* Rota de Acesso Privado / Login */}
               <Route path="/login" element={<Login />} />
 

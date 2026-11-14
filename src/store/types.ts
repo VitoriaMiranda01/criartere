@@ -17,6 +17,7 @@ export interface CriartereState {
   carregando: boolean // carregando dados do servidor
   autorizado: boolean // usuário logado é administrador
   acessoNegado: boolean // tentou entrar sem ser administrador (mensagem no login)
+  clienteLoja: boolean // conta de cliente da loja virtual: não acessa o painel
   falhaVerificacao: boolean // não conseguiu confirmar o acesso (ex.: sem internet)
   modoDemo: boolean // conta de desenvolvedor(a): dados fictícios, nada é gravado
   usuarioAtual: {

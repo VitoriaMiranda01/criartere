@@ -24,11 +24,24 @@ Os dados ficam no projeto Supabase **Criartere** (`kitarrykwoaxlrydethm`).
   `src/store/CriartereContext.tsx` aplica as mudanças na tela na hora e salva em seguida.
 - **Banco:** as tabelas, políticas de segurança (RLS) e funções estão em `supabase/migrations/`.
   Regras como número do pedido (0001, 0002…), status de pagamento e histórico são calculadas no banco.
-- **Quem acessa:** qualquer pessoa pode criar conta (papel `cliente`), mas só contas com papel
-  `admin` (tabela `perfis`) entram no sistema de gestão; as demais voltam ao login com a mensagem
-  "Somente administradores podem acessar este site.". Administradores liberam outras contas em
+- **Quem acessa:** qualquer pessoa pode criar conta (papel `cliente`) e usar a loja virtual, mas só
+  contas com papel `admin` (tabela `perfis`) entram no sistema de gestão; clientes que tentam abrir o
+  painel veem "Somente administradores podem acessar este site." com o atalho para a loja. Administradores liberam outras contas em
   **Configurações → Usuários e permissões** (o sistema não deixa remover o último administrador).
   Pensado para um futuro e-commerce: clientes usam o mesmo login, com acesso só aos próprios dados.
+
+## 🛍️ Loja virtual (`/loja`)
+
+- **Catálogo público** em `/loja` (quem abre `criartere.com.br` sem estar logado cai aqui).
+  Usa o mesmo cadastro de produtos do painel: aparecem os produtos **ativos** e com
+  **"Publicado na loja virtual"** ligado (campo `produtos.publicado_loja`).
+- Os visitantes leem a vitrine pela função `vitrine_produtos()`, que **não expõe custo nem estoque**
+  (só mostra "Pronta entrega" quando o estoque é maior que zero, ou "Sob encomenda").
+- **Clientes** (papel `cliente`) criam conta em `/loja/entrar` e têm **favoritos** (`favoritos`) e
+  **carrinho** (`carrinhos` + `carrinho_itens`), protegidos por RLS: cada um só vê e altera os próprios.
+- **Consultar pelo WhatsApp** usa o número de *Configurações → WhatsApp oficial* e envia o nome e o link do produto.
+- Sem checkout, pagamento online ou frete nesta versão.
+- Código: `src/loja/` (dados, contexto e componentes) e `src/pages/loja/` (telas).
 
 ## 🔒 Segurança
 

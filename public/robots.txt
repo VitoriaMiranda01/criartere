@@ -1,7 +1,10 @@
-# Criartere — apenas a tela de entrada é pública; as telas internas exigem login.
+# Criartere — a loja virtual e a tela de entrada são públicas; o painel exige login.
 User-agent: *
 Allow: /$
 Allow: /login
+Allow: /loja
+Disallow: /loja/favoritos
+Disallow: /loja/carrinho
 Allow: /logo.png
 Allow: /og-image.png
 Disallow: /pedidos

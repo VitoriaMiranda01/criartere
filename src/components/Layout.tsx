@@ -81,9 +81,16 @@ export default function Layout() {
     return <TelaCarregando mensagem="Verificando sessão..." />
   }
 
-  // Redireciona se não autenticado
+  // Redireciona se não autenticado. Quem abre o endereço principal do site
+  // (criartere.com.br) sem estar logado vê a loja virtual; as demais telas do
+  // painel continuam levando ao login administrativo.
   if (!state.autenticado) {
-    return <Navigate to="/login" replace />
+    return <Navigate to={location.pathname === '/' ? '/loja' : '/login'} replace />
+  }
+
+  // Cliente da loja virtual nunca acessa o painel administrativo
+  if (state.clienteLoja) {
+    return <Navigate to={location.pathname === '/' ? '/loja' : '/login'} replace />
   }
 
   // Não conseguiu confirmar o acesso (ex.: internet caiu bem na hora)

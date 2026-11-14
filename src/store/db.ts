@@ -83,6 +83,7 @@ const mapProduto = (r: Row): Produto => ({
   categoria: r.categoria,
   imagemUrl: opt(r.imagem_url),
   ativo: r.ativo,
+  publicadoLoja: r.publicado_loja ?? true,
   estoqueAproximado: opt(r.estoque_aproximado),
 })
 
@@ -197,6 +198,7 @@ const produtoParaRow = (p: Produto) => ({
   categoria: p.categoria ?? '',
   imagem_url: p.imagemUrl || null,
   ativo: p.ativo,
+  publicado_loja: p.publicadoLoja ?? true,
   estoque_aproximado: p.estoqueAproximado ?? null,
 })
 
