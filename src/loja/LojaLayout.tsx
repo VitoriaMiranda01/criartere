@@ -1,6 +1,6 @@
 /* Estrutura das páginas da loja virtual: cabeçalho, conteúdo e rodapé */
 import { Suspense, useEffect, useState } from 'react'
-import { Link, NavLink, Outlet } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { FaWhatsapp, FaInstagram } from 'react-icons/fa'
 import { Heart, ShoppingBag, User, LogOut, LayoutDashboard, Menu, X, Store } from 'lucide-react'
 import {
@@ -44,6 +44,8 @@ function Contador({ valor }: { valor: number }) {
 
 function LojaEstrutura() {
   const { usuario, favoritos, quantidadeNoCarrinho, sair, contato, sessaoVerificada } = useLoja()
+  // Tela de entrar/criar conta: ocupa só a altura da tela (sem rodapé, sem rolagem)
+  const telaFocada = useLocation().pathname === '/entrar'
   const [menuAberto, setMenuAberto] = useState(false)
   const ehAdmin = usuario?.papel === 'admin' || usuario?.papel === 'desenvolvedor'
   const whatsapp = numeroWhatsApp(contato?.whatsapp ?? '')
@@ -220,7 +222,10 @@ function LojaEstrutura() {
 
       <main
         id="conteudo"
-        className="flex-1 w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-10"
+        className={cn(
+          'flex-1 w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10',
+          telaFocada ? 'flex flex-col justify-center py-4 sm:py-6' : 'py-6 sm:py-10',
+        )}
       >
         <ErroTela>
           <Suspense fallback={<CarregandoLoja />}>
@@ -229,7 +234,7 @@ function LojaEstrutura() {
         </ErroTela>
       </main>
 
-      <footer className="border-t border-[#DFC3AE]/60 bg-white/60">
+      <footer className={cn('border-t border-[#DFC3AE]/60 bg-white/60', telaFocada && 'hidden')}>
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 py-8 flex flex-col sm:flex-row gap-6 sm:items-center justify-between">
           <div className="flex items-center gap-3">
             <img src="/logo.png" alt="" className="w-10 h-10" />

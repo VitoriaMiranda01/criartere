@@ -109,19 +109,19 @@ export default function Entrar() {
   }
 
   const classeCampo =
-    'h-11 rounded-lg border-[#DFC3AE] focus-visible:ring-[#C48864] bg-[#F7F3EA]/40 text-sm placeholder:text-[#6B4B36]/50'
+    'h-10 rounded-lg border-[#DFC3AE] focus-visible:ring-[#C48864] bg-[#F7F3EA]/40 text-sm placeholder:text-[#6B4B36]/50'
   const classeRotulo = 'text-xs font-semibold text-[#6B4B36] uppercase tracking-wider'
 
   return (
-    <div className="max-w-4xl mx-auto grid md:grid-cols-2 rounded-3xl overflow-hidden border border-[#DFC3AE]/60 bg-white shadow-[0_8px_30px_rgba(12,16,20,0.06)]">
-      <div className="hidden md:flex flex-col justify-between bg-[#0C1014] text-[#F7F3EA] p-10 relative overflow-hidden">
+    <div className="w-full max-w-[880px] mx-auto grid md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] rounded-3xl overflow-hidden border border-[#DFC3AE]/60 bg-white shadow-[0_8px_30px_rgba(12,16,20,0.06)]">
+      <div className="hidden md:flex flex-col justify-between bg-[#0C1014] text-[#F7F3EA] p-8 relative overflow-hidden">
         <div
           className="absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-[#C48864] opacity-30 blur-3xl"
           aria-hidden="true"
         />
         <div className="relative">
-          <img src="/logo.png" alt="" className="w-12 h-12 mb-6" />
-          <h2 className="font-serif text-3xl font-semibold leading-tight">
+          <img src="/logo.png" alt="" className="w-11 h-11 mb-5" />
+          <h2 className="font-serif text-[28px] font-semibold leading-tight">
             Sua conta na <span className="text-[#DFC3AE]">Criartere</span>
           </h2>
           <p className="text-sm text-[#F7F3EA]/75 mt-3 leading-relaxed">
@@ -139,14 +139,14 @@ export default function Entrar() {
         </ul>
       </div>
 
-      <div className="p-6 sm:p-10">
+      <div className="p-6 sm:px-8 sm:py-7">
         <h1 className="font-serif text-2xl sm:text-3xl font-semibold">
           {modo === 'entrar' ? 'Entrar' : 'Criar conta'}
         </h1>
-        <p className="text-sm text-[#6B4B36] mt-1 mb-6">
+        <p className="text-sm text-[#6B4B36] mt-1 mb-4">
           {modo === 'entrar'
             ? 'Bem-vinda(o) de volta! Acesse seus favoritos e seu carrinho.'
-            : 'É rápido e gratuito.'}
+            : 'É rápido e gratuito: salve favoritos e monte seu carrinho.'}
         </p>
 
         <button
@@ -163,7 +163,7 @@ export default function Entrar() {
           Continuar com Google
         </button>
 
-        <div className="flex items-center gap-3 my-5" aria-hidden="true">
+        <div className="flex items-center gap-3 my-3.5" aria-hidden="true">
           <span className="h-px flex-1 bg-[#DFC3AE]/70" />
           <span className="text-[11px] uppercase tracking-widest text-[#6B4B36]/80">
             ou com e-mail
@@ -171,39 +171,41 @@ export default function Entrar() {
           <span className="h-px flex-1 bg-[#DFC3AE]/70" />
         </div>
 
-        <form onSubmit={enviar} className="space-y-4" noValidate>
-          {modo === 'cadastrar' && (
-            <div className="space-y-1.5">
-              <Label htmlFor="loja-nome" className={classeRotulo}>
-                Nome
+        <form onSubmit={enviar} className="space-y-3" noValidate>
+          <div className={modo === 'cadastrar' ? 'grid sm:grid-cols-2 gap-3' : ''}>
+            {modo === 'cadastrar' && (
+              <div className="space-y-1">
+                <Label htmlFor="loja-nome" className={classeRotulo}>
+                  Nome
+                  <Obrigatorio />
+                </Label>
+                <Input
+                  id="loja-nome"
+                  autoComplete="name"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  placeholder="Seu nome"
+                  className={classeCampo}
+                />
+              </div>
+            )}
+            <div className="space-y-1">
+              <Label htmlFor="loja-email" className={classeRotulo}>
+                E-mail
                 <Obrigatorio />
               </Label>
               <Input
-                id="loja-nome"
-                autoComplete="name"
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                placeholder="Como devemos te chamar"
+                id="loja-email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="seu@email.com"
                 className={classeCampo}
               />
             </div>
-          )}
-          <div className="space-y-1.5">
-            <Label htmlFor="loja-email" className={classeRotulo}>
-              E-mail
-              <Obrigatorio />
-            </Label>
-            <Input
-              id="loja-email"
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
-              className={classeCampo}
-            />
           </div>
-          <div className="space-y-1.5">
+          <div className="space-y-1">
             <Label htmlFor="loja-senha" className={classeRotulo}>
               Senha
               <Obrigatorio />
@@ -243,7 +245,7 @@ export default function Entrar() {
           </button>
         </form>
 
-        <div className="mt-6 pt-5 border-t border-[#DFC3AE]/50 text-center space-y-3">
+        <div className="mt-4 pt-3.5 border-t border-[#DFC3AE]/50 flex flex-col items-center gap-1.5">
           <button
             type="button"
             onClick={() => {
@@ -254,11 +256,9 @@ export default function Entrar() {
           >
             {modo === 'entrar' ? 'Ainda não tem conta? Criar conta' : 'Já tenho conta. Entrar'}
           </button>
-          <p>
-            <Link to="/" className="text-xs text-[#6B4B36] hover:text-[#0C1014]">
-              Continuar navegando sem entrar
-            </Link>
-          </p>
+          <Link to="/" className="text-xs text-[#6B4B36] hover:text-[#0C1014]">
+            Continuar navegando sem entrar
+          </Link>
         </div>
       </div>
     </div>
