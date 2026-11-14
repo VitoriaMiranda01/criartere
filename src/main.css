@@ -119,7 +119,7 @@ body {
   }
 
   /* NEVER REMOVE THIS */
-  section[aria-label='Notifications alt+T'] {
+  section[aria-label^='Notificações'] {
     padding: 0 !important;
     margin: 0 !important;
   }
@@ -321,4 +321,95 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ===================== LOJA VIRTUAL =====================
+   Elementos que o navegador desenha por conta própria, ajustados à identidade
+   da Criartere. Só valem nas páginas da loja (<html data-area="loja">). */
+html[data-area='loja'] {
+  accent-color: #a5683f;
+  caret-color: #a5683f;
+  -webkit-tap-highlight-color: transparent;
+  scrollbar-color: #dfc3ae #f7f3ea;
+}
+html[data-area='loja'] ::selection {
+  background: #dfc3ae;
+  color: #0c1014;
+}
+/* Barra de rolagem (Chrome, Edge, Safari) */
+html[data-area='loja'] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+html[data-area='loja'] ::-webkit-scrollbar-track {
+  background: #f7f3ea;
+}
+html[data-area='loja'] ::-webkit-scrollbar-thumb {
+  background: #dfc3ae;
+  border-radius: 999px;
+  border: 2px solid #f7f3ea;
+}
+html[data-area='loja'] ::-webkit-scrollbar-thumb:hover {
+  background: #c48864;
+}
+/* Faixas de rolagem horizontal (ex.: categorias no celular) sem barra visível */
+.sem-barra {
+  scrollbar-width: none;
+}
+.sem-barra::-webkit-scrollbar {
+  display: none;
+}
+/* "x" nativo do campo de busca e botões nativos de senha (a loja tem os próprios) */
+html[data-area='loja'] input[type='search']::-webkit-search-cancel-button,
+html[data-area='loja'] input[type='search']::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+html[data-area='loja'] input::-ms-reveal,
+html[data-area='loja'] input::-ms-clear {
+  display: none;
+}
+/* Preenchimento automático do navegador (fundo azul/amarelo) na paleta da loja */
+html[data-area='loja'] input:-webkit-autofill,
+html[data-area='loja'] input:-webkit-autofill:hover,
+html[data-area='loja'] input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #0c1014;
+  -webkit-box-shadow: 0 0 0 1000px #fbf8f2 inset;
+  box-shadow: 0 0 0 1000px #fbf8f2 inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
+/* Avisos (toasts) da loja */
+html[data-area='loja'] [data-sonner-toaster] {
+  font-family: 'Nunito Sans', system-ui, sans-serif;
+  --normal-bg: #ffffff;
+  --normal-border: #dfc3ae;
+  --normal-text: #0c1014;
+  --success-bg: #ffffff;
+  --success-border: #dfc3ae;
+  --success-text: #0c1014;
+  --error-bg: #fbefeb;
+  --error-border: #efc9be;
+  --error-text: #8f3b28;
+  --info-bg: #ffffff;
+  --info-border: #dfc3ae;
+  --info-text: #0c1014;
+  --border-radius: 14px;
+}
+html[data-area='loja'] [data-sonner-toast][data-styled='true'] {
+  box-shadow: 0 10px 30px rgba(12, 16, 20, 0.1);
+  font-size: 14px;
+}
+html[data-area='loja'] [data-sonner-toast][data-type='success'] [data-icon] {
+  color: #4c8a5a;
+}
+html[data-area='loja'] [data-sonner-toast] [data-description] {
+  color: #6b4b36 !important;
+}
+html[data-area='loja'] [data-sonner-toast][data-styled='true'] [data-button] {
+  background: #a5683f;
+  color: #ffffff;
+  border-radius: 8px;
+  height: 28px;
+  padding: 0 10px;
+  font-weight: 600;
 }

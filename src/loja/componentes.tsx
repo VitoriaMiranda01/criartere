@@ -93,7 +93,6 @@ export function BotaoFavorito({
       }}
       aria-pressed={ativo}
       aria-label={ativo ? `Remover ${produto.nome} dos favoritos` : `Favoritar ${produto.nome}`}
-      title={ativo ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
       className={cn(
         'w-9 h-9 rounded-full flex items-center justify-center bg-white/90 backdrop-blur shadow-sm border border-white',
         'transition-transform hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C48864]',

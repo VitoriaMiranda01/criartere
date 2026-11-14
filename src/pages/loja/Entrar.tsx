@@ -80,7 +80,7 @@ export default function Entrar() {
   }
 
   const classeCampo =
-    'h-11 rounded-lg border-[#DFC3AE] focus-visible:ring-[#C48864] bg-[#F7F3EA]/40 text-sm'
+    'h-11 rounded-lg border-[#DFC3AE] focus-visible:ring-[#C48864] bg-[#F7F3EA]/40 text-sm placeholder:text-[#6B4B36]/50'
   const classeRotulo = 'text-xs font-semibold text-[#6B4B36] uppercase tracking-wider'
 
   return (

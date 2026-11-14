@@ -1,5 +1,5 @@
 /* Estrutura das páginas da loja virtual: cabeçalho, conteúdo e rodapé */
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { FaWhatsapp, FaInstagram } from 'react-icons/fa'
 import { Heart, ShoppingBag, User, LogOut, LayoutDashboard, Menu, X, Store } from 'lucide-react'
@@ -18,6 +18,14 @@ import { CarregandoLoja } from './componentes'
 import { numeroWhatsApp } from './api'
 
 export default function LojaLayout() {
+  // Ativa os estilos da loja (avisos, barras de rolagem, seleção de texto, preenchimento automático)
+  useEffect(() => {
+    document.documentElement.dataset.area = 'loja'
+    return () => {
+      delete document.documentElement.dataset.area
+    }
+  }, [])
+
   return (
     <LojaProvider>
       <LojaEstrutura />
@@ -132,7 +140,10 @@ function LojaEstrutura() {
                     {usuario.nome.charAt(0).toUpperCase()}
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-60 rounded-xl border-[#DFC3AE] bg-white p-1.5 shadow-[0_10px_30px_rgba(12,16,20,0.10)] [&_[role=menuitem]]:rounded-lg [&_[role=menuitem]]:py-2 [&_[role=menuitem]]:text-[#6B4B36] [&_[role=menuitem]]:cursor-pointer [&_[role=menuitem]:focus]:bg-[#F6EDE7] [&_[role=menuitem]:focus]:text-[#0C1014] [&_[role=separator]]:bg-[#DFC3AE]/60"
+                >
                   <DropdownMenuLabel className="font-normal">
                     <p className="text-sm font-semibold text-[#0C1014] truncate">{usuario.nome}</p>
                     <p className="text-xs text-[#6B4B36] truncate">{usuario.email}</p>

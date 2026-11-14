@@ -112,7 +112,6 @@ export default function Carrinho() {
                     type="button"
                     onClick={() => removerItem(item.id)}
                     aria-label={`Remover ${produto?.nome ?? 'produto'} do carrinho`}
-                    title="Remover"
                     className="p-2 -mr-2 -mt-1 rounded-lg text-[#6B4B36] hover:text-[#B5533C] hover:bg-[#B5533C]/10 shrink-0"
                   >
                     <Trash2 className="w-4 h-4" />

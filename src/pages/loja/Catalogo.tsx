@@ -96,7 +96,7 @@ export default function Catalogo() {
               onChange={(e) => setBusca(e.target.value)}
               placeholder="Buscar produtos..."
               aria-label="Buscar produtos"
-              className="w-full h-11 pl-10 pr-10 rounded-xl border border-[#DFC3AE] bg-white text-sm outline-none focus:ring-2 focus:ring-[#C48864]/50 focus:border-[#C48864]"
+              className="w-full h-11 pl-10 pr-10 rounded-xl border border-[#DFC3AE] bg-white text-sm outline-none placeholder:text-[#6B4B36]/60 focus:ring-2 focus:ring-[#C48864]/50 focus:border-[#C48864]"
             />
             {busca && (
               <button
@@ -132,7 +132,7 @@ export default function Catalogo() {
         </div>
 
         {categorias.length > 0 && (
-          <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
+          <div className="flex gap-2 overflow-x-auto sem-barra pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
             {['', ...categorias].map((c) => (
               <button
                 key={c || 'todas'}

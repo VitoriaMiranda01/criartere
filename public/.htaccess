@@ -35,6 +35,8 @@ AddType application/manifest+json .webmanifest
   Header always set X-Frame-Options "DENY"
   # Não envia o endereço completo das páginas para outros sites
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  # Idioma do site: português do Brasil (o navegador não oferece tradução)
+  Header always set Content-Language "pt-BR"
   # Desliga recursos do navegador que o sistema não usa
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
   # Só carrega scripts, estilos e conexões de origens conhecidas
