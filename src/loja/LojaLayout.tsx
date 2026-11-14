@@ -256,7 +256,7 @@ function LojaEstrutura() {
             )}
           </div>
         </div>
-        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 pb-24 flex flex-wrap items-center justify-between gap-2 text-xs text-[#6B4B36]/90">
+        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 pb-6 flex flex-wrap items-center justify-between gap-2 text-xs text-[#6B4B36]/90">
           <span>Criartere &copy; {new Date().getFullYear()}</span>
           <p>
             Feito com carinho por{' '}
