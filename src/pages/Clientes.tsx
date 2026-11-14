@@ -475,7 +475,7 @@ export default function Clientes() {
                           key={ped.id}
                           onClick={() => {
                             setClienteDetalheId(null)
-                            navigate(`/pedidos?busca=${encodeURIComponent(ped.codigo)}`)
+                            navigate(`/admin/pedidos?busca=${encodeURIComponent(ped.codigo)}`)
                           }}
                           className="p-3 rounded-lg border border-[#DFC3AE]/50 hover:bg-[#F7F3EA] cursor-pointer transition-colors flex items-center justify-between text-xs"
                         >

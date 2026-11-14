@@ -82,7 +82,7 @@ const TOPICOS: Topico[] = [
     titulo: 'Dashboard (Início)',
     icone: LayoutDashboard,
     resumo: 'Resumo da loja: vendas, valores recebidos, contas e pedidos em andamento.',
-    rota: '/',
+    rota: '/admin',
     secoes: [
       {
         subtitulo: 'Entendendo os números',
@@ -109,7 +109,7 @@ const TOPICOS: Topico[] = [
     titulo: 'Pedidos',
     icone: ShoppingBag,
     resumo: 'Cadastro, produção (Kanban), pagamentos e histórico de cada pedido.',
-    rota: '/pedidos',
+    rota: '/admin/pedidos',
     secoes: [
       {
         subtitulo: 'Criar um pedido',
@@ -161,7 +161,7 @@ const TOPICOS: Topico[] = [
     titulo: 'Orçamentos',
     icone: FileText,
     resumo: 'Monte orçamentos, envie o PDF ao cliente e transforme em pedido quando aprovado.',
-    rota: '/orcamentos',
+    rota: '/admin/orcamentos',
     secoes: [
       {
         subtitulo: 'Criar e enviar',
@@ -197,7 +197,7 @@ const TOPICOS: Topico[] = [
     titulo: 'Clientes',
     icone: Users,
     resumo: 'Cadastro de clientes com histórico de compras e valores a receber.',
-    rota: '/clientes',
+    rota: '/admin/clientes',
     secoes: [
       {
         subtitulo: 'Como usar',
@@ -215,7 +215,7 @@ const TOPICOS: Topico[] = [
     titulo: 'Produtos',
     icone: Package,
     resumo: 'Catálogo com preços, custos e categorias para agilizar pedidos e orçamentos.',
-    rota: '/produtos',
+    rota: '/admin/produtos',
     secoes: [
       {
         subtitulo: 'Como usar',
@@ -232,7 +232,7 @@ const TOPICOS: Topico[] = [
     titulo: 'Financeiro',
     icone: Banknote,
     resumo: 'Recebimentos dos pedidos e controle de despesas (contas a pagar).',
-    rota: '/financeiro',
+    rota: '/admin/financeiro',
     secoes: [
       {
         subtitulo: 'Despesas',
@@ -256,7 +256,7 @@ const TOPICOS: Topico[] = [
     titulo: 'Fluxo de Caixa',
     icone: TrendingUp,
     resumo: 'Todas as entradas e saídas em ordem de data, com saldo do caixa.',
-    rota: '/fluxo-de-caixa',
+    rota: '/admin/fluxo-de-caixa',
     secoes: [
       {
         subtitulo: 'Como ler',
@@ -274,7 +274,7 @@ const TOPICOS: Topico[] = [
     titulo: 'Relatórios',
     icone: BarChart3,
     resumo: 'Análises de vendas, produtos, clientes, despesas e cobranças, com exportação.',
-    rota: '/relatorios',
+    rota: '/admin/relatorios',
     secoes: [
       {
         subtitulo: 'Relatórios disponíveis',
@@ -298,7 +298,7 @@ const TOPICOS: Topico[] = [
     titulo: 'Configurações e usuários',
     icone: Settings,
     resumo: 'Perfil, dados da loja, Pix, preferências e quem pode acessar o sistema.',
-    rota: '/configuracoes',
+    rota: '/admin/configuracoes',
     secoes: [
       {
         subtitulo: 'Meu perfil e senha',

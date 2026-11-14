@@ -30,9 +30,15 @@ Os dados ficam no projeto Supabase **Criartere** (`kitarrykwoaxlrydethm`).
   **Configurações → Usuários e permissões** (o sistema não deixa remover o último administrador).
   Pensado para um futuro e-commerce: clientes usam o mesmo login, com acesso só aos próprios dados.
 
+## 🧭 Endereços
+
+- `https://criartere.com.br/` → sempre leva à **loja virtual** (`/loja`).
+- `https://criartere.com.br/admin` → **painel administrativo** (login em `/admin/login`).
+- Endereços antigos do painel (`/pedidos`, `/login`…) redirecionam para `/admin/...`.
+
 ## 🛍️ Loja virtual (`/loja`)
 
-- **Catálogo público** em `/loja` (quem abre `criartere.com.br` sem estar logado cai aqui).
+- **Catálogo público** em `/loja` (é para onde `criartere.com.br` sempre leva).
   Usa o mesmo cadastro de produtos do painel: aparecem os produtos **ativos** e com
   **"Publicado na loja virtual"** ligado (campo `produtos.publicado_loja`).
 - Os visitantes leem a vitrine pela função `vitrine_produtos()`, que **não expõe custo nem estoque**

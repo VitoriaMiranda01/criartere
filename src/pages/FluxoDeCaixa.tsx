@@ -357,7 +357,7 @@ export default function FluxoDeCaixa() {
                       <td className="py-3 px-4 text-right">
                         {mov.pedidoId && (
                           <button
-                            onClick={() => navigate(`/pedidos`)}
+                            onClick={() => navigate(`/admin/pedidos`)}
                             className="text-[#94603D] hover:underline text-[11px] font-semibold inline-flex items-center gap-0.5"
                           >
                             <span>Ver Pedido</span>

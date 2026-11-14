@@ -214,7 +214,7 @@ export default function Pedidos() {
           {/* Atalho para Orçamentos */}
           <Button
             variant="outline"
-            onClick={() => navigate('/orcamentos')}
+            onClick={() => navigate('/admin/orcamentos')}
             className="border-[#DFC3AE] text-[#6B4B36] text-xs h-10 px-4 rounded-xl flex items-center gap-1.5"
           >
             <FileText className="w-4 h-4" />

@@ -35,7 +35,7 @@ export default function Login() {
 
   // Já logado: vai direto para o painel
   if (state.autenticado) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/admin" replace />
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

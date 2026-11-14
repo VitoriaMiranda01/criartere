@@ -38,7 +38,7 @@ export function DicaAjuda({ titulo, children, topico, className, lado = 'top' }:
         <div className="space-y-1.5">{children}</div>
         {topico && (
           <Link
-            to={`/ajuda#${topico}`}
+            to={`/admin/ajuda#${topico}`}
             className="inline-block mt-2 font-semibold text-[#94603D] hover:underline"
           >
             Saiba mais na Ajuda →

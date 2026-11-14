@@ -4,13 +4,16 @@
   "description": "Gestão de pedidos, clientes e finanças da Criartere — impressão 3D e gráfica",
   "lang": "pt-BR",
   "id": "/",
-  "start_url": "/",
+  "start_url": "/admin",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#F7F3EA",
   "theme_color": "#C48864",
-  "categories": ["business", "productivity"],
+  "categories": [
+    "business",
+    "productivity"
+  ],
   "icons": [
     {
       "src": "/icons/icon-192.png",
@@ -34,7 +37,7 @@
   "shortcuts": [
     {
       "name": "Pedidos",
-      "url": "/pedidos",
+      "url": "/admin/pedidos",
       "icons": [
         {
           "src": "/icons/icon-192.png",
@@ -44,7 +47,7 @@
     },
     {
       "name": "Orçamentos",
-      "url": "/orcamentos",
+      "url": "/admin/orcamentos",
       "icons": [
         {
           "src": "/icons/icon-192.png",
@@ -54,7 +57,7 @@
     },
     {
       "name": "Clientes",
-      "url": "/clientes",
+      "url": "/admin/clientes",
       "icons": [
         {
           "src": "/icons/icon-192.png",
@@ -64,7 +67,7 @@
     },
     {
       "name": "Financeiro",
-      "url": "/financeiro",
+      "url": "/admin/financeiro",
       "icons": [
         {
           "src": "/icons/icon-192.png",

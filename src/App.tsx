@@ -1,6 +1,6 @@
 /* Main App Component - Handles routing (using react-router-dom) */
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -42,6 +42,12 @@ function CarregandoTela() {
   )
 }
 
+/** Leva endereços antigos (ex.: /pedidos?busca=0012) para o painel em /admin, mantendo filtros. */
+function EnderecoAntigoAdmin() {
+  const { pathname, search, hash } = useLocation()
+  return <Navigate to={`/admin${pathname}${search}${hash}`} replace />
+}
+
 const App = () => (
   <CriartereProvider>
     <TooltipProvider>
@@ -61,22 +67,40 @@ const App = () => (
                 <Route path="*" element={<LojaNaoEncontrada />} />
               </Route>
 
-              {/* Rota de Acesso Privado / Login */}
-              <Route path="/login" element={<Login />} />
+              {/* Endereço principal: sempre a loja virtual */}
+              <Route path="/" element={<Navigate to="/loja" replace />} />
 
-              {/* Rotas autenticadas sob o AppLayout */}
-              <Route element={<Layout />}>
-                <Route path="/" element={<Index />} />
-                <Route path="/pedidos" element={<Pedidos />} />
-                <Route path="/orcamentos" element={<Orcamentos />} />
-                <Route path="/clientes" element={<Clientes />} />
-                <Route path="/produtos" element={<Produtos />} />
-                <Route path="/financeiro" element={<Financeiro />} />
-                <Route path="/fluxo-de-caixa" element={<FluxoDeCaixa />} />
-                <Route path="/relatorios" element={<Relatorios />} />
-                <Route path="/configuracoes" element={<Configuracoes />} />
-                <Route path="/ajuda" element={<Ajuda />} />
+              {/* Painel administrativo: criartere.com.br/admin */}
+              <Route path="/admin/login" element={<Login />} />
+              <Route path="/admin" element={<Layout />}>
+                <Route index element={<Index />} />
+                <Route path="pedidos" element={<Pedidos />} />
+                <Route path="orcamentos" element={<Orcamentos />} />
+                <Route path="clientes" element={<Clientes />} />
+                <Route path="produtos" element={<Produtos />} />
+                <Route path="financeiro" element={<Financeiro />} />
+                <Route path="fluxo-de-caixa" element={<FluxoDeCaixa />} />
+                <Route path="relatorios" element={<Relatorios />} />
+                <Route path="configuracoes" element={<Configuracoes />} />
+                <Route path="ajuda" element={<Ajuda />} />
+                <Route path="*" element={<Navigate to="/admin" replace />} />
               </Route>
+
+              {/* Endereços antigos do painel (favoritos e app instalado) → /admin/... */}
+              {[
+                'login',
+                'pedidos',
+                'orcamentos',
+                'clientes',
+                'produtos',
+                'financeiro',
+                'fluxo-de-caixa',
+                'relatorios',
+                'configuracoes',
+                'ajuda',
+              ].map((p) => (
+                <Route key={p} path={`/${p}`} element={<EnderecoAntigoAdmin />} />
+              ))}
 
               {/* Rota não encontrada */}
               <Route path="*" element={<NotFound />} />

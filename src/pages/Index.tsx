@@ -330,7 +330,7 @@ export default function Index() {
             return (
               <button
                 key={chip.id}
-                onClick={() => navigate(`/pedidos?status=${chip.id}`)}
+                onClick={() => navigate(`/admin/pedidos?status=${chip.id}`)}
                 className="flex items-center justify-between p-2.5 rounded-lg border border-[#DFC3AE]/50 hover:border-[#C48864] transition-all text-left group"
                 style={{ backgroundColor: chip.bg }}
               >
@@ -525,7 +525,7 @@ export default function Index() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate('/pedidos')}
+                onClick={() => navigate('/admin/pedidos')}
                 className="text-xs text-[#94603D] hover:text-[#B0764F] hover:bg-[#F7F3EA] p-1 h-auto"
               >
                 Ver todos
@@ -539,7 +539,9 @@ export default function Index() {
                 return (
                   <div
                     key={ped.id}
-                    onClick={() => navigate(`/pedidos?busca=${encodeURIComponent(ped.codigo)}`)}
+                    onClick={() =>
+                      navigate(`/admin/pedidos?busca=${encodeURIComponent(ped.codigo)}`)
+                    }
                     className="flex items-center justify-between p-3 rounded-lg border border-[#DFC3AE]/40 hover:bg-[#F7F3EA]/70 cursor-pointer transition-colors"
                   >
                     <div className="space-y-0.5">
@@ -592,7 +594,7 @@ export default function Index() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate('/financeiro')}
+                onClick={() => navigate('/admin/financeiro')}
                 className="text-xs text-[#94603D] hover:text-[#B0764F] hover:bg-[#F7F3EA] p-1 h-auto"
               >
                 Financeiro
@@ -611,7 +613,9 @@ export default function Index() {
                   return (
                     <div
                       key={ped.id}
-                      onClick={() => navigate(`/pedidos?busca=${encodeURIComponent(ped.codigo)}`)}
+                      onClick={() =>
+                        navigate(`/admin/pedidos?busca=${encodeURIComponent(ped.codigo)}`)
+                      }
                       className="flex items-center justify-between p-3 rounded-lg border border-[#DFC3AE]/40 hover:bg-[#F7F3EA]/70 cursor-pointer transition-colors"
                     >
                       <div className="space-y-0.5">

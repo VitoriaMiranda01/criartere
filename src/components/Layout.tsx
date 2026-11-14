@@ -63,16 +63,16 @@ export default function Layout() {
 
   // Título da aba conforme a tela
   const titulos: Record<string, string> = {
-    '/': 'Dashboard',
-    '/pedidos': 'Pedidos',
-    '/orcamentos': 'Orçamentos',
-    '/clientes': 'Clientes',
-    '/produtos': 'Produtos',
-    '/financeiro': 'Financeiro',
-    '/fluxo-de-caixa': 'Fluxo de Caixa',
-    '/relatorios': 'Relatórios',
-    '/configuracoes': 'Configurações',
-    '/ajuda': 'Ajuda',
+    '/admin': 'Dashboard',
+    '/admin/pedidos': 'Pedidos',
+    '/admin/orcamentos': 'Orçamentos',
+    '/admin/clientes': 'Clientes',
+    '/admin/produtos': 'Produtos',
+    '/admin/financeiro': 'Financeiro',
+    '/admin/fluxo-de-caixa': 'Fluxo de Caixa',
+    '/admin/relatorios': 'Relatórios',
+    '/admin/configuracoes': 'Configurações',
+    '/admin/ajuda': 'Ajuda',
   }
   useTituloPagina(titulos[location.pathname] ?? 'Sistema de Gestão')
 
@@ -81,16 +81,14 @@ export default function Layout() {
     return <TelaCarregando mensagem="Verificando sessão..." />
   }
 
-  // Redireciona se não autenticado. Quem abre o endereço principal do site
-  // (criartere.com.br) sem estar logado vê a loja virtual; as demais telas do
-  // painel continuam levando ao login administrativo.
+  // Painel administrativo (/admin): sem login, vai para o login administrativo
   if (!state.autenticado) {
-    return <Navigate to={location.pathname === '/' ? '/loja' : '/login'} replace />
+    return <Navigate to="/admin/login" replace />
   }
 
-  // Cliente da loja virtual nunca acessa o painel administrativo
+  // Cliente da loja virtual nunca acessa o painel (o login explica e oferece a loja)
   if (state.clienteLoja) {
-    return <Navigate to={location.pathname === '/' ? '/loja' : '/login'} replace />
+    return <Navigate to="/admin/login" replace />
   }
 
   // Não conseguiu confirmar o acesso (ex.: internet caiu bem na hora)
@@ -147,26 +145,26 @@ export default function Layout() {
   // Itens do menu lateral rigorosamente na ordem do briefing:
   // Dashboard, Pedidos, Clientes, Produtos, Financeiro, Fluxo de caixa, Relatórios, Configurações
   const navItems = [
-    { label: 'Dashboard', path: '/', icon: LayoutDashboard },
+    { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     {
       label: 'Pedidos',
-      path: '/pedidos',
+      path: '/admin/pedidos',
       icon: ShoppingBag,
       badge: pedidosAguardando > 0 ? pedidosAguardando : undefined,
     },
     {
       label: 'Orçamentos',
-      path: '/orcamentos',
+      path: '/admin/orcamentos',
       icon: FileText,
       badge: orcamentosAguardando > 0 ? orcamentosAguardando : undefined,
     },
-    { label: 'Clientes', path: '/clientes', icon: Users },
-    { label: 'Produtos', path: '/produtos', icon: Package },
-    { label: 'Financeiro', path: '/financeiro', icon: Wallet },
-    { label: 'Fluxo de Caixa', path: '/fluxo-de-caixa', icon: ArrowLeftRight },
-    { label: 'Relatórios', path: '/relatorios', icon: BarChart3 },
-    { label: 'Configurações', path: '/configuracoes', icon: Settings },
-    { label: 'Ajuda', path: '/ajuda', icon: HelpCircle },
+    { label: 'Clientes', path: '/admin/clientes', icon: Users },
+    { label: 'Produtos', path: '/admin/produtos', icon: Package },
+    { label: 'Financeiro', path: '/admin/financeiro', icon: Wallet },
+    { label: 'Fluxo de Caixa', path: '/admin/fluxo-de-caixa', icon: ArrowLeftRight },
+    { label: 'Relatórios', path: '/admin/relatorios', icon: BarChart3 },
+    { label: 'Configurações', path: '/admin/configuracoes', icon: Settings },
+    { label: 'Ajuda', path: '/admin/ajuda', icon: HelpCircle },
   ]
 
   // Resultados da busca global (clientes e pedidos)
@@ -250,14 +248,15 @@ export default function Layout() {
             {navItems.map((item) => {
               const Icon = item.icon
               const isActive =
-                item.path === '/'
-                  ? location.pathname === '/'
+                item.path === '/admin'
+                  ? location.pathname === '/admin'
                   : location.pathname.startsWith(item.path)
 
               return (
                 <NavLink
                   key={item.path}
                   to={item.path}
+                  end={item.path === '/admin'}
                   title={menuRecolhido ? item.label : undefined}
                   aria-label={menuRecolhido ? item.label : undefined}
                   className={`flex items-center rounded-lg text-sm font-medium transition-all group relative ${
@@ -307,7 +306,7 @@ export default function Layout() {
             >
               <button
                 type="button"
-                onClick={() => navigate('/configuracoes#meu-perfil')}
+                onClick={() => navigate('/admin/configuracoes#meu-perfil')}
                 title="Editar meu perfil"
                 aria-label="Editar meu perfil"
                 className="flex items-center gap-2.5 min-w-0 text-left rounded-lg p-1 -m-1 hover:bg-[#F7F3EA]"
@@ -364,7 +363,7 @@ export default function Layout() {
 
           <button
             type="button"
-            onClick={() => navigate('/configuracoes#meu-perfil')}
+            onClick={() => navigate('/admin/configuracoes#meu-perfil')}
             aria-label="Editar meu perfil"
             className="rounded-full"
           >
@@ -407,14 +406,15 @@ export default function Layout() {
                 {navItems.map((item) => {
                   const Icon = item.icon
                   const isActive =
-                    item.path === '/'
-                      ? location.pathname === '/'
+                    item.path === '/admin'
+                      ? location.pathname === '/admin'
                       : location.pathname.startsWith(item.path)
 
                   return (
                     <NavLink
                       key={item.path}
                       to={item.path}
+                      end={item.path === '/admin'}
                       onClick={() => setMobileMenuAberto(false)}
                       className={`flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                         isActive
@@ -444,7 +444,7 @@ export default function Layout() {
                   type="button"
                   onClick={() => {
                     setMobileMenuAberto(false)
-                    navigate('/configuracoes#meu-perfil')
+                    navigate('/admin/configuracoes#meu-perfil')
                   }}
                   className="flex items-center gap-2.5 w-full text-left rounded-lg p-1 -m-1 hover:bg-white"
                 >
@@ -528,7 +528,7 @@ export default function Layout() {
                                 <button
                                   key={p.id}
                                   onClick={() => {
-                                    navigate(`/pedidos?busca=${encodeURIComponent(p.codigo)}`)
+                                    navigate(`/admin/pedidos?busca=${encodeURIComponent(p.codigo)}`)
                                     setBuscaFocada(false)
                                     setBuscaGlobal('')
                                   }}
@@ -558,7 +558,7 @@ export default function Layout() {
                               <button
                                 key={c.id}
                                 onClick={() => {
-                                  navigate(`/clientes?busca=${encodeURIComponent(c.nome)}`)
+                                  navigate(`/admin/clientes?busca=${encodeURIComponent(c.nome)}`)
                                   setBuscaFocada(false)
                                   setBuscaGlobal('')
                                 }}
@@ -578,7 +578,7 @@ export default function Layout() {
 
               {/* Notificação de pedidos aguardando pagamento */}
               <NavLink
-                to="/pedidos?status=aguardando_pagamento"
+                to="/admin/pedidos?status=aguardando_pagamento"
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#DFC3AE]/70 bg-white hover:bg-[#F7F3EA] text-xs font-medium text-[#6B4B36] transition-colors"
                 title="Pedidos aguardando pagamento"
               >

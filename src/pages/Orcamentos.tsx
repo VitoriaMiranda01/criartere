@@ -129,14 +129,14 @@ export default function Orcamentos() {
       payload: { id: paraConverter.id, prazoEntrega: prazoConversao },
     })
     toast.success(`Orçamento Nº ${paraConverter.numero} aprovado e transformado em pedido!`, {
-      action: { label: 'Ver pedidos', onClick: () => navigate('/pedidos') },
+      action: { label: 'Ver pedidos', onClick: () => navigate('/admin/pedidos') },
     })
     setParaConverter(null)
   }
 
   const verPedido = (o: Orcamento) => {
     const ped = state.pedidos.find((p) => p.id === o.pedidoId)
-    navigate(ped ? `/pedidos?busca=${encodeURIComponent(ped.codigo)}` : '/pedidos')
+    navigate(ped ? `/admin/pedidos?busca=${encodeURIComponent(ped.codigo)}` : '/admin/pedidos')
   }
 
   return (
