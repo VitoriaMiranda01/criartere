@@ -54,11 +54,10 @@ function Contador({ valor }: { valor: number }) {
 
 function LojaEstrutura() {
   const { usuario, favoritos, quantidadeNoCarrinho, sair, contato, sessaoVerificada } = useLoja()
-  // Tela de entrar/criar conta: ocupa só a altura da tela (sem rodapé, sem rolagem).
-  // Finalizar pedido: o conteúdo ocupa a primeira tela inteira e o rodapé vem depois.
+  // Telas de entrar/criar conta e de finalizar pedido: ocupam só a altura da tela
+  // (sem rodapé, sem rolagem)
   const caminho = useLocation().pathname
-  const telaFocada = caminho === '/entrar'
-  const telaCheia = caminho === '/finalizar'
+  const telaFocada = caminho === '/entrar' || caminho === '/finalizar'
   const [menuAberto, setMenuAberto] = useState(false)
   const ehAdmin = usuario?.papel === 'admin' || usuario?.papel === 'desenvolvedor'
   const whatsapp = numeroWhatsApp(contato?.whatsapp ?? '')
@@ -243,7 +242,6 @@ function LojaEstrutura() {
         className={cn(
           'flex-1 w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10',
           telaFocada ? 'flex flex-col justify-center py-4 sm:py-6' : 'py-6 sm:py-10',
-          telaCheia && 'lg:min-h-[calc(100svh-4rem)] lg:flex lg:flex-col lg:justify-center lg:py-6',
         )}
       >
         <ErroTela>
