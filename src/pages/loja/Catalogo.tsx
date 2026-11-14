@@ -177,7 +177,7 @@ export default function Catalogo() {
           <p className="text-xs text-[#6B4B36] mb-3">
             {lista.length} {lista.length === 1 ? 'produto' : 'produtos'}
           </p>
-          <div className="grid grid-cols-1 min-[440px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+          <div className="grid grid-cols-1 min-[440px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 min-[1800px]:grid-cols-6 gap-4 sm:gap-5">
             {lista.map((p) => (
               <CardProduto key={p.id} produto={p} />
             ))}

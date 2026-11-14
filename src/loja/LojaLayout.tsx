@@ -64,7 +64,7 @@ function LojaEstrutura() {
       </a>
 
       <header className="sticky top-0 z-40 bg-[#F7F3EA]/90 backdrop-blur border-b border-[#DFC3AE]/60">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-4">
+        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 h-16 flex items-center gap-4">
           <button
             type="button"
             className="md:hidden -ml-1 p-2 rounded-lg text-[#6B4B36] hover:bg-white"
@@ -202,7 +202,10 @@ function LojaEstrutura() {
         )}
       </header>
 
-      <main id="conteudo" className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <main
+        id="conteudo"
+        className="flex-1 w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-10"
+      >
         <ErroTela>
           <Suspense fallback={<CarregandoLoja />}>
             <Outlet />
@@ -211,7 +214,7 @@ function LojaEstrutura() {
       </main>
 
       <footer className="border-t border-[#DFC3AE]/60 bg-white/60">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row gap-6 sm:items-center justify-between">
+        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 py-8 flex flex-col sm:flex-row gap-6 sm:items-center justify-between">
           <div className="flex items-center gap-3">
             <img src="/logo.png" alt="" className="w-10 h-10" />
             <div>
@@ -242,7 +245,7 @@ function LojaEstrutura() {
             )}
           </div>
         </div>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-6 flex flex-wrap items-center justify-between gap-2 text-xs text-[#6B4B36]/90">
+        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 pb-6 flex flex-wrap items-center justify-between gap-2 text-xs text-[#6B4B36]/90">
           <span>Criartere &copy; {new Date().getFullYear()}</span>
           <Link to="/login" className="hover:text-[#0C1014] hover:underline underline-offset-4">
             Área administrativa
