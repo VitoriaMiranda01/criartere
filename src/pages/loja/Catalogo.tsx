@@ -1,5 +1,12 @@
 import { useMemo, useState } from 'react'
-import { Search, PackageSearch, RefreshCw, X } from 'lucide-react'
+import { Search, PackageSearch, RefreshCw, X, ArrowUpDown } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useTituloPagina } from '@/hooks/use-titulo-pagina'
 import { cn } from '@/lib/utils'
 import { useLoja } from '@/loja/LojaContext'
@@ -10,6 +17,13 @@ const normalizar = (t: string) =>
     .toLowerCase()
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
+
+const OPCOES_ORDEM = [
+  { valor: 'nome', rotulo: 'Ordem alfabética' },
+  { valor: 'novos', rotulo: 'Novidades' },
+  { valor: 'menor', rotulo: 'Menor preço' },
+  { valor: 'maior', rotulo: 'Maior preço' },
+] as const
 
 export default function Catalogo() {
   useTituloPagina('Loja virtual', { indexar: true })
@@ -95,17 +109,26 @@ export default function Catalogo() {
               </button>
             )}
           </div>
-          <select
-            value={ordem}
-            onChange={(e) => setOrdem(e.target.value as typeof ordem)}
-            aria-label="Ordenar produtos"
-            className="h-11 rounded-xl border border-[#DFC3AE] bg-white px-3 text-sm text-[#0C1014] outline-none focus:ring-2 focus:ring-[#C48864]/50"
-          >
-            <option value="nome">Ordem alfabética</option>
-            <option value="novos">Novidades</option>
-            <option value="menor">Menor preço</option>
-            <option value="maior">Maior preço</option>
-          </select>
+          <Select value={ordem} onValueChange={(v) => setOrdem(v as typeof ordem)}>
+            <SelectTrigger
+              aria-label="Ordenar produtos"
+              className="h-11 w-full sm:w-56 rounded-xl border-[#DFC3AE] bg-white justify-start gap-2 pl-4 pr-3 text-sm font-semibold text-[#0C1014] [&>svg:last-child]:ml-auto focus:ring-2 focus:ring-[#C48864]/50 focus:ring-offset-0 focus:border-[#C48864] [&>svg]:text-[#A5683F] [&>svg]:opacity-100 [&>svg]:shrink-0"
+            >
+              <ArrowUpDown className="w-4 h-4 text-[#A5683F]" aria-hidden="true" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl border-[#DFC3AE] bg-white shadow-[0_10px_30px_rgba(12,16,20,0.10)]">
+              {OPCOES_ORDEM.map((o) => (
+                <SelectItem
+                  key={o.valor}
+                  value={o.valor}
+                  className="rounded-lg outline-none focus-visible:outline-none py-2.5 pl-8 pr-3 text-sm text-[#6B4B36] cursor-pointer focus:bg-[#F6EDE7] focus:text-[#0C1014] data-[state=checked]:font-semibold data-[state=checked]:text-[#A5683F] [&_svg]:text-[#A5683F]"
+                >
+                  {o.rotulo}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {categorias.length > 0 && (
