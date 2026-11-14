@@ -133,6 +133,7 @@ const mapOrcamento = (r: Row): Orcamento => ({
   observacoes: r.observacoes,
   status: r.status,
   pedidoId: opt(r.pedido_id),
+  origem: r.origem === 'loja' ? 'loja' : 'painel',
 })
 
 const mapPagamento = (r: Row): Pagamento => ({

@@ -25,6 +25,7 @@ import {
   Trash2,
   ExternalLink,
   X,
+  Globe,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -239,6 +240,14 @@ export default function Orcamentos() {
                       >
                         {NOMES_STATUS_ORCAMENTO[o.status]}
                       </span>
+                      {o.origem === 'loja' && (
+                        <span
+                          className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#25D366]/10 text-[#128C4B] border border-[#25D366]/30"
+                          title="Pedido feito pelo cliente na loja virtual"
+                        >
+                          <Globe className="w-3 h-3" /> Site
+                        </span>
+                      )}
                     </div>
                     <p className="text-sm font-semibold text-[#0C1014] truncate mt-1">
                       {o.clienteNome}

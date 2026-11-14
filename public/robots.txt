@@ -5,6 +5,9 @@ Disallow: /favoritos
 Disallow: /carrinho
 Disallow: /entrar
 Disallow: /conta
+Disallow: /finalizar
+Disallow: /pedido-enviado
+Disallow: /meus-pedidos
 Disallow: /_paginas/
 
 Sitemap: https://criartere.com.br/sitemap.xml

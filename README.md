@@ -47,7 +47,11 @@ Os dados ficam no projeto Supabase **Criartere** (`kitarrykwoaxlrydethm`).
   **carrinho** (`carrinhos` + `carrinho_itens`), protegidos por RLS: cada um só vê e altera os próprios.
 - **Várias fotos por produto** (até 8, campo `produtos.imagens`): a primeira é a principal (também gravada em `imagem_url`); a página do produto mostra a galeria.
 - **Consultar pelo WhatsApp** usa o número de *Configurações → WhatsApp oficial* e envia o nome e o link do produto.
-- Sem checkout, pagamento online ou frete nesta versão.
+- **Pedidos pelo site (sem pagamento online):** em `/finalizar` o cliente informa nome, WhatsApp, forma de
+  pagamento preferida e observações. A função `criar_pedido_loja()` registra o pedido como **orçamento
+  "Aguardando"** (origem `loja`, selo "Site" no painel), usando os preços do banco, vincula/cria o cliente e
+  esvazia o carrinho; depois abre o WhatsApp da loja com o resumo. Entrega e frete são combinados no WhatsApp.
+  A loja confirma e usa "Aprovado → virar pedido". O cliente acompanha em `/meus-pedidos` (`meus_pedidos_loja()`).
 - Código: `src/loja/` (dados, contexto e componentes) e `src/pages/loja/` (telas).
 
 ### SEO da loja

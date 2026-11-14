@@ -2,7 +2,17 @@
 import { Suspense, useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { FaWhatsapp, FaInstagram } from 'react-icons/fa'
-import { Heart, ShoppingBag, User, LogOut, LayoutDashboard, Menu, X, Store } from 'lucide-react'
+import {
+  Heart,
+  ShoppingBag,
+  User,
+  LogOut,
+  LayoutDashboard,
+  Menu,
+  X,
+  Store,
+  ClipboardList,
+} from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -154,6 +164,11 @@ function LojaEstrutura() {
                   <DropdownMenuItem asChild>
                     <Link to="/conta">
                       <User className="w-4 h-4 mr-2" /> Minha conta
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/meus-pedidos">
+                      <ClipboardList className="w-4 h-4 mr-2" /> Meus pedidos
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>

@@ -49,6 +49,7 @@ interface LojaContextValue {
   removerItem: (itemId: string) => Promise<void>
   sair: () => Promise<void>
   atualizarUsuario: (dados: Partial<UsuarioLoja>) => void
+  recarregarConta: () => Promise<void>
 }
 
 const LojaContext = createContext<LojaContextValue | null>(null)
@@ -299,6 +300,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
         removerItem,
         sair,
         atualizarUsuario,
+        recarregarConta: carregarConta,
       }}
     >
       {children}

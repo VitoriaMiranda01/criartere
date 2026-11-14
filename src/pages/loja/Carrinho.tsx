@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ShoppingBag, Trash2, Info } from 'lucide-react'
+import { ShoppingBag, Trash2, Info, ArrowRight } from 'lucide-react'
 import { useSeo } from '@/lib/seo'
 import { useLoja } from '@/loja/LojaContext'
 import { CarregandoLoja, EstadoVazio, ImagemProduto, SeletorQuantidade } from '@/loja/componentes'
@@ -152,10 +152,22 @@ export default function Carrinho() {
               {formatarPreco(total)}
             </span>
           </div>
+          <Link
+            to="/finalizar"
+            aria-disabled={disponiveis.length === 0}
+            onClick={(e) => disponiveis.length === 0 && e.preventDefault()}
+            className={`w-full h-12 rounded-lg text-white text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors ${
+              disponiveis.length === 0
+                ? 'bg-[#A5683F]/50 cursor-not-allowed'
+                : 'bg-[#A5683F] hover:bg-[#8C5636]'
+            }`}
+          >
+            Finalizar pedido <ArrowRight className="w-4 h-4" />
+          </Link>
           <p className="flex gap-2 text-xs text-[#6B4B36] bg-[#F7F3EA] rounded-lg p-3 leading-relaxed">
             <Info className="w-4 h-4 shrink-0 mt-0.5 text-[#C48864]" aria-hidden="true" />
-            O carrinho serve para organizar suas escolhas. Frete e pagamento são combinados
-            diretamente com a Criartere pelo WhatsApp.
+            Sem pagamento pelo site: você envia o pedido e combina entrega, frete e pagamento com a
+            Criartere pelo WhatsApp.
           </p>
           <Link
             to="/"

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
-import { Heart, KeyRound, LogOut, ShoppingBag, UserRound } from 'lucide-react'
+import { ClipboardList, Heart, KeyRound, LogOut, ShoppingBag, UserRound } from 'lucide-react'
 import { FcGoogle } from 'react-icons/fc'
 import { useSeo } from '@/lib/seo'
 import { CampoSenha } from '@/components/common/CampoSenha'
@@ -57,7 +57,19 @@ export default function Conta() {
         </div>
       </header>
 
-      <div className="grid sm:grid-cols-2 gap-3">
+      <div className="grid sm:grid-cols-3 gap-3">
+        <Link
+          to="/meus-pedidos"
+          className="flex items-center gap-3 rounded-2xl bg-white border border-[#DFC3AE]/60 p-4 hover:border-[#C48864] transition-colors"
+        >
+          <span className="w-10 h-10 rounded-full bg-[#F6EDE7] flex items-center justify-center">
+            <ClipboardList className="w-5 h-5 text-[#C48864]" />
+          </span>
+          <span>
+            <span className="block text-sm font-semibold">Meus pedidos</span>
+            <span className="block text-xs text-[#6B4B36]">Acompanhe seus pedidos</span>
+          </span>
+        </Link>
         <Link
           to="/favoritos"
           className="flex items-center gap-3 rounded-2xl bg-white border border-[#DFC3AE]/60 p-4 hover:border-[#C48864] transition-colors"

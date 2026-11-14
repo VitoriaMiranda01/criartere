@@ -144,6 +144,7 @@ export interface Orcamento {
   observacoes: string // uma observação por linha
   status: OrcamentoStatus
   pedidoId?: string
+  origem?: 'painel' | 'loja' // 'loja': pedido feito pelo cliente na loja virtual
 }
 
 export interface LojaConfig {

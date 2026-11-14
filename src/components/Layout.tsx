@@ -4,6 +4,7 @@ import { NavLink, Navigate, useNavigate, useLocation, Outlet } from 'react-route
 import { useCriartere } from '@/store/CriartereContext'
 import { ErroTela } from '@/components/common/ErroTela'
 import { EspacosCabecalho } from '@/components/common/CabecalhoPagina'
+import { AvisoPedidosSite } from '@/components/AvisoPedidosSite'
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -199,6 +200,7 @@ export default function Layout() {
 
   return (
     <EspacosCabecalho.Provider value={espacos}>
+      <AvisoPedidosSite />
       <div className="min-h-screen bg-[#F7F3EA] text-[#0C1014] flex flex-col lg:flex-row font-sans">
         {/* SIDEBAR DESKTOP */}
         <aside

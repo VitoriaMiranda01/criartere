@@ -197,6 +197,128 @@ export function linkWhatsAppProduto(whatsapp: string, produto: { id: string; nom
 export function mensagemErroLoja(e: unknown): string {
   const m = e instanceof Error ? e.message : String(e)
   if (/fetch|network/i.test(m)) return 'Verifique sua conexão com a internet.'
-  if (/não está disponível|Quantidade inválida|Entre na sua conta/.test(m)) return m
+  if (
+    /não está disponível|Quantidade inválida|Entre na sua conta|carrinho está vazio|WhatsApp válido|Informe seu nome|vários pedidos/.test(
+      m,
+    )
+  )
+    return m
   return 'Tente novamente em instantes.'
+}
+
+// ---------- Pedidos feitos pela loja ----------
+export interface ItemPedidoLoja {
+  nome: string
+  quantidade: number
+  subtotal: number
+  valorUnitario?: number
+}
+
+export interface PedidoCriado {
+  id: string
+  numero: string
+  total: number
+  formaPagamento: string
+  itens: ItemPedidoLoja[]
+}
+
+export interface PedidoLoja {
+  id: string
+  numero: string
+  criadoEm: string
+  valorTotal: number
+  situacao: string
+  situacaoTipo: 'aguardando' | 'andamento' | 'concluido' | 'encerrado'
+  itens: ItemPedidoLoja[]
+}
+
+const mapItemPedido = (r: Row): ItemPedidoLoja => ({
+  nome: String(r.nome ?? ''),
+  quantidade: Number(r.quantidade ?? 0),
+  subtotal: Number(r.subtotal ?? 0),
+  valorUnitario: r.valorUnitario !== undefined ? Number(r.valorUnitario) : undefined,
+})
+
+/** Registra o pedido (como orçamento no painel) com os itens do carrinho e esvazia o carrinho. */
+export async function enviarPedido(dados: {
+  nome: string
+  whatsapp: string
+  formaPagamento: string
+  observacoes: string
+}): Promise<PedidoCriado> {
+  const r = check(
+    await supabase.rpc('criar_pedido_loja', {
+      p_nome: dados.nome,
+      p_whatsapp: dados.whatsapp,
+      p_forma_pagamento: dados.formaPagamento,
+      p_observacoes: dados.observacoes,
+    }),
+  ) as Row
+  return {
+    id: String(r.id),
+    numero: String(r.numero),
+    total: Number(r.total ?? 0),
+    formaPagamento: String(r.formaPagamento ?? ''),
+    itens: ((r.itens as Row[]) ?? []).map(mapItemPedido),
+  }
+}
+
+export async function listarMeusPedidos(): Promise<PedidoLoja[]> {
+  const data = check(await supabase.rpc('meus_pedidos_loja'))
+  return ((data ?? []) as Row[]).map((r) => ({
+    id: String(r.id),
+    numero: String(r.numero),
+    criadoEm: String(r.criado_em),
+    valorTotal: Number(r.valor_total ?? 0),
+    situacao: String(r.situacao ?? ''),
+    situacaoTipo: (r.situacao_tipo as PedidoLoja['situacaoTipo']) ?? 'aguardando',
+    itens: ((r.itens as Row[]) ?? []).map(mapItemPedido),
+  }))
+}
+
+/** Nome e WhatsApp usados no último pedido (para preencher o formulário). */
+export async function buscarMeusDadosPedido(): Promise<{ nome: string; whatsapp: string } | null> {
+  const data = check(await supabase.rpc('meus_dados_pedido'))
+  const r = ((data ?? []) as Row[])[0]
+  return r ? { nome: String(r.nome ?? ''), whatsapp: String(r.whatsapp ?? '') } : null
+}
+
+const qtd = (n: number) => (Number.isInteger(n) ? String(n) : n.toLocaleString('pt-BR'))
+
+/** Mensagem do WhatsApp com o resumo do pedido. */
+export function mensagemPedidoWhatsApp(pedido: PedidoCriado, nome: string, observacoes: string) {
+  const linhas = [
+    `Olá! Acabei de fazer um pedido no site da Criartere 😊`,
+    ``,
+    `*Pedido Nº ${pedido.numero}*`,
+    ...pedido.itens.map((i) => `• ${qtd(i.quantidade)}x ${i.nome} — ${formatarPreco(i.subtotal)}`),
+    ``,
+    `*Total dos produtos:* ${formatarPreco(pedido.total)}`,
+    `*Pagamento:* ${pedido.formaPagamento}`,
+    `*Entrega:* a combinar`,
+    `*Nome:* ${nome}`,
+  ]
+  if (observacoes.trim()) linhas.push(`*Observações:* ${observacoes.trim()}`)
+  linhas.push(``, `Podemos combinar a entrega e o pagamento?`)
+  return linhas.join('\n')
+}
+
+export function linkWhatsAppPedido(
+  whatsappLoja: string,
+  pedido: PedidoCriado,
+  nome: string,
+  observacoes: string,
+) {
+  return `https://wa.me/${numeroWhatsApp(whatsappLoja)}?text=${encodeURIComponent(
+    mensagemPedidoWhatsApp(pedido, nome, observacoes),
+  )}`
+}
+
+/** Máscara simples de telefone brasileiro: (21) 99999-9999 */
+export function mascararTelefone(valor: string) {
+  const d = valor.replace(/\D/g, '').slice(0, 11)
+  if (d.length <= 2) return d.length ? `(${d}` : ''
+  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`
+  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
 }

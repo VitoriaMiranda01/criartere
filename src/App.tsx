@@ -28,6 +28,9 @@ const LojaCarrinho = lazy(() => import('./pages/loja/Carrinho'))
 const LojaEntrar = lazy(() => import('./pages/loja/Entrar'))
 const LojaNaoEncontrada = lazy(() => import('./pages/loja/NaoEncontrada'))
 const LojaConta = lazy(() => import('./pages/loja/Conta'))
+const LojaFinalizar = lazy(() => import('./pages/loja/Finalizar'))
+const LojaPedidoEnviado = lazy(() => import('./pages/loja/PedidoEnviado'))
+const LojaMeusPedidos = lazy(() => import('./pages/loja/MeusPedidos'))
 
 // Telas carregadas sob demanda (o site abre mais rápido)
 function CarregandoTela() {
@@ -72,6 +75,9 @@ const App = () => (
                 <Route path="carrinho" element={<LojaCarrinho />} />
                 <Route path="entrar" element={<LojaEntrar />} />
                 <Route path="conta" element={<LojaConta />} />
+                <Route path="finalizar" element={<LojaFinalizar />} />
+                <Route path="pedido-enviado" element={<LojaPedidoEnviado />} />
+                <Route path="meus-pedidos" element={<LojaMeusPedidos />} />
                 <Route path="*" element={<LojaNaoEncontrada />} />
               </Route>
 
