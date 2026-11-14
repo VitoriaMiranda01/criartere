@@ -131,14 +131,37 @@ export async function removerItemCarrinho(itemId: string) {
 
 export async function buscarPapel(
   userId: string,
-): Promise<{ nome: string | null; papel: string } | null> {
+): Promise<{ nome: string | null; papel: string; avatarUrl: string | null } | null> {
   const { data, error } = await supabase
     .from('perfis')
-    .select('nome, papel')
+    .select('nome, papel, avatar_url')
     .eq('user_id', userId)
     .maybeSingle()
   if (error) throw new Error(error.message)
-  return data ? { nome: data.nome, papel: data.papel } : null
+  return data ? { nome: data.nome, papel: data.papel, avatarUrl: data.avatar_url } : null
+}
+
+// ---------- Minha conta ----------
+/** Atualiza o nome do próprio cliente (mantém a foto de perfil, se houver). */
+export async function salvarNomeConta(nome: string, avatarUrl: string | null) {
+  check(await supabase.rpc('atualizar_meu_perfil', { p_nome: nome, p_avatar_url: avatarUrl ?? '' }))
+  // Mantém o nome também nos dados da conta de acesso
+  await supabase.auth.updateUser({ data: { nome } }).catch(() => undefined)
+}
+
+/** Troca a senha conferindo antes a senha atual. */
+export async function trocarSenha(email: string, senhaAtual: string, novaSenha: string) {
+  const { error: erroAtual } = await supabase.auth.signInWithPassword({
+    email,
+    password: senhaAtual,
+  })
+  if (erroAtual) throw new Error('SENHA_ATUAL_INCORRETA')
+  const { error } = await supabase.auth.updateUser({ password: novaSenha })
+  if (error) {
+    if (/different from the old|same/i.test(error.message)) throw new Error('SENHA_IGUAL')
+    if (/weak|least/i.test(error.message)) throw new Error('SENHA_FRACA')
+    throw new Error(error.message)
+  }
 }
 
 // ---------- Utilidades ----------

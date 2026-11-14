@@ -26,6 +26,7 @@ export interface UsuarioLoja {
   nome: string
   email: string
   papel: string // 'cliente' | 'admin' | 'desenvolvedor'
+  avatarUrl: string | null
 }
 
 interface LojaContextValue {
@@ -45,6 +46,7 @@ interface LojaContextValue {
   alterarQuantidade: (itemId: string, quantidade: number) => Promise<void>
   removerItem: (itemId: string) => Promise<void>
   sair: () => Promise<void>
+  atualizarUsuario: (dados: Partial<UsuarioLoja>) => void
 }
 
 const LojaContext = createContext<LojaContextValue | null>(null)
@@ -112,7 +114,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
         setSessaoVerificada(true)
         return
       }
-      let perfil: { nome: string | null; papel: string } | null = null
+      let perfil: { nome: string | null; papel: string; avatarUrl: string | null } | null = null
       try {
         perfil = await buscarPapel(id)
       } catch {
@@ -123,6 +125,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
         email,
         nome: perfil?.nome || nomeMeta || email.split('@')[0],
         papel: perfil?.papel ?? 'cliente',
+        avatarUrl: perfil?.avatarUrl ?? null,
       }
       usuarioRef.current = u
       setUsuario(u)
@@ -243,6 +246,10 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
     navigate('/')
   }, [navigate])
 
+  const atualizarUsuario = useCallback((dados: Partial<UsuarioLoja>) => {
+    setUsuario((atual) => (atual ? { ...atual, ...dados } : atual))
+  }, [])
+
   const quantidadeNoCarrinho = carrinho.reduce((s, i) => s + i.quantidade, 0)
 
   return (
@@ -264,6 +271,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
         alterarQuantidade,
         removerItem,
         sair,
+        atualizarUsuario,
       }}
     >
       {children}

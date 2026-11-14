@@ -150,6 +150,11 @@ function LojaEstrutura() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
+                    <Link to="/conta">
+                      <User className="w-4 h-4 mr-2" /> Minha conta
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link to="/favoritos">
                       <Heart className="w-4 h-4 mr-2" /> Meus favoritos
                     </Link>

@@ -4,6 +4,7 @@ Allow: /
 Disallow: /favoritos
 Disallow: /carrinho
 Disallow: /entrar
+Disallow: /conta
 Disallow: /_paginas/
 
 Sitemap: https://criartere.com.br/sitemap.xml

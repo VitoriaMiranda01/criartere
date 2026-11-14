@@ -27,6 +27,7 @@ const LojaFavoritos = lazy(() => import('./pages/loja/Favoritos'))
 const LojaCarrinho = lazy(() => import('./pages/loja/Carrinho'))
 const LojaEntrar = lazy(() => import('./pages/loja/Entrar'))
 const LojaNaoEncontrada = lazy(() => import('./pages/loja/NaoEncontrada'))
+const LojaConta = lazy(() => import('./pages/loja/Conta'))
 
 // Telas carregadas sob demanda (o site abre mais rápido)
 function CarregandoTela() {
@@ -70,6 +71,7 @@ const App = () => (
                 <Route path="favoritos" element={<LojaFavoritos />} />
                 <Route path="carrinho" element={<LojaCarrinho />} />
                 <Route path="entrar" element={<LojaEntrar />} />
+                <Route path="conta" element={<LojaConta />} />
                 <Route path="*" element={<LojaNaoEncontrada />} />
               </Route>
 
