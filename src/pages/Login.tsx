@@ -21,7 +21,7 @@ export default function Login() {
   const [aviso, setAviso] = useState('')
   const [carregando, setCarregando] = useState(false)
 
-  useTituloPagina(modo === 'entrar' ? 'Entrar' : 'Criar conta', { indexar: true })
+  useTituloPagina(modo === 'entrar' ? 'Entrar' : 'Criar conta', { indexar: false })
 
   // Logado com uma conta de cliente da loja virtual: não acessa o painel
   if (state.autenticado && state.clienteLoja) {

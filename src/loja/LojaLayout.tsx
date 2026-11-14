@@ -258,9 +258,6 @@ function LojaEstrutura() {
         </div>
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 pb-6 flex flex-wrap items-center justify-between gap-2 text-xs text-[#6B4B36]/90">
           <span>Criartere &copy; {new Date().getFullYear()}</span>
-          <Link to="/admin" className="hover:text-[#0C1014] hover:underline underline-offset-4">
-            Área administrativa
-          </Link>
         </div>
       </footer>
     </div>
