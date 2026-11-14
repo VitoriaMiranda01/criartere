@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { ArrowRight, Heart, ShoppingBag } from 'lucide-react'
+import { FcGoogle } from 'react-icons/fc'
 import { useSeo } from '@/lib/seo'
 import { supabase } from '@/lib/supabase'
 import { CampoSenha } from '@/components/common/CampoSenha'
@@ -34,6 +35,7 @@ export default function Entrar() {
   const [senha, setSenha] = useState('')
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
+  const [carregandoGoogle, setCarregandoGoogle] = useState(false)
 
   useSeo({
     titulo: modo === 'entrar' ? 'Entrar na loja' : 'Criar conta na loja',
@@ -43,6 +45,23 @@ export default function Entrar() {
 
   if (!sessaoVerificada) return <CarregandoLoja />
   if (usuario) return <Navigate to={voltarPara} replace />
+
+  // Login com Google: sai para a tela do Google e volta já logado para a página de origem
+  const entrarComGoogle = async () => {
+    setErro('')
+    setCarregandoGoogle(true)
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}${voltarPara}`,
+        queryParams: { prompt: 'select_account' },
+      },
+    })
+    if (error) {
+      setCarregandoGoogle(false)
+      setErro('Não foi possível entrar com o Google agora. Tente novamente ou use seu e-mail.')
+    }
+  }
 
   const enviar = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -129,6 +148,28 @@ export default function Entrar() {
             ? 'Bem-vinda(o) de volta! Acesse seus favoritos e seu carrinho.'
             : 'É rápido e gratuito.'}
         </p>
+
+        <button
+          type="button"
+          onClick={entrarComGoogle}
+          disabled={carregandoGoogle}
+          className="w-full h-11 rounded-lg border border-[#DFC3AE] bg-white hover:bg-[#F7F3EA] text-sm font-semibold text-[#0C1014] inline-flex items-center justify-center gap-2.5 transition-colors disabled:opacity-60"
+        >
+          {carregandoGoogle ? (
+            <span className="inline-block w-4 h-4 border-2 border-[#C48864] border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <FcGoogle className="w-5 h-5" aria-hidden="true" />
+          )}
+          Continuar com Google
+        </button>
+
+        <div className="flex items-center gap-3 my-5" aria-hidden="true">
+          <span className="h-px flex-1 bg-[#DFC3AE]/70" />
+          <span className="text-[11px] uppercase tracking-widest text-[#6B4B36]/80">
+            ou com e-mail
+          </span>
+          <span className="h-px flex-1 bg-[#DFC3AE]/70" />
+        </div>
 
         <form onSubmit={enviar} className="space-y-4" noValidate>
           {modo === 'cadastrar' && (

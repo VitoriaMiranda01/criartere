@@ -18,6 +18,7 @@ import {
   alterarQuantidadeItem,
   removerItemCarrinho,
   buscarPapel,
+  salvarNomeConta,
   mensagemErroLoja,
 } from './api'
 
@@ -27,6 +28,7 @@ export interface UsuarioLoja {
   email: string
   papel: string // 'cliente' | 'admin' | 'desenvolvedor'
   avatarUrl: string | null
+  provedores: string[] // formas de entrar: 'email' (senha) e/ou 'google'
 }
 
 interface LojaContextValue {
@@ -106,7 +108,12 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
   // Sessão (mesmo login do Supabase Auth usado no painel)
   useEffect(() => {
     let atualId: string | undefined
-    const aplicar = async (id?: string, email?: string, nomeMeta?: string) => {
+    const aplicar = async (
+      id?: string,
+      email?: string,
+      nomeMeta?: string,
+      provedores: string[] = [],
+    ) => {
       if (!id || !email) {
         setUsuario(null)
         setFavoritos(new Set())
@@ -126,17 +133,37 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
         nome: perfil?.nome || nomeMeta || email.split('@')[0],
         papel: perfil?.papel ?? 'cliente',
         avatarUrl: perfil?.avatarUrl ?? null,
+        provedores,
+      }
+      // Primeira entrada pelo Google: guarda no perfil o nome vindo da conta Google
+      if (perfil && !perfil.nome && nomeMeta) {
+        salvarNomeConta(nomeMeta.slice(0, 80), perfil.avatarUrl).catch(() => undefined)
       }
       usuarioRef.current = u
       setUsuario(u)
       setSessaoVerificada(true)
       carregarConta()
+      // Volta do login com Google: tira o "#" que sobra no endereço
+      if (window.location.href.endsWith('#')) {
+        window.history.replaceState(
+          window.history.state,
+          '',
+          window.location.pathname + window.location.search,
+        )
+      }
     }
     const { data } = supabase.auth.onAuthStateChange((evento, sessao) => {
       const id = sessao?.user?.id
       if (evento !== 'INITIAL_SESSION' && id === atualId) return
       atualId = id
-      setTimeout(() => aplicar(id, sessao?.user?.email, sessao?.user?.user_metadata?.nome), 0)
+      const meta = sessao?.user?.user_metadata ?? {}
+      const nomeMeta = [meta.nome, meta.full_name, meta.name].find(
+        (n) => typeof n === 'string' && n.trim(),
+      ) as string | undefined
+      const provedores = (sessao?.user?.app_metadata?.providers as string[] | undefined) ?? [
+        sessao?.user?.app_metadata?.provider ?? 'email',
+      ]
+      setTimeout(() => aplicar(id, sessao?.user?.email, nomeMeta?.trim(), provedores), 0)
     })
     return () => data.subscription.unsubscribe()
   }, [carregarConta])

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Heart, KeyRound, LogOut, ShoppingBag, UserRound } from 'lucide-react'
+import { FcGoogle } from 'react-icons/fc'
 import { useSeo } from '@/lib/seo'
 import { CampoSenha } from '@/components/common/CampoSenha'
 import { Obrigatorio } from '@/components/common/MarcadorCampo'
@@ -93,7 +94,21 @@ export default function Conta() {
         avatarUrl={usuario.avatarUrl}
         onSalvo={(nome) => atualizarUsuario({ nome })}
       />
-      <TrocarSenha email={usuario.email} />
+      {usuario.provedores.includes('email') ? (
+        <TrocarSenha email={usuario.email} />
+      ) : (
+        <Cartao
+          icone={KeyRound}
+          titulo="Senha"
+          descricao="Você entra na loja com a sua conta Google."
+        >
+          <p className="flex items-center gap-2.5 text-sm text-[#6B4B36] bg-[#F7F3EA] rounded-lg p-3">
+            <FcGoogle className="w-5 h-5 shrink-0" aria-hidden="true" />
+            Sua senha é a da conta Google. Para trocá-la, acesse as configurações da sua conta
+            Google.
+          </p>
+        </Cartao>
+      )}
 
       <div className="flex justify-center pt-2">
         <button
