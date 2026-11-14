@@ -260,6 +260,23 @@ function LojaEstrutura() {
           <span>Criartere &copy; {new Date().getFullYear()}</span>
         </div>
       </footer>
+
+      {whatsapp && (
+        <a
+          href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(
+            'Olá! Vim do site da Criartere e gostaria de mais informações.',
+          )}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="whatsapp-flutuante"
+          aria-label="Falar com a Criartere pelo WhatsApp"
+        >
+          <span className="whatsapp-flutuante__rotulo" aria-hidden="true">
+            Fale conosco
+          </span>
+          <FaWhatsapp className="w-8 h-8" aria-hidden="true" />
+        </a>
+      )}
     </div>
   )
 }

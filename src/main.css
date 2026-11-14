@@ -424,3 +424,73 @@ html[data-area='loja'] [data-sonner-toast][data-styled='true'] [data-button] {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* Botão flutuante do WhatsApp (loja) */
+.whatsapp-flutuante {
+  position: fixed;
+  right: 1.25rem;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  z-index: 45;
+  display: inline-flex;
+  width: 3.5rem;
+  height: 3.5rem;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: #25d366;
+  border: 1px solid rgb(255 255 255 / 0.7);
+  border-radius: 9999px;
+  box-shadow:
+    0 12px 28px -10px rgb(37 211 102 / 0.8),
+    0 4px 12px rgb(12 16 20 / 0.18);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+.whatsapp-flutuante:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow:
+    0 16px 32px -10px rgb(37 211 102 / 0.9),
+    0 6px 14px rgb(12 16 20 / 0.2);
+}
+.whatsapp-flutuante:focus-visible {
+  outline: 3px solid #a5683f;
+  outline-offset: 3px;
+}
+.whatsapp-flutuante__rotulo {
+  position: absolute;
+  right: calc(100% + 0.75rem);
+  padding: 0.45rem 0.75rem;
+  color: #0c1014;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  background: #ffffff;
+  border: 1px solid #dfc3ae;
+  border-radius: 0.65rem;
+  box-shadow: 0 8px 20px -12px rgb(12 16 20 / 0.35);
+  opacity: 0;
+  transform: translateX(0.35rem);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+.whatsapp-flutuante:hover .whatsapp-flutuante__rotulo,
+.whatsapp-flutuante:focus-visible .whatsapp-flutuante__rotulo {
+  opacity: 1;
+  transform: translateX(0);
+}
+@media (max-width: 640px) {
+  .whatsapp-flutuante {
+    right: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    width: 3.25rem;
+    height: 3.25rem;
+  }
+}
+/* Avisos da loja aparecem acima do botão do WhatsApp */
+html[data-area='loja'] [data-sonner-toaster][data-y-position='bottom'] {
+  --offset-bottom: 96px !important;
+  --mobile-offset-bottom: 84px !important;
+}
