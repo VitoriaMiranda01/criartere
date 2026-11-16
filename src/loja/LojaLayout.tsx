@@ -125,12 +125,6 @@ function LojaEstrutura() {
             <NavLink to={PAGINA_SOBRE.caminho} className={linkNav}>
               {PAGINA_SOBRE.menu}
             </NavLink>
-            <NavLink to="/favoritos" className={linkNav}>
-              Favoritos
-            </NavLink>
-            <NavLink to="/carrinho" className={linkNav}>
-              Carrinho
-            </NavLink>
           </nav>
 
           <div className="ml-auto flex items-center gap-1 sm:gap-2">
