@@ -15,6 +15,7 @@ import {
   PenTool,
   BookHeart,
   ClipboardList,
+  ChevronDown,
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -29,7 +30,7 @@ import { cn } from '@/lib/utils'
 import { LojaProvider, useLoja } from './LojaContext'
 import { CarregandoLoja } from './componentes'
 import { numeroWhatsApp } from './api'
-import { LINHAS_CATALOGO, PAGINA_SOBRE } from './seo-dados'
+import { LINHAS_CATALOGO, LinhaCatalogo, PAGINA_SOBRE } from './seo-dados'
 
 export default function LojaLayout() {
   // Ativa os estilos da loja (avisos, barras de rolagem, seleção de texto, preenchimento automático)
@@ -57,7 +58,24 @@ function Contador({ valor }: { valor: number }) {
 }
 
 function LojaEstrutura() {
-  const { usuario, favoritos, quantidadeNoCarrinho, sair, contato, sessaoVerificada } = useLoja()
+  const {
+    usuario,
+    favoritos,
+    quantidadeNoCarrinho,
+    sair,
+    contato,
+    sessaoVerificada,
+    categoriasLoja,
+  } = useLoja()
+  // Categorias de cada aba (cadastro do painel; enquanto não carrega, a divisão padrão)
+  const categoriasDaLinha = (linha: LinhaCatalogo) => {
+    const cadastradas = categoriasLoja.filter((c) => c.linha === linha).map((c) => c.nome)
+    return cadastradas.length || categoriasLoja.length
+      ? cadastradas
+      : LINHAS_CATALOGO[linha].categorias
+  }
+  const linkCategoria = (linha: LinhaCatalogo, categoria: string) =>
+    `${LINHAS_CATALOGO[linha].caminho}?categoria=${encodeURIComponent(categoria)}`
   // Telas de entrar/criar conta e de finalizar pedido: ocupam só a altura da tela
   // (sem rodapé, sem rolagem)
   const caminho = useLocation().pathname
@@ -115,13 +133,64 @@ function LojaEstrutura() {
             </span>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-5 xl:gap-6 ml-6 xl:ml-8 whitespace-nowrap" aria-label="Loja">
-            <NavLink to={LINHAS_CATALOGO['3d'].caminho} className={linkNav}>
-              {LINHAS_CATALOGO['3d'].menu}
-            </NavLink>
-            <NavLink to={LINHAS_CATALOGO.papelaria.caminho} className={linkNav}>
-              {LINHAS_CATALOGO.papelaria.menu}
-            </NavLink>
+          <nav
+            className="hidden lg:flex items-center gap-5 xl:gap-6 ml-6 xl:ml-8 whitespace-nowrap"
+            aria-label="Loja"
+          >
+            {(['3d', 'papelaria'] as LinhaCatalogo[]).map((linha) => {
+              const categorias = categoriasDaLinha(linha)
+              return (
+                <div key={linha} className="flex items-center gap-0.5">
+                  <NavLink to={LINHAS_CATALOGO[linha].caminho} className={linkNav}>
+                    {LINHAS_CATALOGO[linha].menu}
+                  </NavLink>
+                  {categorias.length > 0 && (
+                    <DropdownMenu modal={false}>
+                      <DropdownMenuTrigger
+                        aria-label={`Categorias do ${LINHAS_CATALOGO[linha].menu}`}
+                        className="group p-1 rounded-md text-[#6B4B36] hover:text-[#0C1014] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C48864] data-[state=open]:bg-white data-[state=open]:text-[#0C1014]"
+                      >
+                        <ChevronDown className="w-4 h-4 transition-transform group-data-[state=open]:rotate-180" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="start"
+                        sideOffset={8}
+                        className="w-64 rounded-xl border-[#DFC3AE] bg-white p-1.5 shadow-[0_10px_30px_rgba(12,16,20,0.10)]"
+                      >
+                        <DropdownMenuItem
+                          asChild
+                          className="rounded-lg cursor-pointer focus:bg-[#F6EDE7]"
+                        >
+                          <Link
+                            to={LINHAS_CATALOGO[linha].caminho}
+                            state={{ rolarParaProdutos: true }}
+                            className="text-sm font-semibold text-[#A5683F]"
+                          >
+                            Ver todo o {LINHAS_CATALOGO[linha].menu}
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-[#DFC3AE]/60" />
+                        {categorias.map((categoria) => (
+                          <DropdownMenuItem
+                            key={categoria}
+                            asChild
+                            className="rounded-lg cursor-pointer focus:bg-[#F6EDE7]"
+                          >
+                            <Link
+                              to={linkCategoria(linha, categoria)}
+                              state={{ rolarParaProdutos: true }}
+                              className="text-sm text-[#6B4B36] focus:text-[#0C1014]"
+                            >
+                              {categoria}
+                            </Link>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
+              )
+            })}
             <NavLink to={PAGINA_SOBRE.caminho} className={linkNav}>
               {PAGINA_SOBRE.menu}
             </NavLink>
@@ -228,22 +297,49 @@ function LojaEstrutura() {
               { to: PAGINA_SOBRE.caminho, label: PAGINA_SOBRE.menu, icon: BookHeart },
               { to: '/favoritos', label: 'Favoritos', icon: Heart },
               { to: '/carrinho', label: 'Carrinho', icon: ShoppingBag },
-            ].map((l) => (
-              <NavLink
-                key={l.to}
-                to={l.to}
-                end={l.end}
-                onClick={() => setMenuAberto(false)}
-                className={({ isActive }) =>
-                  cn(
-                    'flex items-center gap-3 px-2 py-3 rounded-lg text-sm font-semibold',
-                    isActive ? 'text-[#0C1014] bg-white' : 'text-[#6B4B36]',
-                  )
-                }
-              >
-                <l.icon className="w-4 h-4" /> {l.label}
-              </NavLink>
-            ))}
+            ]
+              .map((l) => (
+                <NavLink
+                  key={l.to}
+                  to={l.to}
+                  end={l.end}
+                  onClick={() => setMenuAberto(false)}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center gap-3 px-2 py-3 rounded-lg text-sm font-semibold',
+                      isActive ? 'text-[#0C1014] bg-white' : 'text-[#6B4B36]',
+                    )
+                  }
+                >
+                  <l.icon className="w-4 h-4" /> {l.label}
+                </NavLink>
+              ))
+              .flatMap((item, i) => {
+                // Depois do Catálogo 3D (i = 1) e do Catálogo Papelaria (i = 2), as categorias deles
+                const linha: LinhaCatalogo | null = i === 1 ? '3d' : i === 2 ? 'papelaria' : null
+                if (!linha) return [item]
+                const categorias = categoriasDaLinha(linha)
+                if (!categorias.length) return [item]
+                return [
+                  item,
+                  <div
+                    key={`${linha}-categorias`}
+                    className="ml-9 mb-1 flex flex-col border-l border-[#DFC3AE]"
+                  >
+                    {categorias.map((categoria) => (
+                      <Link
+                        key={categoria}
+                        to={linkCategoria(linha, categoria)}
+                        state={{ rolarParaProdutos: true }}
+                        onClick={() => setMenuAberto(false)}
+                        className="pl-3 py-2 text-[13px] text-[#6B4B36] hover:text-[#0C1014]"
+                      >
+                        {categoria}
+                      </Link>
+                    ))}
+                  </div>,
+                ]
+              })}
           </nav>
         )}
       </header>

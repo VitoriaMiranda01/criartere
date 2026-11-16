@@ -230,7 +230,7 @@ export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
           </Select>
         </div>
 
-        {categorias.length > 1 && (
+        {(categorias.length > 1 || (linha && categorias.length > 0)) && (
           <div className="flex gap-2 overflow-x-auto sem-barra pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
             {['', ...categorias].map((c) => (
               <button
