@@ -13,6 +13,7 @@ import {
   Store,
   Box,
   PenTool,
+  BookHeart,
   ClipboardList,
 } from 'lucide-react'
 import {
@@ -28,7 +29,7 @@ import { cn } from '@/lib/utils'
 import { LojaProvider, useLoja } from './LojaContext'
 import { CarregandoLoja } from './componentes'
 import { numeroWhatsApp } from './api'
-import { LINHAS_CATALOGO } from './seo-dados'
+import { LINHAS_CATALOGO, PAGINA_SOBRE } from './seo-dados'
 
 export default function LojaLayout() {
   // Ativa os estilos da loja (avisos, barras de rolagem, seleção de texto, preenchimento automático)
@@ -92,7 +93,7 @@ function LojaEstrutura() {
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 h-16 flex items-center gap-4">
           <button
             type="button"
-            className="md:hidden -ml-1 p-2 rounded-lg text-[#6B4B36] hover:bg-white"
+            className="lg:hidden -ml-1 p-2 rounded-lg text-[#6B4B36] hover:bg-white"
             onClick={() => setMenuAberto((v) => !v)}
             aria-label={menuAberto ? 'Fechar menu' : 'Abrir menu'}
             aria-expanded={menuAberto}
@@ -114,12 +115,15 @@ function LojaEstrutura() {
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6 ml-8" aria-label="Loja">
+          <nav className="hidden lg:flex items-center gap-5 xl:gap-6 ml-6 xl:ml-8 whitespace-nowrap" aria-label="Loja">
             <NavLink to={LINHAS_CATALOGO['3d'].caminho} className={linkNav}>
               {LINHAS_CATALOGO['3d'].menu}
             </NavLink>
             <NavLink to={LINHAS_CATALOGO.papelaria.caminho} className={linkNav}>
               {LINHAS_CATALOGO.papelaria.menu}
+            </NavLink>
+            <NavLink to={PAGINA_SOBRE.caminho} className={linkNav}>
+              {PAGINA_SOBRE.menu}
             </NavLink>
             <NavLink to="/favoritos" className={linkNav}>
               Favoritos
@@ -216,7 +220,7 @@ function LojaEstrutura() {
 
         {menuAberto && (
           <nav
-            className="md:hidden border-t border-[#DFC3AE]/60 bg-[#F7F3EA] px-4 py-2 flex flex-col"
+            className="lg:hidden border-t border-[#DFC3AE]/60 bg-[#F7F3EA] px-4 py-2 flex flex-col"
             aria-label="Loja"
           >
             {[
@@ -227,6 +231,7 @@ function LojaEstrutura() {
                 label: LINHAS_CATALOGO.papelaria.menu,
                 icon: PenTool,
               },
+              { to: PAGINA_SOBRE.caminho, label: PAGINA_SOBRE.menu, icon: BookHeart },
               { to: '/favoritos', label: 'Favoritos', icon: Heart },
               { to: '/carrinho', label: 'Carrinho', icon: ShoppingBag },
             ].map((l) => (
@@ -273,6 +278,12 @@ function LojaEstrutura() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-3">
+            <Link
+              to={PAGINA_SOBRE.caminho}
+              className="inline-flex items-center gap-2 h-9 px-3 rounded-full border border-[#DFC3AE] bg-white text-sm text-[#0C1014] hover:border-[#C48864]"
+            >
+              <BookHeart className="w-4 h-4 text-[#A5683F]" aria-hidden="true" /> Sobre nós
+            </Link>
             {whatsapp && (
               <a
                 href={`https://wa.me/${whatsapp}`}

@@ -20,7 +20,7 @@
 
   # Páginas da loja pré-geradas no build (SEO e prévias de link no WhatsApp/Instagram).
   # Se o arquivo não existir, segue para o app normalmente.
-  RewriteCond %{REQUEST_URI} ^/(impressao-3d|papelaria)/?$
+  RewriteCond %{REQUEST_URI} ^/(impressao-3d|papelaria|sobre)/?$
   RewriteCond %{DOCUMENT_ROOT}/_paginas/%1.html -f
   RewriteRule ^ /_paginas/%1.html [L]
   RewriteCond %{REQUEST_URI} ^/(produto/[a-z0-9-]+)/?$

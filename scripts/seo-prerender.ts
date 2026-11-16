@@ -29,6 +29,7 @@ import {
   LINHAS_CATALOGO,
   LinhaCatalogo,
   produtoDaLinha,
+  PAGINA_SOBRE,
 } from '../src/loja/seo-dados'
 
 const esc = (t: string) =>
@@ -102,6 +103,29 @@ const conteudoCatalogo = (
 ${produtos.map((p) => `<li><a href="${esc(caminhoProduto(p))}">${esc(p.nome)}</a> — ${formatarPrecoSeo(p.preco)}</li>`).join('\n')}
 </ul>
 </main>`
+
+/** Página "Sobre nós" (leitura pública da tabela pagina_sobre). */
+async function buscarSobre(url: string, chave: string) {
+  const resp = await fetch(
+    `${url}/rest/v1/pagina_sobre?id=eq.1&select=titulo,introducao,texto,fotos`,
+    { headers: { apikey: chave }, signal: AbortSignal.timeout(15000) },
+  )
+  if (!resp.ok) throw new Error(`pagina_sobre: HTTP ${resp.status}`)
+  const [r] = (await resp.json()) as Record<string, unknown>[]
+  if (!r) return null
+  const fotos = Array.isArray(r.fotos) ? (r.fotos as { url?: string; legenda?: string }[]) : []
+  return {
+    titulo: String(r.titulo || PAGINA_SOBRE.titulo),
+    introducao: String(r.introducao ?? ''),
+    paragrafos: String(r.texto ?? '')
+      .split(/\n\s*\n/)
+      .map((t) => t.trim())
+      .filter(Boolean),
+    fotos: fotos
+      .filter((f) => f?.url)
+      .map((f) => ({ url: String(f.url), legenda: String(f.legenda ?? '') })),
+  }
+}
 
 async function buscar<T>(url: string, chave: string, nomeFuncao: string): Promise<T> {
   const controle = new AbortController()
@@ -255,10 +279,49 @@ export function seoPrerender(opcoes: { supabaseUrl: string; chave: string }) {
         }
       }
 
+      // Página "Sobre nós"
+      let sobreGerada = false
+      try {
+        const sobre = await buscarSobre(opcoes.supabaseUrl, opcoes.chave)
+        if (sobre) {
+          const descricao = sobre.introducao || PAGINA_SOBRE.descricao
+          gravar(
+            PAGINA_SOBRE.caminho,
+            montarHtml(modelo, {
+              titulo: sobre.titulo,
+              descricao,
+              caminho: PAGINA_SOBRE.caminho,
+              imagem: sobre.fotos[0]?.url,
+              tipo: 'website',
+              jsonLd: {
+                '@context': 'https://schema.org',
+                '@type': 'AboutPage',
+                name: sobre.titulo,
+                url: `${SITE}${PAGINA_SOBRE.caminho}`,
+                description: descricao,
+                inLanguage: 'pt-BR',
+              },
+              conteudo: `<main class="conteudo-estatico">
+<h1>${esc(sobre.titulo)}</h1>
+${sobre.introducao ? `<p><strong>${esc(sobre.introducao)}</strong></p>` : ''}
+${sobre.paragrafos.map((t) => `<p>${esc(t)}</p>`).join('\n')}
+${sobre.fotos.map((f) => `<img src="${esc(f.url)}" alt="${esc(f.legenda)}" style="max-width:100%;height:auto" />`).join('\n')}
+</main>`,
+            }),
+          )
+          sobreGerada = true
+        }
+      } catch (e) {
+        console.warn(`[SEO] Página "Sobre nós" não pré-gerada. ${String(e)}`)
+      }
+
       fs.writeFileSync(
         path.join(pastaSaida, 'sitemap.xml'),
         sitemap([
           { caminho: '/', prioridade: '1.0', frequencia: 'daily' },
+          ...(sobreGerada
+            ? [{ caminho: PAGINA_SOBRE.caminho, prioridade: '0.6', frequencia: 'monthly' }]
+            : []),
           ...Object.values(LINHAS_CATALOGO).map((l) => ({
             caminho: l.caminho,
             prioridade: '0.9',

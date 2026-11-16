@@ -13,6 +13,7 @@ import {
   Package,
   Ticket,
   Images,
+  BookHeart,
   Search,
   Settings,
   ShoppingBag,
@@ -261,6 +262,24 @@ const TOPICOS: Topico[] = [
           'Em "Ao clicar, abrir", escolha uma categoria ou um produto para o banner virar um link. Ou deixe "Nada" para ser só imagem.',
           'Use as setas para mudar a ordem dos slides. Datas de início e fim tiram o banner do ar automaticamente.',
           'Sem banners no ar, a loja mostra a apresentação padrão.',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'sobre',
+    titulo: 'Página Sobre Nós',
+    icone: BookHeart,
+    resumo: 'Texto e fotos da aba "Sobre nós" da loja virtual.',
+    rota: '/admin/sobre',
+    secoes: [
+      {
+        subtitulo: 'Como usar',
+        passos: [
+          'Edite o título, a frase de abertura e a história da loja. Deixe uma linha em branco entre os parágrafos.',
+          'Clique em "Adicionar fotos" (até 12). A primeira aparece em destaque ao lado do texto; as outras formam uma galeria.',
+          'Use as setas para mudar a ordem das fotos e escreva legendas, se quiser.',
+          'Clique em "Salvar" para publicar. "Ver na loja" abre a página como os clientes veem.',
         ],
       },
     ],

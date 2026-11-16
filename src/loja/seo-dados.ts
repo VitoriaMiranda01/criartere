@@ -43,6 +43,15 @@ export const LINHAS_CATALOGO: Record<
   },
 }
 
+/** Página "Sobre nós" (o texto vem do painel; estes são os valores padrão). */
+export const PAGINA_SOBRE = {
+  menu: 'Sobre nós',
+  caminho: '/sobre',
+  titulo: 'Sobre nós',
+  descricao:
+    'Conheça a Criartere: como a loja nasceu e como criamos peças em impressão 3D e papelaria personalizada com carinho.',
+}
+
 /** Produtos de uma linha (comparação sem diferenciar maiúsculas e espaços). */
 export const produtoDaLinha = (categoria: string, linha: LinhaCatalogo) =>
   LINHAS_CATALOGO[linha].categorias.some((c) => c.toLowerCase() === categoria.trim().toLowerCase())

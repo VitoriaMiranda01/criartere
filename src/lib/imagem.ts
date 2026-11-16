@@ -19,6 +19,11 @@ export function prepararImagemProduto(arquivo: File): Promise<ImagemPreparada> {
   return prepararImagem(arquivo, { lado: 1000, quadrada: false })
 }
 
+/** Foto da página "Sobre nós": mantém a proporção, lado maior com até 1600 px. */
+export function prepararFotoSobre(arquivo: File): Promise<ImagemPreparada> {
+  return prepararImagem(arquivo, { lado: 1600, quadrada: false })
+}
+
 /** Banner da loja: mantém a proporção; lado maior com até 1920 px (computador) ou 1080 px (celular). */
 export function prepararImagemBanner(
   arquivo: File,

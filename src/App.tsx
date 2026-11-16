@@ -16,6 +16,8 @@ const Clientes = lazy(() => import('./pages/Clientes'))
 const Produtos = lazy(() => import('./pages/Produtos'))
 const Descontos = lazy(() => import('./pages/Descontos'))
 const Banners = lazy(() => import('./pages/Banners'))
+const SobreNos = lazy(() => import('./pages/SobreNos'))
+const LojaSobre = lazy(() => import('./pages/loja/Sobre'))
 const Financeiro = lazy(() => import('./pages/Financeiro'))
 const FluxoDeCaixa = lazy(() => import('./pages/FluxoDeCaixa'))
 const Relatorios = lazy(() => import('./pages/Relatorios'))
@@ -78,6 +80,7 @@ const App = () => (
                   element={<LojaCatalogo key="papelaria" linha="papelaria" />}
                 />
                 <Route path="produto/:id" element={<LojaProduto />} />
+                <Route path="sobre" element={<LojaSobre />} />
                 <Route path="favoritos" element={<LojaFavoritos />} />
                 <Route path="carrinho" element={<LojaCarrinho />} />
                 <Route path="entrar" element={<LojaEntrar />} />
@@ -101,6 +104,7 @@ const App = () => (
                 <Route path="produtos" element={<Produtos />} />
                 <Route path="descontos" element={<Descontos />} />
                 <Route path="banners" element={<Banners />} />
+                <Route path="sobre" element={<SobreNos />} />
                 <Route path="financeiro" element={<Financeiro />} />
                 <Route path="fluxo-de-caixa" element={<FluxoDeCaixa />} />
                 <Route path="relatorios" element={<Relatorios />} />
