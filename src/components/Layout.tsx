@@ -325,9 +325,7 @@ export default function Layout() {
             })}
 
             {/* Rodapé do menu: Ajuda e atalho para a loja virtual (abre em outra aba) */}
-            <div
-              className={`pt-2 mt-2 border-t border-[#DFC3AE]/50 ${menuRecolhido ? 'space-y-0.5' : 'grid grid-cols-2 gap-1'}`}
-            >
+            <div className={`pt-2 mt-2 border-t border-[#DFC3AE]/50 space-y-0.5`}>
               <NavLink
                 to="/admin/ajuda"
                 title={menuRecolhido ? 'Ajuda' : undefined}
@@ -354,7 +352,7 @@ export default function Layout() {
                 className={`flex items-center rounded-lg text-sm font-medium transition-all group text-[#6B4B36] hover:bg-[#F7F3EA] hover:text-[#0C1014] ${
                   menuRecolhido
                     ? 'justify-center px-0 py-2.5'
-                    : 'justify-between gap-2 px-3.5 py-2.5'
+                    : 'justify-between gap-2 px-3.5 py-2.5 whitespace-nowrap'
                 }`}
               >
                 <span className="flex items-center gap-3">
@@ -506,7 +504,7 @@ export default function Layout() {
                   )
                 })}
 
-                <div className="pt-2 mt-2 border-t border-[#DFC3AE]/50 grid grid-cols-2 gap-1">
+                <div className="pt-2 mt-2 border-t border-[#DFC3AE]/50 space-y-0.5">
                   <NavLink
                     to="/admin/ajuda"
                     onClick={() => setMobileMenuAberto(false)}
