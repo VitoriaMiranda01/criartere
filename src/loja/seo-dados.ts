@@ -53,8 +53,24 @@ export const PAGINA_SOBRE = {
 }
 
 /** Produtos de uma linha (comparação sem diferenciar maiúsculas e espaços). */
-export const produtoDaLinha = (categoria: string, linha: LinhaCatalogo) =>
-  LINHAS_CATALOGO[linha].categorias.some((c) => c.toLowerCase() === categoria.trim().toLowerCase())
+/** Categoria (em minúsculas) → aba da loja, como cadastrado no painel. */
+export type MapaLinhas = Map<string, LinhaCatalogo | null>
+
+export const mapaDeLinhas = (lista: { nome: string; linha?: string | null }[]): MapaLinhas =>
+  new Map(
+    lista.map((c) => [
+      c.nome.trim().toLowerCase(),
+      c.linha === '3d' || c.linha === 'papelaria' ? c.linha : null,
+    ]),
+  )
+
+/** O produto desta categoria aparece nesta aba? Usa o cadastro do painel; se a categoria
+ *  não estiver lá (ou o cadastro não carregou), usa a divisão padrão. */
+export function produtoDaLinha(categoria: string, linha: LinhaCatalogo, mapa?: MapaLinhas) {
+  const chave = categoria.trim().toLowerCase()
+  if (mapa?.has(chave)) return mapa.get(chave) === linha
+  return LINHAS_CATALOGO[linha].categorias.some((c) => c.toLowerCase() === chave)
+}
 
 export interface ProdutoSeo {
   id: string

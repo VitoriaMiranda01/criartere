@@ -11,7 +11,12 @@ import {
 } from './db'
 import { CriartereState } from './types'
 import { ETAPAS_PADRAO } from './etapas'
-import { CATEGORIAS_DESPESA_PADRAO, CONFIG_PADRAO, FORMAS_PAGAMENTO_PADRAO } from './padroes'
+import {
+  CATEGORIAS_DESPESA_PADRAO,
+  CATEGORIAS_PRODUTO_PADRAO,
+  CONFIG_PADRAO,
+  FORMAS_PAGAMENTO_PADRAO,
+} from './padroes'
 import { agoraFormatado, hojeISO } from '@/lib/datas'
 import { dadosDemo, simularServidor } from './demo'
 import {
@@ -24,6 +29,7 @@ import {
   Despesa,
   Desconto,
   Banner,
+  CategoriaProduto,
   Pagamento,
   OrderStatus,
   PaymentStatus,
@@ -56,6 +62,7 @@ const initialState: CriartereState = {
   descontos: [],
   banners: [],
   categoriasDespesa: CATEGORIAS_DESPESA_PADRAO,
+  categoriasProduto: CATEGORIAS_PRODUTO_PADRAO,
   formasPagamento: [...FORMAS_PAGAMENTO_PADRAO],
   historico: [],
   config: CONFIG_PADRAO,
@@ -109,6 +116,8 @@ export type Action =
   | { type: 'SALVAR_BANNER'; payload: Banner }
   | { type: 'EXCLUIR_BANNER'; payload: string }
   | { type: 'REORDENAR_BANNERS'; payload: string[] } // ids na nova ordem
+  // Categorias de produto
+  | { type: 'ADICIONAR_CATEGORIA_PRODUTO'; payload: CategoriaProduto }
   // Categorias
   | { type: 'ADICIONAR_CATEGORIA'; payload: string }
   | { type: 'RENOMEAR_CATEGORIA'; payload: { antiga: string; nova: string } }
@@ -439,6 +448,15 @@ function criartereReducer(state: CriartereState, action: Action): CriartereState
       }
     }
 
+    case 'ADICIONAR_CATEGORIA_PRODUTO': {
+      const nova = { ...action.payload, nome: action.payload.nome.trim() }
+      const existe = state.categoriasProduto.some(
+        (c) => c.nome.toLowerCase() === nova.nome.toLowerCase(),
+      )
+      if (!nova.nome || existe) return state
+      return { ...state, categoriasProduto: [...state.categoriasProduto, nova] }
+    }
+
     case 'ADICIONAR_CATEGORIA': {
       const nova = action.payload.trim()
       if (!nova || state.categoriasDespesa.includes(nova)) return state
@@ -517,6 +535,7 @@ const FATIAS_POR_TABELA: Record<string, Fatia[]> = {
   descontos: ['descontos'],
   banners: ['banners'],
   categorias_despesa: ['categoriasDespesa'],
+  categorias_produto: ['categoriasProduto'],
   formas_pagamento: ['formasPagamento'],
   etapas_pedido: ['etapas'],
   loja_config: ['config'],

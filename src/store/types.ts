@@ -6,6 +6,7 @@ import {
   Orcamento,
   Despesa,
   Desconto,
+  CategoriaProduto,
   Banner,
   Pagamento,
   OrderHistoryEvent,
@@ -39,6 +40,7 @@ export interface CriartereState {
   descontos: Desconto[]
   banners: Banner[]
   categoriasDespesa: string[]
+  categoriasProduto: CategoriaProduto[]
   formasPagamento: PaymentMethod[]
   historico: OrderHistoryEvent[]
   config: LojaConfig

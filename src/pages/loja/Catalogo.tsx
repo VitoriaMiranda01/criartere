@@ -45,11 +45,15 @@ export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
     contato,
     banners,
     carregandoBanners,
+    linhasCategorias,
   } = useLoja()
   const infoLinha = linha ? LINHAS_CATALOGO[linha] : null
   const produtos = useMemo(
-    () => (linha ? todosProdutos.filter((p) => produtoDaLinha(p.categoria, linha)) : todosProdutos),
-    [todosProdutos, linha],
+    () =>
+      linha
+        ? todosProdutos.filter((p) => produtoDaLinha(p.categoria, linha, linhasCategorias))
+        : todosProdutos,
+    [todosProdutos, linha, linhasCategorias],
   )
   useSeo({
     titulo: infoLinha?.tituloSeo ?? 'Loja virtual: impressão 3D, papelaria e personalizados',

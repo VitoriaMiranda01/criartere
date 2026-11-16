@@ -1,5 +1,5 @@
 /* Valores padrão usados antes de os dados do servidor carregarem. */
-import type { LojaConfig, PaymentMethod } from '@/types/criartere'
+import type { CategoriaProduto, LojaConfig, PaymentMethod } from '@/types/criartere'
 
 export const CONFIG_PADRAO: LojaConfig = {
   nome: 'Criartere',
@@ -12,6 +12,16 @@ export const CONFIG_PADRAO: LojaConfig = {
   incluirAguardandoNoFaturamento: true,
   periodoPadraoDashboard: 'mes_atual',
 }
+
+export const CATEGORIAS_PRODUTO_PADRAO: CategoriaProduto[] = [
+  { nome: 'Impressão 3D', linha: '3d' },
+  { nome: 'Miniaturas e colecionáveis', linha: '3d' },
+  { nome: 'Peças técnicas e protótipos', linha: '3d' },
+  { nome: 'Cartões e papelaria', linha: 'papelaria' },
+  { nome: 'Banners, adesivos e placas', linha: 'papelaria' },
+  { nome: 'Brindes personalizados' },
+  { nome: 'Outros' },
+]
 
 export const CATEGORIAS_DESPESA_PADRAO: string[] = [
   'Compra de mercadorias',

@@ -109,6 +109,15 @@ export async function listarBannersLoja(): Promise<BannerLoja[]> {
   )
 }
 
+/** Categorias de produto e a aba da loja de cada uma (leitura pública). */
+export async function listarCategoriasLoja(): Promise<{ nome: string; linha: string | null }[]> {
+  const data = check(await supabase.from('categorias_produto').select('nome, linha'))
+  return ((data ?? []) as Row[]).map((r) => ({
+    nome: String(r.nome ?? ''),
+    linha: r.linha ? String(r.linha) : null,
+  }))
+}
+
 export async function buscarContatoLoja(): Promise<ContatoLoja | null> {
   const data = check(await supabase.rpc('vitrine_contato'))
   const r = ((data ?? []) as Row[])[0]

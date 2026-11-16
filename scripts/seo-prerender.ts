@@ -29,6 +29,8 @@ import {
   LINHAS_CATALOGO,
   LinhaCatalogo,
   produtoDaLinha,
+  mapaDeLinhas,
+  MapaLinhas,
   PAGINA_SOBRE,
 } from '../src/loja/seo-dados'
 
@@ -103,6 +105,20 @@ const conteudoCatalogo = (
 ${produtos.map((p) => `<li><a href="${esc(caminhoProduto(p))}">${esc(p.nome)}</a> — ${formatarPrecoSeo(p.preco)}</li>`).join('\n')}
 </ul>
 </main>`
+
+/** Categorias de produto e a aba da loja de cada uma. */
+async function buscarLinhas(url: string, chave: string): Promise<MapaLinhas | undefined> {
+  try {
+    const resp = await fetch(`${url}/rest/v1/categorias_produto?select=nome,linha`, {
+      headers: { apikey: chave },
+      signal: AbortSignal.timeout(15000),
+    })
+    if (!resp.ok) return undefined
+    return mapaDeLinhas((await resp.json()) as { nome: string; linha: string | null }[])
+  } catch {
+    return undefined
+  }
+}
 
 /** Página "Sobre nós" (leitura pública da tabela pagina_sobre). */
 async function buscarSobre(url: string, chave: string) {
@@ -243,9 +259,10 @@ export function seoPrerender(opcoes: { supabaseUrl: string; chave: string }) {
           }),
         )
         // Abas "Catálogo 3D" e "Catálogo Papelaria"
+        const linhas = await buscarLinhas(opcoes.supabaseUrl, opcoes.chave)
         for (const [linha, info] of Object.entries(LINHAS_CATALOGO)) {
           const daLinha = produtos.filter((p) =>
-            produtoDaLinha(p.categoria, linha as LinhaCatalogo),
+            produtoDaLinha(p.categoria, linha as LinhaCatalogo, linhas),
           )
           gravar(
             info.caminho,

@@ -10,6 +10,7 @@ import {
   ItemCarrinho,
   listarVitrine,
   listarBannersLoja,
+  listarCategoriasLoja,
   BannerLoja,
   buscarContatoLoja,
   listarFavoritos,
@@ -23,6 +24,7 @@ import {
   salvarNomeConta,
   mensagemErroLoja,
 } from './api'
+import { mapaDeLinhas, MapaLinhas } from './seo-dados'
 
 export interface UsuarioLoja {
   id: string
@@ -38,6 +40,7 @@ interface LojaContextValue {
   usuario: UsuarioLoja | null
   produtos: ProdutoVitrine[]
   banners: BannerLoja[]
+  linhasCategorias: MapaLinhas | undefined
   carregandoBanners: boolean
   carregandoProdutos: boolean
   erroProdutos: boolean
@@ -69,6 +72,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
   const [erroProdutos, setErroProdutos] = useState(false)
   const [contato, setContato] = useState<ContatoLoja | null>(null)
   const [banners, setBanners] = useState<BannerLoja[]>([])
+  const [linhasCategorias, setLinhasCategorias] = useState<MapaLinhas | undefined>()
   const [carregandoBanners, setCarregandoBanners] = useState(true)
   const [favoritos, setFavoritos] = useState<Set<string>>(new Set())
   const [carrinho, setCarrinho] = useState<ItemCarrinho[]>([])
@@ -115,6 +119,10 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
       .then(setBanners)
       .catch(() => setBanners([]))
       .finally(() => setCarregandoBanners(false))
+    // Abas da loja (Catálogo 3D / Papelaria); se falhar, vale a divisão padrão
+    listarCategoriasLoja()
+      .then((lista) => setLinhasCategorias(mapaDeLinhas(lista)))
+      .catch(() => undefined)
   }, [recarregarVitrine])
 
   // Sessão (mesmo login do Supabase Auth usado no painel)
@@ -298,6 +306,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
         usuario,
         produtos,
         banners,
+        linhasCategorias,
         carregandoBanners,
         carregandoProdutos,
         erroProdutos,

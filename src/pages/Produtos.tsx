@@ -56,6 +56,9 @@ import {
 } from '@/components/ui/select'
 import { toast } from 'sonner'
 
+// Valor especial no campo de categoria que abre o atalho "Nova categoria"
+const NOVA_CATEGORIA = '__nova_categoria__'
+
 export default function Produtos() {
   const { state, dispatch } = useCriartere()
 
@@ -87,15 +90,54 @@ export default function Produtos() {
   const [estoqueStr, setEstoqueStr] = useState('10')
   const [erro, setErro] = useState('')
 
+  // Categorias cadastradas + qualquer categoria já usada em produtos
   const categoriasDisponiveis = [
-    'Impressão 3D',
-    'Miniaturas e colecionáveis',
-    'Peças técnicas e protótipos',
-    'Cartões e papelaria',
-    'Banners, adesivos e placas',
-    'Brindes personalizados',
-    'Outros',
+    ...new Set([
+      ...state.categoriasProduto.map((c) => c.nome),
+      ...state.produtos.map((p) => p.categoria.trim()).filter(Boolean),
+    ]),
   ]
+
+  // Atalho "Nova categoria" dentro do formulário do produto
+  const [criandoCategoria, setCriandoCategoria] = useState(false)
+  const campoNovaCategoria = useRef<HTMLInputElement>(null)
+  // Ao abrir o atalho, leva o cursor para o nome (depois que a lista de categorias devolve o foco)
+  useEffect(() => {
+    if (!criandoCategoria) return
+    const t = setTimeout(() => campoNovaCategoria.current?.focus(), 60)
+    return () => clearTimeout(t)
+  }, [criandoCategoria])
+  const [novaCategoriaNome, setNovaCategoriaNome] = useState('')
+  const [novaCategoriaLinha, setNovaCategoriaLinha] = useState<'3d' | 'papelaria' | 'nenhuma'>('3d')
+  const fecharNovaCategoria = () => {
+    setCriandoCategoria(false)
+    setNovaCategoriaNome('')
+    setNovaCategoriaLinha('3d')
+  }
+  const salvarNovaCategoria = () => {
+    const nomeCategoria = novaCategoriaNome.trim().replace(/\s+/g, ' ')
+    if (!nomeCategoria) return void toast.error('Digite o nome da categoria.')
+    if (nomeCategoria.length > 60) return void toast.error('Use até 60 caracteres no nome.')
+    const existente = categoriasDisponiveis.find(
+      (c) => c.toLowerCase() === nomeCategoria.toLowerCase(),
+    )
+    if (existente) {
+      setCategoria(existente)
+      fecharNovaCategoria()
+      return void toast.info(`A categoria "${existente}" já existe e foi selecionada.`)
+    }
+    dispatch({
+      type: 'ADICIONAR_CATEGORIA_PRODUTO',
+      payload: {
+        nome: nomeCategoria,
+        linha: novaCategoriaLinha === 'nenhuma' ? undefined : novaCategoriaLinha,
+      },
+    })
+    // Seleciona depois que a nova opção já está na lista (senão o campo fica em branco)
+    setTimeout(() => setCategoria(nomeCategoria), 0)
+    fecharNovaCategoria()
+    toast.success(`Categoria "${nomeCategoria}" criada e selecionada.`)
+  }
 
   const abrirNovoProduto = () => {
     setProdutoEditando(null)
@@ -103,7 +145,8 @@ export default function Produtos() {
     setDescricao('')
     setPrecoVendaStr('')
     setCustoStr('')
-    setCategoria('Impressão 3D')
+    setCategoria(categoriasDisponiveis[0] ?? 'Impressão 3D')
+    fecharNovaCategoria()
     limparFotos([])
     setAtivo(true)
     setPublicadoLoja(true)
@@ -119,6 +162,7 @@ export default function Produtos() {
     setPrecoVendaStr(prod.precoVenda.toString())
     setCustoStr(prod.custo ? prod.custo.toString() : '')
     setCategoria(prod.categoria)
+    fecharNovaCategoria()
     limparFotos(
       (prod.imagens?.length
         ? prod.imagens
@@ -815,7 +859,14 @@ export default function Produtos() {
                       Categoria
                       <Obrigatorio />
                     </Label>
-                    <Select value={categoria} onValueChange={setCategoria}>
+                    <Select
+                      value={categoria}
+                      onValueChange={(v) => {
+                        if (!v) return // a lista às vezes avisa "vazio" ao trocar as opções
+                        if (v === NOVA_CATEGORIA) setCriandoCategoria(true)
+                        else setCategoria(v)
+                      }}
+                    >
                       <SelectTrigger
                         id="produtos-campo-1"
                         className="h-10 text-xs border-[#DFC3AE]"
@@ -828,8 +879,25 @@ export default function Produtos() {
                             {c}
                           </SelectItem>
                         ))}
+                        <SelectItem
+                          value={NOVA_CATEGORIA}
+                          className="text-xs font-semibold text-[#A5683F] border-t border-[#DFC3AE]/60 mt-1 pt-2"
+                        >
+                          <span className="flex items-center gap-1.5">
+                            <Plus className="w-3.5 h-3.5" /> Nova categoria
+                          </span>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
+                    {!criandoCategoria && (
+                      <button
+                        type="button"
+                        onClick={() => setCriandoCategoria(true)}
+                        className="text-[11px] font-semibold text-[#A5683F] hover:underline flex items-center gap-1"
+                      >
+                        <Plus className="w-3 h-3" /> Criar nova categoria
+                      </button>
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <Label
@@ -848,6 +916,94 @@ export default function Produtos() {
                       className="h-10 text-xs border-[#DFC3AE]"
                     />
                   </div>
+
+                  {criandoCategoria && (
+                    <div className="col-span-2 rounded-xl border border-[#C48864]/60 bg-[#F7F3EA] p-3 space-y-2.5">
+                      <p className="text-xs font-bold text-[#0C1014]">Nova categoria</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2.5">
+                        <div className="space-y-1">
+                          <Label
+                            htmlFor="nova-categoria-nome"
+                            className="text-[11px] font-semibold text-[#6B4B36]"
+                          >
+                            Nome
+                            <Obrigatorio />
+                          </Label>
+                          <Input
+                            id="nova-categoria-nome"
+                            ref={campoNovaCategoria}
+                            maxLength={60}
+                            placeholder="Ex: Topos de bolo"
+                            value={novaCategoriaNome}
+                            onChange={(e) => setNovaCategoriaNome(e.target.value)}
+                            onKeyDown={(e) => {
+                              // Enter cria a categoria (sem enviar o formulário do produto)
+                              if (e.key === 'Enter') {
+                                e.preventDefault()
+                                salvarNovaCategoria()
+                              }
+                            }}
+                            className="h-9 text-xs border-[#DFC3AE] bg-white"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label
+                            htmlFor="nova-categoria-linha"
+                            className="text-[11px] font-semibold text-[#6B4B36] flex items-center gap-1"
+                          >
+                            Aparece na loja em
+                            <DicaAjuda titulo="Aba da loja">
+                              <p>
+                                Os produtos desta categoria aparecem nesta aba da loja virtual, além
+                                da página inicial.
+                              </p>
+                            </DicaAjuda>
+                          </Label>
+                          <Select
+                            value={novaCategoriaLinha}
+                            onValueChange={(v) =>
+                              setNovaCategoriaLinha(v as typeof novaCategoriaLinha)
+                            }
+                          >
+                            <SelectTrigger
+                              id="nova-categoria-linha"
+                              className="h-9 text-xs border-[#DFC3AE] bg-white"
+                            >
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="3d" className="text-xs">
+                                Catálogo 3D
+                              </SelectItem>
+                              <SelectItem value="papelaria" className="text-xs">
+                                Catálogo Papelaria
+                              </SelectItem>
+                              <SelectItem value="nenhuma" className="text-xs">
+                                Só na página inicial
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={fecharNovaCategoria}
+                          className="h-8 text-xs border-[#DFC3AE] text-[#6B4B36]"
+                        >
+                          Cancelar
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={salvarNovaCategoria}
+                          className="h-8 text-xs bg-[#A5683F] hover:bg-[#8C5636] text-white font-semibold"
+                        >
+                          Criar e selecionar
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

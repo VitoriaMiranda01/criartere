@@ -32,6 +32,12 @@ export interface Cliente {
   criadoEm: string
 }
 
+/** Categoria de produto. `linha` diz em qual aba da loja ela aparece. */
+export interface CategoriaProduto {
+  nome: string
+  linha?: '3d' | 'papelaria' // Catálogo 3D, Catálogo Papelaria (vazio = só no início da loja)
+}
+
 export interface Produto {
   id: string
   nome: string

@@ -12,6 +12,7 @@ import type {
   Despesa,
   Desconto,
   Banner,
+  CategoriaProduto,
   OrderHistoryEvent,
   LojaConfig,
   PaymentMethod,
@@ -32,6 +33,7 @@ export type Fatia =
   | 'descontos'
   | 'banners'
   | 'categoriasDespesa'
+  | 'categoriasProduto'
   | 'formasPagamento'
   | 'historico'
   | 'config'
@@ -47,6 +49,7 @@ export const TODAS_FATIAS: Fatia[] = [
   'descontos',
   'banners',
   'categoriasDespesa',
+  'categoriasProduto',
   'formasPagamento',
   'historico',
   'config',
@@ -370,6 +373,12 @@ export async function carregarFatias(fatias: Fatia[]): Promise<Partial<Criartere
               await supabase.from('banners').select('*').order('ordem').order('criado_em'),
             ).map(mapBanner),
           }
+        case 'categoriasProduto':
+          return {
+            categoriasProduto: check(
+              await supabase.from('categorias_produto').select('nome, linha').order('criado_em'),
+            ).map((r: Row): CategoriaProduto => ({ nome: r.nome, linha: opt(r.linha) })),
+          }
         case 'categoriasDespesa':
           return {
             categoriasDespesa: check(
@@ -685,6 +694,16 @@ export async function persistirAcao(
       for (const b of proximo.banners)
         check(await supabase.from('banners').update({ ordem: b.ordem }).eq('id', b.id))
       return []
+
+    case 'ADICIONAR_CATEGORIA_PRODUTO': {
+      const c = p as CategoriaProduto
+      if (anterior.categoriasProduto.some((x) => x.nome.toLowerCase() === c.nome.toLowerCase()))
+        return []
+      check(
+        await supabase.from('categorias_produto').insert({ nome: c.nome, linha: c.linha ?? null }),
+      )
+      return []
+    }
 
     case 'ADICIONAR_CATEGORIA': {
       const nova = String(p).trim()

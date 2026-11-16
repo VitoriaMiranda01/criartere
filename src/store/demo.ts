@@ -14,7 +14,12 @@ import type {
 } from '@/types/criartere'
 import type { CriartereState } from './types'
 import { ETAPAS_PADRAO } from './etapas'
-import { CATEGORIAS_DESPESA_PADRAO, CONFIG_PADRAO, FORMAS_PAGAMENTO_PADRAO } from './padroes'
+import {
+  CATEGORIAS_DESPESA_PADRAO,
+  CATEGORIAS_PRODUTO_PADRAO,
+  CONFIG_PADRAO,
+  FORMAS_PAGAMENTO_PADRAO,
+} from './padroes'
 import { agoraFormatado, daquiADias, hojeISO } from '@/lib/datas'
 
 const id = (prefixo: string, n: number) =>
@@ -195,6 +200,7 @@ export function dadosDemo(): Partial<CriartereState> {
     orcamentos,
     etapas: ETAPAS_PADRAO,
     categoriasDespesa: CATEGORIAS_DESPESA_PADRAO,
+    categoriasProduto: CATEGORIAS_PRODUTO_PADRAO,
     formasPagamento: FORMAS_PAGAMENTO_PADRAO,
     config: {
       ...CONFIG_PADRAO,
