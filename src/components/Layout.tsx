@@ -4,6 +4,7 @@ import { NavLink, Navigate, useNavigate, useLocation, Outlet } from 'react-route
 import { useCriartere } from '@/store/CriartereContext'
 import { ErroTela } from '@/components/common/ErroTela'
 import { EspacosCabecalho } from '@/components/common/CabecalhoPagina'
+import { SECAO_FINANCEIRO, SECAO_LOJA_VIRTUAL } from '@/components/common/AbasSecao'
 import { AvisoPedidosSite } from '@/components/AvisoPedidosSite'
 import {
   LayoutDashboard,
@@ -12,10 +13,7 @@ import {
   Users,
   Package,
   Ticket,
-  Images,
-  BookHeart,
   Wallet,
-  ArrowLeftRight,
   BarChart3,
   Settings,
   HelpCircle,
@@ -77,6 +75,7 @@ export default function Layout() {
     '/admin/descontos': 'Descontos e Cupons',
     '/admin/banners': 'Banners da Loja',
     '/admin/sobre': 'Página Sobre Nós',
+    '/admin/categorias': 'Categorias de Produto',
     '/admin/financeiro': 'Financeiro',
     '/admin/fluxo-de-caixa': 'Fluxo de Caixa',
     '/admin/relatorios': 'Relatórios',
@@ -170,14 +169,33 @@ export default function Layout() {
     { label: 'Clientes', path: '/admin/clientes', icon: Users },
     { label: 'Produtos', path: '/admin/produtos', icon: Package },
     { label: 'Descontos e Cupons', path: '/admin/descontos', icon: Ticket },
-    { label: 'Banners da Loja', path: '/admin/banners', icon: Images },
-    { label: 'Página Sobre Nós', path: '/admin/sobre', icon: BookHeart },
-    { label: 'Financeiro', path: '/admin/financeiro', icon: Wallet },
-    { label: 'Fluxo de Caixa', path: '/admin/fluxo-de-caixa', icon: ArrowLeftRight },
+    // Seções com abas: um item no menu, ativo em qualquer uma das telas da seção
+    {
+      label: 'Loja virtual',
+      path: '/admin/banners',
+      icon: Store,
+      ativoEm: SECAO_LOJA_VIRTUAL.map((a) => a.caminho),
+    },
+    {
+      label: 'Financeiro',
+      path: '/admin/financeiro',
+      icon: Wallet,
+      ativoEm: SECAO_FINANCEIRO.map((a) => a.caminho),
+    },
     { label: 'Relatórios', path: '/admin/relatorios', icon: BarChart3 },
     { label: 'Configurações', path: '/admin/configuracoes', icon: Settings },
-    { label: 'Ajuda', path: '/admin/ajuda', icon: HelpCircle },
-  ]
+  ] as {
+    label: string
+    path: string
+    icon: typeof Store
+    badge?: number
+    ativoEm?: string[]
+  }[]
+
+  const itemAtivo = (item: { path: string; ativoEm?: string[] }) =>
+    item.path === '/admin'
+      ? location.pathname === '/admin'
+      : [item.path, ...(item.ativoEm ?? [])].some((p) => location.pathname.startsWith(p))
 
   // Resultados da busca global (clientes e pedidos)
   const termoBusca = buscaGlobal.trim().toLowerCase()
@@ -260,10 +278,7 @@ export default function Layout() {
           <nav className="flex-1 p-3 space-y-1 overflow-y-auto overflow-x-hidden">
             {navItems.map((item) => {
               const Icon = item.icon
-              const isActive =
-                item.path === '/admin'
-                  ? location.pathname === '/admin'
-                  : location.pathname.startsWith(item.path)
+              const isActive = itemAtivo(item)
 
               return (
                 <NavLink
@@ -309,8 +324,27 @@ export default function Layout() {
               )
             })}
 
-            {/* Atalho para a loja virtual (abre em outra aba) */}
-            <div className="pt-2 mt-2 border-t border-[#DFC3AE]/50">
+            {/* Rodapé do menu: Ajuda e atalho para a loja virtual (abre em outra aba) */}
+            <div
+              className={`pt-2 mt-2 border-t border-[#DFC3AE]/50 ${menuRecolhido ? 'space-y-0.5' : 'grid grid-cols-2 gap-1'}`}
+            >
+              <NavLink
+                to="/admin/ajuda"
+                title={menuRecolhido ? 'Ajuda' : undefined}
+                aria-label="Ajuda"
+                className={({ isActive }) =>
+                  `flex items-center rounded-lg text-sm font-medium transition-all group ${
+                    menuRecolhido ? 'justify-center px-0 py-2.5' : 'gap-3 px-3.5 py-2.5'
+                  } ${
+                    isActive
+                      ? 'bg-[#C48864]/12 text-[#94603D] font-semibold'
+                      : 'text-[#6B4B36] hover:bg-[#F7F3EA] hover:text-[#0C1014]'
+                  }`
+                }
+              >
+                <HelpCircle className="w-4 h-4 shrink-0" />
+                {!menuRecolhido && <span>Ajuda</span>}
+              </NavLink>
               <a
                 href="/"
                 target="_blank"
@@ -318,7 +352,9 @@ export default function Layout() {
                 title={menuRecolhido ? 'Ver loja (abre em outra aba)' : undefined}
                 aria-label="Ver loja (abre em outra aba)"
                 className={`flex items-center rounded-lg text-sm font-medium transition-all group text-[#6B4B36] hover:bg-[#F7F3EA] hover:text-[#0C1014] ${
-                  menuRecolhido ? 'justify-center px-0 py-2.5' : 'justify-between px-3.5 py-2.5'
+                  menuRecolhido
+                    ? 'justify-center px-0 py-2.5'
+                    : 'justify-between gap-2 px-3.5 py-2.5'
                 }`}
               >
                 <span className="flex items-center gap-3">
@@ -440,10 +476,7 @@ export default function Layout() {
               <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
                 {navItems.map((item) => {
                   const Icon = item.icon
-                  const isActive =
-                    item.path === '/admin'
-                      ? location.pathname === '/admin'
-                      : location.pathname.startsWith(item.path)
+                  const isActive = itemAtivo(item)
 
                   return (
                     <NavLink
@@ -473,7 +506,21 @@ export default function Layout() {
                   )
                 })}
 
-                <div className="pt-2 mt-2 border-t border-[#DFC3AE]/50">
+                <div className="pt-2 mt-2 border-t border-[#DFC3AE]/50 grid grid-cols-2 gap-1">
+                  <NavLink
+                    to="/admin/ajuda"
+                    onClick={() => setMobileMenuAberto(false)}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium ${
+                        isActive
+                          ? 'bg-[#C48864]/12 text-[#94603D] font-semibold'
+                          : 'text-[#6B4B36] hover:bg-[#F7F3EA]'
+                      }`
+                    }
+                  >
+                    <HelpCircle className="w-4 h-4" />
+                    <span>Ajuda</span>
+                  </NavLink>
                   <a
                     href="/"
                     target="_blank"

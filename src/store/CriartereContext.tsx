@@ -118,6 +118,8 @@ export type Action =
   | { type: 'REORDENAR_BANNERS'; payload: string[] } // ids na nova ordem
   // Categorias de produto
   | { type: 'ADICIONAR_CATEGORIA_PRODUTO'; payload: CategoriaProduto }
+  | { type: 'SALVAR_CATEGORIA_PRODUTO'; payload: CategoriaProduto & { antiga: string } }
+  | { type: 'EXCLUIR_CATEGORIA_PRODUTO'; payload: { nome: string; moverPara?: string } }
   // Categorias
   | { type: 'ADICIONAR_CATEGORIA'; payload: string }
   | { type: 'RENOMEAR_CATEGORIA'; payload: { antiga: string; nova: string } }
@@ -455,6 +457,47 @@ function criartereReducer(state: CriartereState, action: Action): CriartereState
       )
       if (!nova.nome || existe) return state
       return { ...state, categoriasProduto: [...state.categoriasProduto, nova] }
+    }
+
+    case 'SALVAR_CATEGORIA_PRODUTO': {
+      const { antiga, ...cat } = action.payload
+      const nome = cat.nome.trim()
+      if (!nome) return state
+      const renomeou = nome !== antiga
+      return {
+        ...state,
+        categoriasProduto: state.categoriasProduto.map((c) =>
+          c.nome === antiga ? { nome, linha: cat.linha } : c,
+        ),
+        produtos: renomeou
+          ? state.produtos.map((p) => (p.categoria === antiga ? { ...p, categoria: nome } : p))
+          : state.produtos,
+        banners: renomeou
+          ? state.banners.map((b) =>
+              b.destinoTipo === 'categoria' && b.destinoValor === antiga
+                ? { ...b, destinoValor: nome }
+                : b,
+            )
+          : state.banners,
+      }
+    }
+
+    case 'EXCLUIR_CATEGORIA_PRODUTO': {
+      const { nome, moverPara } = action.payload
+      return {
+        ...state,
+        categoriasProduto: state.categoriasProduto.filter((c) => c.nome !== nome),
+        produtos: moverPara
+          ? state.produtos.map((p) => (p.categoria === nome ? { ...p, categoria: moverPara } : p))
+          : state.produtos,
+        banners: state.banners.map((b) =>
+          b.destinoTipo === 'categoria' && b.destinoValor === nome
+            ? moverPara
+              ? { ...b, destinoValor: moverPara }
+              : { ...b, destinoTipo: 'nenhum', destinoValor: undefined }
+            : b,
+        ),
+      }
     }
 
     case 'ADICIONAR_CATEGORIA': {

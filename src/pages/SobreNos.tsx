@@ -1,4 +1,5 @@
 import { CabecalhoPagina } from '@/components/common/CabecalhoPagina'
+import { AbasSecao, SECAO_LOJA_VIRTUAL } from '@/components/common/AbasSecao'
 import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { prepararFotoSobre } from '@/lib/imagem'
@@ -141,6 +142,7 @@ export default function SobreNos() {
           </DicaAjuda>
         }
       />
+      <AbasSecao abas={SECAO_LOJA_VIRTUAL} rotulo="Loja virtual" />
 
       {erroCarregar ? (
         <div className="bg-white p-10 rounded-2xl border border-dashed border-[#DFC3AE] text-center space-y-3">

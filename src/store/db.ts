@@ -705,6 +705,25 @@ export async function persistirAcao(
       return []
     }
 
+    case 'SALVAR_CATEGORIA_PRODUTO':
+      check(
+        await supabase.rpc('salvar_categoria_produto', {
+          p_antiga: p.antiga,
+          p_nome: p.nome,
+          p_linha: p.linha ?? null,
+        }),
+      )
+      return ['categoriasProduto', 'produtos', 'banners']
+
+    case 'EXCLUIR_CATEGORIA_PRODUTO':
+      check(
+        await supabase.rpc('excluir_categoria_produto', {
+          p_nome: p.nome,
+          p_mover_para: p.moverPara ?? null,
+        }),
+      )
+      return ['categoriasProduto', 'produtos', 'banners']
+
     case 'ADICIONAR_CATEGORIA': {
       const nova = String(p).trim()
       if (!nova || anterior.categoriasDespesa.includes(nova)) return []

@@ -14,6 +14,7 @@ import {
   Ticket,
   Images,
   BookHeart,
+  Tags,
   Search,
   Settings,
   ShoppingBag,
@@ -280,6 +281,24 @@ const TOPICOS: Topico[] = [
           'Clique em "Adicionar fotos" (até 12). A primeira aparece em destaque ao lado do texto; as outras formam uma galeria.',
           'Use as setas para mudar a ordem das fotos e escreva legendas, se quiser.',
           'Clique em "Salvar" para publicar. "Ver na loja" abre a página como os clientes veem.',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'categorias',
+    titulo: 'Categorias de Produto',
+    icone: Tags,
+    resumo: 'Organize os produtos e escolha em qual aba da loja cada categoria aparece.',
+    rota: '/admin/categorias',
+    secoes: [
+      {
+        subtitulo: 'Como usar',
+        passos: [
+          'Fica em Loja virtual → Categorias. Clique em "Nova Categoria" e escolha a aba da loja: Catálogo 3D, Catálogo Papelaria ou só a página inicial.',
+          'Em "Editar" dá para renomear (os produtos são atualizados juntos) ou trocar a aba da loja.',
+          'Para excluir uma categoria com produtos, escolha para qual categoria movê-los. Banners que abriam a categoria passam a abrir a nova.',
+          'Também dá para criar uma categoria na hora, pelo cadastro do produto ("Nova categoria").',
         ],
       },
     ],

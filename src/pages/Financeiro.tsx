@@ -1,4 +1,5 @@
 import { CabecalhoPagina } from '@/components/common/CabecalhoPagina'
+import { AbasSecao, SECAO_FINANCEIRO } from '@/components/common/AbasSecao'
 import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { hojeISO, inicioDoMesISO } from '@/lib/datas'
 import React, { useState } from 'react'
@@ -147,6 +148,7 @@ export default function Financeiro() {
           </DicaAjuda>
         }
       />
+      <AbasSecao abas={SECAO_FINANCEIRO} rotulo="Financeiro" />
 
       {/* FILTRO DE PERÍODO */}
       <div className="flex flex-col-reverse sm:flex-row sm:items-center gap-3">

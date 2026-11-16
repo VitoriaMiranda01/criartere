@@ -1,4 +1,5 @@
 import { CabecalhoPagina } from '@/components/common/CabecalhoPagina'
+import { AbasSecao, SECAO_LOJA_VIRTUAL } from '@/components/common/AbasSecao'
 import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { novoId } from '@/lib/supabase'
@@ -293,6 +294,7 @@ export default function Banners() {
           </DicaAjuda>
         }
       />
+      <AbasSecao abas={SECAO_LOJA_VIRTUAL} rotulo="Loja virtual" />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <p className="text-xs text-[#6B4B36] max-w-xl">
