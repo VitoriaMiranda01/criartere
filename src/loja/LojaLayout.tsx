@@ -1,6 +1,7 @@
 /* Estrutura das páginas da loja virtual: cabeçalho, conteúdo e rodapé */
 import { Suspense, useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import * as PopoverPrimitive from '@radix-ui/react-popover'
 import { FaWhatsapp, FaInstagram } from 'react-icons/fa'
 import {
   Heart,
@@ -137,60 +138,15 @@ function LojaEstrutura() {
             className="hidden lg:flex items-center gap-5 xl:gap-6 ml-6 xl:ml-8 whitespace-nowrap"
             aria-label="Loja"
           >
-            {(['3d', 'papelaria'] as LinhaCatalogo[]).map((linha) => {
-              const categorias = categoriasDaLinha(linha)
-              return (
-                <div key={linha} className="flex items-center gap-0.5">
-                  <NavLink to={LINHAS_CATALOGO[linha].caminho} className={linkNav}>
-                    {LINHAS_CATALOGO[linha].menu}
-                  </NavLink>
-                  {categorias.length > 0 && (
-                    <DropdownMenu modal={false}>
-                      <DropdownMenuTrigger
-                        aria-label={`Categorias do ${LINHAS_CATALOGO[linha].menu}`}
-                        className="group p-1 rounded-md text-[#6B4B36] hover:text-[#0C1014] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C48864] data-[state=open]:bg-white data-[state=open]:text-[#0C1014]"
-                      >
-                        <ChevronDown className="w-4 h-4 transition-transform group-data-[state=open]:rotate-180" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        align="start"
-                        sideOffset={8}
-                        className="w-64 rounded-xl border-[#DFC3AE] bg-white p-1.5 shadow-[0_10px_30px_rgba(12,16,20,0.10)]"
-                      >
-                        <DropdownMenuItem
-                          asChild
-                          className="rounded-lg cursor-pointer focus:bg-[#F6EDE7]"
-                        >
-                          <Link
-                            to={LINHAS_CATALOGO[linha].caminho}
-                            state={{ rolarParaProdutos: true }}
-                            className="text-sm font-semibold text-[#A5683F]"
-                          >
-                            Ver todo o {LINHAS_CATALOGO[linha].menu}
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-[#DFC3AE]/60" />
-                        {categorias.map((categoria) => (
-                          <DropdownMenuItem
-                            key={categoria}
-                            asChild
-                            className="rounded-lg cursor-pointer focus:bg-[#F6EDE7]"
-                          >
-                            <Link
-                              to={linkCategoria(linha, categoria)}
-                              state={{ rolarParaProdutos: true }}
-                              className="text-sm text-[#6B4B36] focus:text-[#0C1014]"
-                            >
-                              {categoria}
-                            </Link>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                </div>
-              )
-            })}
+            {(['3d', 'papelaria'] as LinhaCatalogo[]).map((linha) => (
+              <MenuCatalogo
+                key={linha}
+                linha={linha}
+                categorias={categoriasDaLinha(linha)}
+                linkCategoria={linkCategoria}
+                linkNav={linkNav}
+              />
+            ))}
             <NavLink to={PAGINA_SOBRE.caminho} className={linkNav}>
               {PAGINA_SOBRE.menu}
             </NavLink>
@@ -430,5 +386,80 @@ function LojaEstrutura() {
         </a>
       )}
     </div>
+  )
+}
+
+/** "Catálogo 3D ⌄": o nome abre a aba inteira; a setinha abre as categorias logo abaixo
+ *  do nome (a lista fica presa ao bloco todo, não só à setinha). */
+function MenuCatalogo({
+  linha,
+  categorias,
+  linkCategoria,
+  linkNav,
+}: {
+  linha: LinhaCatalogo
+  categorias: string[]
+  linkCategoria: (linha: LinhaCatalogo, categoria: string) => string
+  linkNav: (estado: { isActive: boolean }) => string
+}) {
+  const [aberto, setAberto] = useState(false)
+  const info = LINHAS_CATALOGO[linha]
+  const itemLista =
+    'block px-3 py-2 rounded-lg text-sm outline-none transition-colors hover:bg-[#F6EDE7] focus-visible:bg-[#F6EDE7]'
+
+  return (
+    <PopoverPrimitive.Root open={aberto} onOpenChange={setAberto}>
+      <PopoverPrimitive.Anchor asChild>
+        <div className="flex items-center gap-0.5">
+          <NavLink
+            to={info.caminho}
+            className={(estado) => cn(linkNav(estado), aberto && 'text-[#0C1014] border-[#C48864]')}
+          >
+            {info.menu}
+          </NavLink>
+          {categorias.length > 0 && (
+            <PopoverPrimitive.Trigger
+              aria-label={`Categorias do ${info.menu}`}
+              className="group p-1 rounded-md text-[#6B4B36] hover:text-[#0C1014] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C48864] data-[state=open]:bg-white data-[state=open]:text-[#0C1014]"
+            >
+              <ChevronDown className="w-4 h-4 transition-transform group-data-[state=open]:rotate-180" />
+            </PopoverPrimitive.Trigger>
+          )}
+        </div>
+      </PopoverPrimitive.Anchor>
+      <PopoverPrimitive.Portal>
+        <PopoverPrimitive.Content
+          side="bottom"
+          align="start"
+          sideOffset={10}
+          collisionPadding={12}
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          className="z-50 w-64 rounded-xl border border-[#DFC3AE] bg-white p-1.5 shadow-[0_10px_30px_rgba(12,16,20,0.10)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[side=bottom]:slide-in-from-top-2"
+        >
+          <nav aria-label={`Categorias do ${info.menu}`}>
+            <Link
+              to={info.caminho}
+              state={{ rolarParaProdutos: true }}
+              onClick={() => setAberto(false)}
+              className={cn(itemLista, 'font-semibold text-[#A5683F]')}
+            >
+              Ver todo o {info.menu}
+            </Link>
+            <div className="my-1 h-px bg-[#DFC3AE]/60" />
+            {categorias.map((categoria) => (
+              <Link
+                key={categoria}
+                to={linkCategoria(linha, categoria)}
+                state={{ rolarParaProdutos: true }}
+                onClick={() => setAberto(false)}
+                className={cn(itemLista, 'text-[#6B4B36] hover:text-[#0C1014]')}
+              >
+                {categoria}
+              </Link>
+            ))}
+          </nav>
+        </PopoverPrimitive.Content>
+      </PopoverPrimitive.Portal>
+    </PopoverPrimitive.Root>
   )
 }
