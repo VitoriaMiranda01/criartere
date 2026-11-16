@@ -2,7 +2,13 @@ import { Link } from 'react-router-dom'
 import { ShoppingBag, Trash2, Info, ArrowRight } from 'lucide-react'
 import { useSeo } from '@/lib/seo'
 import { useLoja } from '@/loja/LojaContext'
-import { CarregandoLoja, EstadoVazio, ImagemProduto, SeletorQuantidade } from '@/loja/componentes'
+import {
+  CarregandoLoja,
+  descontoDoProduto,
+  EstadoVazio,
+  ImagemProduto,
+  SeletorQuantidade,
+} from '@/loja/componentes'
 import { formatarPreco } from '@/loja/api'
 import { caminhoProduto } from '@/loja/seo-dados'
 import { PrecisaEntrar } from './PrecisaEntrar'
@@ -104,9 +110,32 @@ export default function Carrinho() {
                       </p>
                     )}
                     <p className="text-xs text-[#6B4B36] mt-0.5">
-                      {produto
-                        ? `${formatarPreco(produto.preco)} / unidade`
-                        : 'Este produto saiu da loja. Remova-o do carrinho.'}
+                      {produto ? (
+                        <>
+                          {produto.precoOriginal > produto.preco && (
+                            <span className="line-through mr-1.5">
+                              {formatarPreco(produto.precoOriginal)}
+                            </span>
+                          )}
+                          <span
+                            className={
+                              produto.precoOriginal > produto.preco
+                                ? 'font-semibold text-[#B5533C]'
+                                : undefined
+                            }
+                          >
+                            {formatarPreco(produto.preco)}
+                          </span>{' '}
+                          / unidade
+                          {produto.precoOriginal > produto.preco && (
+                            <span className="ml-1.5 font-semibold text-[#B5533C]">
+                              (-{descontoDoProduto(produto)}%)
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        'Este produto saiu da loja. Remova-o do carrinho.'
+                      )}
                     </p>
                   </div>
                   <button

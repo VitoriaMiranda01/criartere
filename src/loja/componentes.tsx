@@ -206,6 +206,72 @@ export function BotaoWhatsApp({
   )
 }
 
+/** Percentual da promoção do produto (0 = sem promoção). */
+export const descontoDoProduto = (produto: ProdutoVitrine) =>
+  produto.precoOriginal > produto.preco
+    ? Math.max(1, Math.round((1 - produto.preco / produto.precoOriginal) * 100))
+    : 0
+
+/** Etiqueta "-15%" de promoção (não aparece se o produto não está em promoção). */
+export function EtiquetaDesconto({
+  produto,
+  className,
+}: {
+  produto: ProdutoVitrine
+  className?: string
+}) {
+  const percentual = descontoDoProduto(produto)
+  if (!percentual) return null
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center rounded-full bg-[#B5533C] text-white text-xs font-bold px-2.5 py-1 shadow-sm',
+        className,
+      )}
+    >
+      -{percentual}%<span className="sr-only"> de desconto</span>
+    </span>
+  )
+}
+
+/** Preço do produto: com promoção, mostra o preço antigo riscado ao lado. */
+export function PrecoProduto({
+  produto,
+  tamanho = 'md',
+  className,
+}: {
+  produto: ProdutoVitrine
+  tamanho?: 'md' | 'lg'
+  className?: string
+}) {
+  const emPromocao = descontoDoProduto(produto) > 0
+  return (
+    <p className={cn('flex items-baseline flex-wrap gap-x-2', className)}>
+      {emPromocao && (
+        <span
+          className={cn(
+            'text-[#6B4B36]/80 line-through decoration-1',
+            tamanho === 'lg' ? 'text-lg' : 'text-sm',
+          )}
+        >
+          <span className="sr-only">De </span>
+          {formatarPreco(produto.precoOriginal)}
+        </span>
+      )}
+      <span
+        className={cn(
+          'font-serif font-bold',
+          emPromocao ? 'text-[#B5533C]' : 'text-[#A5683F]',
+          tamanho === 'lg' ? 'text-3xl' : 'text-xl',
+        )}
+      >
+        {emPromocao && <span className="sr-only">Por </span>}
+        {formatarPreco(produto.preco)}
+      </span>
+    </p>
+  )
+}
+
 /** Card de produto do catálogo */
 export function CardProduto({ produto }: { produto: ProdutoVitrine }) {
   const { adicionarCarrinho } = useLoja()
@@ -238,6 +304,7 @@ export function CardProduto({ produto }: { produto: ProdutoVitrine }) {
           />
         </Link>
         <BotaoFavorito produto={produto} className="absolute top-3 right-3" />
+        <EtiquetaDesconto produto={produto} className="absolute top-3 left-3" />
       </div>
 
       <div className="flex flex-col flex-1 p-4 gap-2">
@@ -262,9 +329,7 @@ export function CardProduto({ produto }: { produto: ProdutoVitrine }) {
           <p className="text-sm text-[#6B4B36] line-clamp-2 leading-relaxed">{produto.descricao}</p>
         )}
 
-        <p className="font-serif text-xl font-bold text-[#A5683F] mt-auto pt-1">
-          {formatarPreco(produto.preco)}
-        </p>
+        <PrecoProduto produto={produto} className="mt-auto pt-1" />
 
         <div className="flex items-center gap-2">
           <SeletorQuantidade valor={quantidade} onChange={setQuantidade} tamanho="sm" />

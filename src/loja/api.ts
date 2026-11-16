@@ -13,7 +13,8 @@ export interface ProdutoVitrine {
   id: string
   nome: string
   descricao: string
-  preco: number
+  preco: number // preço a pagar (já com a promoção, se houver)
+  precoOriginal: number // preço cheio (igual a "preco" quando não há promoção)
   categoria: string
   imagemUrl?: string // foto principal
   imagens: string[] // todas as fotos (a primeira é a principal)
@@ -46,6 +47,7 @@ const mapProduto = (r: Row): ProdutoVitrine => {
     nome: String(r.nome ?? ''),
     descricao: String(r.descricao ?? ''),
     preco: Number(r.preco ?? 0),
+    precoOriginal: Number(r.preco_original ?? r.preco ?? 0),
     categoria: String(r.categoria ?? ''),
     imagemUrl: imagens[0],
     imagens,

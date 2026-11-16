@@ -34,6 +34,35 @@ export function calcularDesconto(d: Desconto, subtotal: number): number {
   return Math.round(Math.min(bruto, subtotal) * 100) / 100
 }
 
-/** Descontos e cupons que podem ser usados hoje. */
+/** Descontos e cupons do pedido inteiro que podem ser usados hoje
+ *  (as promoções por produto já entram no preço do item). */
 export const descontosDisponiveis = (lista: Desconto[]) =>
-  lista.filter((d) => situacaoDesconto(d) === 'ativo')
+  lista.filter((d) => d.alcance === 'pedido' && situacaoDesconto(d) === 'ativo')
+
+/** Promoção por produto: vale para este produto (pelo próprio produto ou pela categoria)? */
+export const promocaoValeParaProduto = (d: Desconto, produto: { id: string; categoria: string }) =>
+  d.alcance === 'produtos' &&
+  !d.codigo &&
+  (d.produtoIds.includes(produto.id) ||
+    d.categorias.some((c) => c.trim().toLowerCase() === produto.categoria.trim().toLowerCase()))
+
+/** Preço do produto com a melhor promoção válida hoje (mesma regra do banco/loja). */
+export function precoPromocional(
+  produto: { id: string; categoria: string; precoVenda: number },
+  descontos: Desconto[],
+): number {
+  let melhor = produto.precoVenda
+  for (const d of descontos) {
+    if (situacaoDesconto(d) !== 'ativo' || !promocaoValeParaProduto(d, produto)) continue
+    const preco =
+      d.tipo === 'percentual'
+        ? produto.precoVenda * (1 - d.valor / 100)
+        : produto.precoVenda - d.valor
+    melhor = Math.min(melhor, Math.max(0, Math.round(preco * 100) / 100))
+  }
+  return melhor
+}
+
+/** Percentual de desconto para a etiqueta (ex.: 15 para "-15%"). */
+export const percentualDesconto = (original: number, promocional: number) =>
+  original > 0 ? Math.round((1 - promocional / original) * 100) : 0

@@ -8,6 +8,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
 import { Produto } from '@/types/criartere'
 import { formatBRL } from '@/store/periodUtils'
+import { percentualDesconto, precoPromocional } from '@/lib/descontos'
 import {
   Package,
   Plus,
@@ -22,6 +23,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Images,
+  Tag,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -503,6 +505,19 @@ export default function Produtos() {
                         {formatBRL(prod.precoVenda)}
                       </span>
                     </div>
+                    {(() => {
+                      const promo = precoPromocional(prod, state.descontos)
+                      if (promo >= prod.precoVenda) return null
+                      return (
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="inline-flex items-center gap-1 font-semibold text-[#B5533C]">
+                            <Tag className="w-3 h-3" />
+                            Em promoção (-{percentualDesconto(prod.precoVenda, promo)}%)
+                          </span>
+                          <span className="font-bold text-[#B5533C]">{formatBRL(promo)}</span>
+                        </div>
+                      )
+                    })()}
 
                     {prod.custo > 0 && (
                       <div className="flex items-center justify-between text-[11px] text-[#6B4B36]/90">

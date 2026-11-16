@@ -2,7 +2,7 @@ import { CabecalhoPagina } from '@/components/common/CabecalhoPagina'
 import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { novoId } from '@/lib/supabase'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
 import { Desconto } from '@/types/criartere'
 import { formatBRL, formatDataBR } from '@/store/periodUtils'
@@ -24,6 +24,7 @@ import {
   X,
   Copy,
   CalendarDays,
+  Tag,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -67,7 +68,7 @@ const SITUACOES: Record<SituacaoDesconto, { nome: string; classe: string }> = {
   inativo: { nome: 'Inativo', classe: 'bg-gray-500 text-white' },
 }
 
-type FiltroTipo = 'todos' | 'descontos' | 'cupons'
+type FiltroTipo = 'todos' | 'descontos' | 'cupons' | 'produtos'
 type FiltroSituacao = 'todas' | SituacaoDesconto
 
 export default function Descontos() {
@@ -92,7 +93,19 @@ export default function Descontos() {
   const [validoAte, setValidoAte] = useState('')
   const [ativo, setAtivo] = useState(true)
   const [descricao, setDescricao] = useState('')
+  const [alcance, setAlcance] = useState<Desconto['alcance']>('pedido')
+  const [produtoIds, setProdutoIds] = useState<string[]>([])
+  const [categoriasSel, setCategoriasSel] = useState<string[]>([])
+  const [buscaProduto, setBuscaProduto] = useState('')
   const [erro, setErro] = useState('')
+
+  const produtosOrdenados = useMemo(
+    () => [...state.produtos].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')),
+    [state.produtos],
+  )
+  const nomeProduto = (id: string) => state.produtos.find((x) => x.id === id)?.nome
+  const alternar = (lista: string[], valor: string) =>
+    lista.includes(valor) ? lista.filter((v) => v !== valor) : [...lista, valor]
 
   const abrirNovo = (cupom: boolean) => {
     setEditando(null)
@@ -106,6 +119,10 @@ export default function Descontos() {
     setValidoAte('')
     setAtivo(true)
     setDescricao('')
+    setAlcance('pedido')
+    setProdutoIds([])
+    setCategoriasSel([])
+    setBuscaProduto('')
     setErro('')
     setModalAberto(true)
   }
@@ -122,6 +139,10 @@ export default function Descontos() {
     setValidoAte(d.validoAte ?? '')
     setAtivo(d.ativo)
     setDescricao(d.descricao)
+    setAlcance(d.alcance)
+    setProdutoIds(d.produtoIds)
+    setCategoriasSel(d.categorias)
+    setBuscaProduto('')
     setErro('')
     setModalAberto(true)
   }
@@ -148,6 +169,9 @@ export default function Descontos() {
       return setErro('O desconto em porcentagem não pode passar de 100%.')
     if (validoDe && validoAte && validoDe > validoAte)
       return setErro('A data de início deve ser antes da data de término.')
+    const porProduto = !ehCupomForm && alcance === 'produtos'
+    if (porProduto && produtoIds.length === 0 && categoriasSel.length === 0)
+      return setErro('Escolha ao menos um produto ou uma categoria para a promoção.')
 
     const payload: Desconto = {
       id: editando?.id ?? novoId(),
@@ -155,7 +179,10 @@ export default function Descontos() {
       codigo: codigoFinal || undefined,
       tipo,
       valor: Math.round(valor * 100) / 100,
-      valorMinimo,
+      valorMinimo: porProduto ? 0 : valorMinimo,
+      alcance: porProduto ? 'produtos' : 'pedido',
+      produtoIds: porProduto ? produtoIds : [],
+      categorias: porProduto ? categoriasSel : [],
       validoDe: validoDe || undefined,
       validoAte: validoAte || undefined,
       ativo,
@@ -163,7 +190,7 @@ export default function Descontos() {
     }
 
     dispatch({ type: 'SALVAR_DESCONTO', payload })
-    const rotulo = ehCupomForm ? 'Cupom' : 'Desconto'
+    const rotulo = ehCupomForm ? 'Cupom' : porProduto ? 'Promoção' : 'Desconto'
     toast.success(editando ? `${rotulo} "${payload.nome}" atualizado!` : `${rotulo} cadastrado!`)
     setModalAberto(false)
   }
@@ -193,24 +220,30 @@ export default function Descontos() {
     )
       return false
     if (filtroTipo === 'cupons' && !ehCupom(d)) return false
-    if (filtroTipo === 'descontos' && ehCupom(d)) return false
+    if (filtroTipo === 'descontos' && (ehCupom(d) || d.alcance === 'produtos')) return false
+    if (filtroTipo === 'produtos' && d.alcance !== 'produtos') return false
     if (filtroSituacao !== 'todas' && situacaoDesconto(d) !== filtroSituacao) return false
     return true
   })
 
   const qtdCupons = state.descontos.filter(ehCupom).length
-  const qtdDescontos = state.descontos.length - qtdCupons
+  const qtdPromocoes = state.descontos.filter((d) => d.alcance === 'produtos').length
+  const qtdDescontos = state.descontos.length - qtdCupons - qtdPromocoes
 
   return (
     <div className="space-y-6">
       <CabecalhoPagina
         titulo="Descontos e Cupons"
-        descricao={`${qtdDescontos} descontos • ${qtdCupons} cupons cadastrados`}
+        descricao={`${qtdPromocoes} promoções em produtos • ${qtdDescontos} descontos no pedido • ${qtdCupons} cupons`}
         ajuda={
           <DicaAjuda titulo="Descontos e cupons" topico="descontos" lado="bottom">
             <p>
-              <strong>Descontos</strong> são promoções que você escolhe na lista ao montar um pedido
-              ou orçamento.
+              <strong>Promoção em produtos</strong> vale para produtos ou categorias escolhidos: a
+              loja mostra a etiqueta de desconto e o preço antigo riscado.
+            </p>
+            <p>
+              <strong>Desconto no pedido</strong> é escolhido na lista ao montar um pedido ou
+              orçamento.
             </p>
             <p>
               <strong>Cupons</strong> têm um código (ex.: BEMVINDO10) que o cliente informa. Basta
@@ -255,8 +288,11 @@ export default function Descontos() {
                     <SelectItem value="todos" className="text-xs">
                       Descontos e cupons
                     </SelectItem>
+                    <SelectItem value="produtos" className="text-xs">
+                      Promoções em produtos
+                    </SelectItem>
                     <SelectItem value="descontos" className="text-xs">
-                      Somente descontos
+                      Descontos no pedido
                     </SelectItem>
                     <SelectItem value="cupons" className="text-xs">
                       Somente cupons
@@ -346,7 +382,11 @@ export default function Descontos() {
                       </span>
                       <div className="min-w-0">
                         <p className="text-[10px] uppercase font-bold tracking-wider text-[#6B4B36]/90">
-                          {cupom ? 'Cupom' : 'Desconto'}
+                          {cupom
+                            ? 'Cupom'
+                            : d.alcance === 'produtos'
+                              ? 'Promoção na loja'
+                              : 'Desconto no pedido'}
                         </p>
                         <h3 className="font-serif font-bold text-sm text-[#0C1014] line-clamp-1">
                           {d.nome}
@@ -377,7 +417,29 @@ export default function Descontos() {
                       {rotuloValorDesconto(d)}{' '}
                       <span className="text-xs font-sans">de desconto</span>
                     </p>
-                    {d.valorMinimo > 0 && <p>Em compras a partir de {formatBRL(d.valorMinimo)}</p>}
+                    {d.alcance === 'pedido' && d.valorMinimo > 0 && (
+                      <p>Em compras a partir de {formatBRL(d.valorMinimo)}</p>
+                    )}
+                    {d.alcance === 'produtos' && (
+                      <p className="flex items-start gap-1">
+                        <Tag className="w-3 h-3 mt-0.5 shrink-0" />
+                        <span className="line-clamp-2">
+                          Vale para{' '}
+                          {[
+                            d.categorias.length
+                              ? `${d.categorias.length === 1 ? 'a categoria' : 'as categorias'} ${d.categorias.join(', ')}`
+                              : '',
+                            d.produtoIds.length
+                              ? d.produtoIds.length === 1
+                                ? (nomeProduto(d.produtoIds[0]) ?? '1 produto')
+                                : `${d.produtoIds.length} produtos`
+                              : '',
+                          ]
+                            .filter(Boolean)
+                            .join(' e ')}
+                        </span>
+                      </p>
+                    )}
                     {(d.validoDe || d.validoAte) && (
                       <p className="flex items-center gap-1">
                         <CalendarDays className="w-3 h-3" />
@@ -450,6 +512,50 @@ export default function Descontos() {
               <Switch id="eh-cupom" checked={ehCupomForm} onCheckedChange={setEhCupomForm} />
             </div>
 
+            {!ehCupomForm && (
+              <fieldset className="space-y-1.5">
+                <legend className={`${lbl} mb-1.5`}>Onde o desconto vale</legend>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {(
+                    [
+                      {
+                        valor: 'produtos',
+                        titulo: 'Em produtos',
+                        texto: 'Promoção automática: a loja mostra a etiqueta e o preço riscado.',
+                        icone: Tag,
+                      },
+                      {
+                        valor: 'pedido',
+                        titulo: 'No pedido inteiro',
+                        texto: 'Você escolhe na lista ao montar um pedido ou orçamento.',
+                        icone: BadgePercent,
+                      },
+                    ] as const
+                  ).map((op) => (
+                    <button
+                      key={op.valor}
+                      type="button"
+                      onClick={() => setAlcance(op.valor)}
+                      aria-pressed={alcance === op.valor}
+                      className={`text-left rounded-xl border p-3 transition-colors ${
+                        alcance === op.valor
+                          ? 'border-[#A5683F] bg-[#C48864]/10 ring-1 ring-[#A5683F]'
+                          : 'border-[#DFC3AE] bg-white hover:border-[#C48864]'
+                      }`}
+                    >
+                      <span className="flex items-center gap-1.5 text-xs font-bold text-[#0C1014]">
+                        <op.icone className="w-4 h-4 text-[#94603D]" />
+                        {op.titulo}
+                      </span>
+                      <span className="block text-[11px] text-[#6B4B36] mt-0.5 leading-snug">
+                        {op.texto}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className={`space-y-1.5 ${ehCupomForm ? '' : 'sm:col-span-2'}`}>
                 <Label htmlFor="desc-nome" className={lbl}>
@@ -521,25 +627,106 @@ export default function Descontos() {
                 />
               </div>
 
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="desc-minimo" className={lbl}>
-                  Compra mínima (R$)
-                  <Opcional />
-                </Label>
-                <Input
-                  id="desc-minimo"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder="Sem mínimo"
-                  value={minimoStr}
-                  onChange={(e) => setMinimoStr(e.target.value)}
-                  className="h-10 text-xs border-[#DFC3AE]"
-                />
-                <p className="text-[10px] text-[#6B4B36]/90">
-                  Soma dos itens (sem frete) necessária para o desconto valer.
-                </p>
-              </div>
+              {!ehCupomForm && alcance === 'produtos' ? (
+                <div className="space-y-3 sm:col-span-2 rounded-xl border border-[#DFC3AE]/70 bg-[#F7F3EA]/50 p-3">
+                  <div className="space-y-1.5">
+                    <p className={lbl}>Categorias inteiras</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {state.categoriasProduto.map((c) => (
+                        <button
+                          key={c.nome}
+                          type="button"
+                          onClick={() => setCategoriasSel((l) => alternar(l, c.nome))}
+                          aria-pressed={categoriasSel.includes(c.nome)}
+                          className={`h-7 px-2.5 rounded-full text-[11px] font-semibold border transition-colors ${
+                            categoriasSel.includes(c.nome)
+                              ? 'bg-[#A5683F] text-white border-[#A5683F]'
+                              : 'bg-white text-[#6B4B36] border-[#DFC3AE] hover:border-[#C48864]'
+                          }`}
+                        >
+                          {c.nome}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <p className={`${lbl} flex items-center justify-between gap-2`}>
+                      <span>Produtos</span>
+                      <span className="normal-case tracking-normal font-normal">
+                        {produtoIds.length === 0
+                          ? 'nenhum selecionado'
+                          : produtoIds.length === 1
+                            ? '1 selecionado'
+                            : `${produtoIds.length} selecionados`}
+                      </span>
+                    </p>
+                    <div className="relative">
+                      <Search className="w-3.5 h-3.5 text-[#6B4B36]/90 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                      <Input
+                        aria-label="Buscar produto"
+                        placeholder="Buscar produto..."
+                        value={buscaProduto}
+                        onChange={(e) => setBuscaProduto(e.target.value)}
+                        className="h-8 pl-8 text-xs border-[#DFC3AE] bg-white"
+                      />
+                    </div>
+                    <ul className="max-h-44 overflow-y-auto rounded-lg border border-[#DFC3AE]/70 bg-white divide-y divide-[#DFC3AE]/40">
+                      {produtosOrdenados
+                        .filter((pr) =>
+                          pr.nome.toLowerCase().includes(buscaProduto.trim().toLowerCase()),
+                        )
+                        .map((pr) => {
+                          const marcado = produtoIds.includes(pr.id)
+                          const pelaCategoria = categoriasSel.includes(pr.categoria)
+                          return (
+                            <li key={pr.id}>
+                              <label className="flex items-center gap-2 px-2.5 py-1.5 text-xs cursor-pointer hover:bg-[#F7F3EA]">
+                                <input
+                                  type="checkbox"
+                                  checked={marcado || pelaCategoria}
+                                  disabled={pelaCategoria}
+                                  onChange={() => setProdutoIds((l) => alternar(l, pr.id))}
+                                  className="accent-[#A5683F]"
+                                />
+                                <span className="flex-1 min-w-0 truncate text-[#0C1014]">
+                                  {pr.nome}
+                                </span>
+                                <span className="shrink-0 text-[10px] text-[#6B4B36]">
+                                  {pelaCategoria ? 'pela categoria' : formatBRL(pr.precoVenda)}
+                                </span>
+                              </label>
+                            </li>
+                          )
+                        })}
+                      {produtosOrdenados.length === 0 && (
+                        <li className="px-2.5 py-3 text-xs text-[#6B4B36]">
+                          Nenhum produto cadastrado.
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label htmlFor="desc-minimo" className={lbl}>
+                    Compra mínima (R$)
+                    <Opcional />
+                  </Label>
+                  <Input
+                    id="desc-minimo"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="Sem mínimo"
+                    value={minimoStr}
+                    onChange={(e) => setMinimoStr(e.target.value)}
+                    className="h-10 text-xs border-[#DFC3AE]"
+                  />
+                  <p className="text-[10px] text-[#6B4B36]/90">
+                    Soma dos itens (sem frete) necessária para o desconto valer.
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-1.5">
                 <Label htmlFor="desc-de" className={lbl}>

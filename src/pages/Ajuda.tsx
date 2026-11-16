@@ -242,6 +242,7 @@ const TOPICOS: Topico[] = [
         subtitulo: 'Como usar',
         passos: [
           'Clique em "Novo Desconto" (escolhido na lista) ou "Novo Cupom" (tem um código, ex.: BEMVINDO10, que o cliente informa).',
+          'Em "Novo Desconto", escolha "Em produtos" para uma promoção automática: marque produtos ou categorias inteiras. A loja mostra a etiqueta (ex.: -15%) e o preço antigo riscado, e o pedido já entra com o preço promocional.',
           'Informe se o desconto é em porcentagem ou valor fixo. Compra mínima e período de validade são opcionais.',
           'No pedido ou orçamento, escolha o desconto na lista ou digite o código do cupom: o valor é calculado sobre a soma dos itens e preenchido no campo "Desconto".',
           'Desligue "Ativo" para pausar uma promoção sem apagá-la. Cupons fora do período ou inativos não são aceitos.',

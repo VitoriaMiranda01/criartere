@@ -11,10 +11,12 @@ import {
   CardProduto,
   CarregandoLoja,
   EstadoVazio,
+  EtiquetaDesconto,
   ImagemProduto,
+  PrecoProduto,
   SeletorQuantidade,
 } from '@/loja/componentes'
-import { formatarPreco, ProdutoVitrine } from '@/loja/api'
+import { ProdutoVitrine } from '@/loja/api'
 
 export default function ProdutoDetalhe() {
   const { id: parametro } = useParams()
@@ -108,9 +110,10 @@ export default function ProdutoDetalhe() {
             <h1 className="font-serif text-3xl sm:text-4xl font-semibold leading-tight text-[#0C1014]">
               {produto.nome}
             </h1>
-            <p className="font-serif text-3xl font-bold text-[#A5683F]">
-              {formatarPreco(produto.preco)}
-            </p>
+            <div className="flex items-center gap-3 flex-wrap">
+              <PrecoProduto produto={produto} tamanho="lg" />
+              <EtiquetaDesconto produto={produto} />
+            </div>
           </div>
 
           {produto.descricao && (

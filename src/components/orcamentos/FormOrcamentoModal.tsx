@@ -4,6 +4,7 @@ import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import React, { useEffect, useState } from 'react'
 import { novoId } from '@/lib/supabase'
 import { AplicarDesconto } from '@/components/common/AplicarDesconto'
+import { precoPromocional } from '@/lib/descontos'
 import { Orcamento, OrcamentoItem, OrcamentoStatus } from '@/types/criartere'
 import { useCriartere } from '@/store/CriartereContext'
 import { formatBRL } from '@/store/periodUtils'
@@ -293,7 +294,7 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
                         atualizarItem(idx, {
                           produtoId: p.id,
                           nome: p.nome,
-                          valorUnitario: p.precoVenda,
+                          valorUnitario: precoPromocional(p, state.descontos),
                         })
                     }}
                   >
@@ -308,7 +309,8 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
                       )}
                       {produtosAtivos.map((p) => (
                         <SelectItem key={p.id} value={p.id} className="text-xs">
-                          {p.nome} — {formatBRL(p.precoVenda)}
+                          {p.nome} — {formatBRL(precoPromocional(p, state.descontos))}
+                          {precoPromocional(p, state.descontos) < p.precoVenda && ' (promoção)'}
                         </SelectItem>
                       ))}
                     </SelectContent>
