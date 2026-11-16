@@ -11,6 +11,8 @@ import {
   Menu,
   X,
   Store,
+  Box,
+  PenTool,
   ClipboardList,
 } from 'lucide-react'
 import {
@@ -26,6 +28,7 @@ import { cn } from '@/lib/utils'
 import { LojaProvider, useLoja } from './LojaContext'
 import { CarregandoLoja } from './componentes'
 import { numeroWhatsApp } from './api'
+import { LINHAS_CATALOGO } from './seo-dados'
 
 export default function LojaLayout() {
   // Ativa os estilos da loja (avisos, barras de rolagem, seleção de texto, preenchimento automático)
@@ -112,8 +115,11 @@ function LojaEstrutura() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-6 ml-8" aria-label="Loja">
-            <NavLink to="/" end className={linkNav}>
-              Catálogo
+            <NavLink to={LINHAS_CATALOGO['3d'].caminho} className={linkNav}>
+              {LINHAS_CATALOGO['3d'].menu}
+            </NavLink>
+            <NavLink to={LINHAS_CATALOGO.papelaria.caminho} className={linkNav}>
+              {LINHAS_CATALOGO.papelaria.menu}
             </NavLink>
             <NavLink to="/favoritos" className={linkNav}>
               Favoritos
@@ -214,7 +220,13 @@ function LojaEstrutura() {
             aria-label="Loja"
           >
             {[
-              { to: '/', label: 'Catálogo', icon: Store, end: true },
+              { to: '/', label: 'Início', icon: Store, end: true },
+              { to: LINHAS_CATALOGO['3d'].caminho, label: LINHAS_CATALOGO['3d'].menu, icon: Box },
+              {
+                to: LINHAS_CATALOGO.papelaria.caminho,
+                label: LINHAS_CATALOGO.papelaria.menu,
+                icon: PenTool,
+              },
               { to: '/favoritos', label: 'Favoritos', icon: Heart },
               { to: '/carrinho', label: 'Carrinho', icon: ShoppingBag },
             ].map((l) => (

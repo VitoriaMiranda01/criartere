@@ -72,6 +72,11 @@ const App = () => (
               {/* Loja virtual: catálogo público, favoritos e carrinho dos clientes */}
               <Route path="/" element={<LojaLayout />}>
                 <Route index element={<LojaCatalogo />} />
+                <Route path="impressao-3d" element={<LojaCatalogo key="3d" linha="3d" />} />
+                <Route
+                  path="papelaria"
+                  element={<LojaCatalogo key="papelaria" linha="papelaria" />}
+                />
                 <Route path="produto/:id" element={<LojaProduto />} />
                 <Route path="favoritos" element={<LojaFavoritos />} />
                 <Route path="carrinho" element={<LojaCarrinho />} />

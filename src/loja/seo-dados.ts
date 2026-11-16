@@ -9,6 +9,44 @@ export const DESCRICAO_LOJA =
   'Loja virtual da Criartere: peças em impressão 3D, papelaria e personalizados feitos com carinho. ' +
   'Veja preços, salve favoritos e encomende pelo WhatsApp.'
 
+/** Linhas da loja: cada uma é uma aba ("Catálogo 3D", "Catálogo Papelaria") com as suas categorias. */
+export type LinhaCatalogo = '3d' | 'papelaria'
+
+export const LINHAS_CATALOGO: Record<
+  LinhaCatalogo,
+  {
+    menu: string
+    caminho: string
+    titulo: string
+    tituloSeo: string
+    descricao: string
+    categorias: string[]
+  }
+> = {
+  '3d': {
+    menu: 'Catálogo 3D',
+    caminho: '/impressao-3d',
+    titulo: 'Catálogo 3D',
+    tituloSeo: 'Catálogo de impressão 3D: decoração, miniaturas e peças',
+    descricao:
+      'Peças em impressão 3D feitas camada por camada: decoração, miniaturas, colecionáveis e peças técnicas.',
+    categorias: ['Impressão 3D', 'Miniaturas e colecionáveis', 'Peças técnicas e protótipos'],
+  },
+  papelaria: {
+    menu: 'Catálogo Papelaria',
+    caminho: '/papelaria',
+    titulo: 'Catálogo Papelaria',
+    tituloSeo: 'Catálogo de papelaria: cartões, adesivos e impressos',
+    descricao:
+      'Papelaria personalizada: cartões, convites, adesivos, placas e impressos com acabamento caprichado.',
+    categorias: ['Cartões e papelaria', 'Banners, adesivos e placas'],
+  },
+}
+
+/** Produtos de uma linha (comparação sem diferenciar maiúsculas e espaços). */
+export const produtoDaLinha = (categoria: string, linha: LinhaCatalogo) =>
+  LINHAS_CATALOGO[linha].categorias.some((c) => c.toLowerCase() === categoria.trim().toLowerCase())
+
 export interface ProdutoSeo {
   id: string
   nome: string
@@ -127,17 +165,25 @@ export function jsonLdProduto(p: ProdutoSeo) {
   }
 }
 
-export function jsonLdCatalogo(produtos: ProdutoSeo[], contato?: ContatoSeo) {
+export function jsonLdCatalogo(
+  produtos: ProdutoSeo[],
+  contato?: ContatoSeo,
+  pagina: { nome: string; caminho: string; descricao: string } = {
+    nome: 'Catálogo Criartere',
+    caminho: '/',
+    descricao: DESCRICAO_LOJA,
+  },
+) {
   return {
     '@context': 'https://schema.org',
     '@graph': [
       jsonLdLoja(contato),
       {
         '@type': 'CollectionPage',
-        name: 'Catálogo Criartere',
-        url: `${SITE}/`,
+        name: pagina.nome,
+        url: `${SITE}${pagina.caminho}`,
         inLanguage: 'pt-BR',
-        description: DESCRICAO_LOJA,
+        description: pagina.descricao,
         mainEntity: {
           '@type': 'ItemList',
           numberOfItems: produtos.length,

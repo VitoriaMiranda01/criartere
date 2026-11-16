@@ -26,6 +26,9 @@ import {
   jsonLdCatalogo,
   jsonSeguro,
   formatarPrecoSeo,
+  LINHAS_CATALOGO,
+  LinhaCatalogo,
+  produtoDaLinha,
 } from '../src/loja/seo-dados'
 
 const esc = (t: string) =>
@@ -88,9 +91,13 @@ ${p.descricao ? `<p>${esc(p.descricao)}</p>` : ''}
 <p>Preço: <strong>${formatarPrecoSeo(p.preco)}</strong> · ${p.disponibilidade === 'pronta_entrega' ? 'Pronta entrega' : 'Sob encomenda'}</p>
 </main>`
 
-const conteudoCatalogo = (produtos: ProdutoSeo[]) => `<main class="conteudo-estatico">
-<h1>Criartere — Loja virtual</h1>
-<p>${esc(DESCRICAO_LOJA)}</p>
+const conteudoCatalogo = (
+  produtos: ProdutoSeo[],
+  titulo = 'Criartere — Loja virtual',
+  descricao = DESCRICAO_LOJA,
+) => `<main class="conteudo-estatico">
+<h1>${esc(titulo)}</h1>
+<p>${esc(descricao)}</p>
 <ul>
 ${produtos.map((p) => `<li><a href="${esc(caminhoProduto(p))}">${esc(p.nome)}</a> — ${formatarPrecoSeo(p.preco)}</li>`).join('\n')}
 </ul>
@@ -211,6 +218,27 @@ export function seoPrerender(opcoes: { supabaseUrl: string; chave: string }) {
             conteudo: conteudoCatalogo(produtos),
           }),
         )
+        // Abas "Catálogo 3D" e "Catálogo Papelaria"
+        for (const [linha, info] of Object.entries(LINHAS_CATALOGO)) {
+          const daLinha = produtos.filter((p) =>
+            produtoDaLinha(p.categoria, linha as LinhaCatalogo),
+          )
+          gravar(
+            info.caminho,
+            montarHtml(modelo, {
+              titulo: info.tituloSeo,
+              descricao: info.descricao,
+              caminho: info.caminho,
+              tipo: 'website',
+              jsonLd: jsonLdCatalogo(daLinha, contato, {
+                nome: info.titulo,
+                caminho: info.caminho,
+                descricao: info.descricao,
+              }),
+              conteudo: conteudoCatalogo(daLinha, info.titulo, info.descricao),
+            }),
+          )
+        }
         for (const p of produtos) {
           gravar(
             caminhoProduto(p),
@@ -231,6 +259,11 @@ export function seoPrerender(opcoes: { supabaseUrl: string; chave: string }) {
         path.join(pastaSaida, 'sitemap.xml'),
         sitemap([
           { caminho: '/', prioridade: '1.0', frequencia: 'daily' },
+          ...Object.values(LINHAS_CATALOGO).map((l) => ({
+            caminho: l.caminho,
+            prioridade: '0.9',
+            frequencia: 'daily',
+          })),
           ...produtos.map((p) => ({
             caminho: caminhoProduto(p),
             prioridade: '0.8',

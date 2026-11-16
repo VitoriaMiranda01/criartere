@@ -9,7 +9,13 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useSeo } from '@/lib/seo'
-import { DESCRICAO_LOJA, jsonLdCatalogo } from '@/loja/seo-dados'
+import {
+  DESCRICAO_LOJA,
+  jsonLdCatalogo,
+  LINHAS_CATALOGO,
+  LinhaCatalogo,
+  produtoDaLinha,
+} from '@/loja/seo-dados'
 import { cn } from '@/lib/utils'
 import { useLoja } from '@/loja/LojaContext'
 import { CardProduto, CarregandoLoja, EstadoVazio } from '@/loja/componentes'
@@ -28,9 +34,11 @@ const OPCOES_ORDEM = [
   { valor: 'maior', rotulo: 'Maior preço' },
 ] as const
 
-export default function Catalogo() {
+/** Sem `linha`: página inicial com todos os produtos e os banners.
+ *  Com `linha`: aba "Catálogo 3D" ou "Catálogo Papelaria", só com as categorias dela. */
+export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
   const {
-    produtos,
+    produtos: todosProdutos,
     carregandoProdutos,
     erroProdutos,
     recarregarVitrine,
@@ -38,12 +46,25 @@ export default function Catalogo() {
     banners,
     carregandoBanners,
   } = useLoja()
+  const infoLinha = linha ? LINHAS_CATALOGO[linha] : null
+  const produtos = useMemo(
+    () => (linha ? todosProdutos.filter((p) => produtoDaLinha(p.categoria, linha)) : todosProdutos),
+    [todosProdutos, linha],
+  )
   useSeo({
-    titulo: 'Loja virtual: impressão 3D, papelaria e personalizados',
-    descricao: DESCRICAO_LOJA,
-    caminho: '/',
+    titulo: infoLinha?.tituloSeo ?? 'Loja virtual: impressão 3D, papelaria e personalizados',
+    descricao: infoLinha?.descricao ?? DESCRICAO_LOJA,
+    caminho: infoLinha?.caminho ?? '/',
     indexar: true,
-    jsonLd: produtos.length ? jsonLdCatalogo(produtos, contato ?? undefined) : undefined,
+    jsonLd: produtos.length
+      ? jsonLdCatalogo(
+          produtos,
+          contato ?? undefined,
+          infoLinha
+            ? { nome: infoLinha.titulo, caminho: infoLinha.caminho, descricao: infoLinha.descricao }
+            : undefined,
+        )
+      : undefined,
     ativo: !carregandoProdutos && !erroProdutos,
   })
   const [busca, setBusca] = useState('')
@@ -94,8 +115,26 @@ export default function Catalogo() {
 
   return (
     <div className="space-y-8">
-      {/* Destaques (banners do painel) ou apresentação padrão */}
-      {carregandoBanners ? (
+      {/* Aba de uma linha: título simples. Início: banners ou apresentação padrão */}
+      {infoLinha ? (
+        <section className="relative overflow-hidden rounded-3xl bg-white border border-[#DFC3AE]/60 px-6 py-8 sm:px-10 sm:py-10">
+          <div
+            className="absolute -top-24 -right-16 w-72 h-72 rounded-full bg-[#DFC3AE] opacity-40 blur-3xl pointer-events-none"
+            aria-hidden="true"
+          />
+          <div className="relative max-w-2xl">
+            <p className="text-[11px] uppercase tracking-[0.25em] text-[#A5683F] font-bold mb-2">
+              Criartere
+            </p>
+            <h1 className="font-serif text-3xl sm:text-4xl font-semibold leading-tight text-[#0C1014]">
+              {infoLinha.titulo}
+            </h1>
+            <p className="text-sm sm:text-base text-[#6B4B36] mt-3 leading-relaxed">
+              {infoLinha.descricao}
+            </p>
+          </div>
+        </section>
+      ) : carregandoBanners ? (
         <div
           className="rounded-3xl bg-white border border-[#DFC3AE]/60 aspect-square sm:aspect-[16/5] animate-pulse"
           aria-hidden="true"
@@ -180,7 +219,7 @@ export default function Catalogo() {
           </Select>
         </div>
 
-        {categorias.length > 0 && (
+        {categorias.length > 1 && (
           <div className="flex gap-2 overflow-x-auto sem-barra pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
             {['', ...categorias].map((c) => (
               <button
