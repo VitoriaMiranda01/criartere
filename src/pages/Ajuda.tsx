@@ -258,7 +258,7 @@ const TOPICOS: Topico[] = [
       {
         subtitulo: 'Como usar',
         passos: [
-          'Clique em "Novo Banner", dê um nome e envie a imagem para computador (ideal 1920 × 600 px) e para celular (ideal 1080 × 1080 px).',
+          'Clique em "Novo Banner", dê um nome e envie as duas imagens, ambas obrigatórias: uma para computador (1920 × 600 px, larga) e outra para celular (1080 × 1080 px, quadrada).',
           'Em "Ao clicar, abrir", escolha uma categoria ou um produto para o banner virar um link. Ou deixe "Nada" para ser só imagem.',
           'Use as setas para mudar a ordem dos slides. Datas de início e fim tiram o banner do ar automaticamente.',
           'Sem banners no ar, a loja mostra a apresentação padrão.',

@@ -88,15 +88,25 @@ export async function listarBannersLoja(): Promise<BannerLoja[]> {
   const hoje = hojeISO()
   const noPeriodo = (r: Row) =>
     (!r.valido_de || String(r.valido_de) <= hoje) && (!r.valido_ate || String(r.valido_ate) >= hoje)
-  return ((data ?? []) as Row[]).filter(noPeriodo).map((r) => ({
-    id: String(r.id),
-    titulo: String(r.titulo ?? ''),
-    imagemComputador: String(r.imagem_computador ?? ''),
-    imagemCelular: String(r.imagem_celular || r.imagem_computador || ''),
-    destinoTipo:
-      r.destino_tipo === 'categoria' || r.destino_tipo === 'produto' ? r.destino_tipo : 'nenhum',
-    destinoValor: String(r.destino_valor ?? ''),
-  }))
+  return (
+    ((data ?? []) as Row[])
+      .filter(noPeriodo)
+      .map(
+        (r): BannerLoja => ({
+          id: String(r.id),
+          titulo: String(r.titulo ?? ''),
+          imagemComputador: String(r.imagem_computador ?? ''),
+          imagemCelular: String(r.imagem_celular ?? ''),
+          destinoTipo:
+            r.destino_tipo === 'categoria' || r.destino_tipo === 'produto'
+              ? r.destino_tipo
+              : 'nenhum',
+          destinoValor: String(r.destino_valor ?? ''),
+        }),
+      )
+      // Banner só entra no ar com as duas imagens (computador e celular)
+      .filter((b) => b.imagemComputador && b.imagemCelular)
+  )
 }
 
 export async function buscarContatoLoja(): Promise<ContatoLoja | null> {

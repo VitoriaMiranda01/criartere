@@ -166,7 +166,7 @@ export interface Banner {
   id: string
   titulo: string // texto alternativo e nome no painel
   imagemComputador: string
-  imagemCelular?: string // sem ela, a do computador é usada (recortada)
+  imagemCelular: string // obrigatória (quadrada)
   destinoTipo: 'nenhum' | 'categoria' | 'produto'
   destinoValor?: string // nome da categoria ou id do produto
   ordem: number

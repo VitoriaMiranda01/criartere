@@ -180,7 +180,7 @@ const mapBanner = (r: Row): Banner => ({
   id: r.id,
   titulo: r.titulo,
   imagemComputador: r.imagem_computador,
-  imagemCelular: opt(r.imagem_celular),
+  imagemCelular: r.imagem_celular ?? '',
   destinoTipo: r.destino_tipo,
   destinoValor: opt(r.destino_valor),
   ordem: r.ordem,
@@ -267,7 +267,7 @@ const bannerParaRow = (b: Banner) => ({
   id: b.id,
   titulo: b.titulo,
   imagem_computador: b.imagemComputador,
-  imagem_celular: b.imagemCelular || null,
+  imagem_celular: b.imagemCelular,
   destino_tipo: b.destinoTipo,
   destino_valor: b.destinoTipo === 'nenhum' ? null : b.destinoValor || null,
   ordem: b.ordem,
@@ -671,7 +671,7 @@ export async function persistirAcao(
 
     case 'SALVAR_BANNER':
       check(await supabase.from('banners').upsert(bannerParaRow(p)))
-      await limparImagensBanner(p.id, [p.imagemComputador, p.imagemCelular ?? '']).catch(
+      await limparImagensBanner(p.id, [p.imagemComputador, p.imagemCelular]).catch(
         () => undefined,
       )
       return []

@@ -23,6 +23,7 @@ import {
   Link2,
   CalendarDays,
   ExternalLink,
+  CheckCircle2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -73,9 +74,24 @@ function situacaoBanner(b: Banner, hoje = hojeISO()): Situacao {
 }
 
 type Formato = 'computador' | 'celular'
-const FORMATOS: Record<Formato, { nome: string; medida: string; proporcao: string }> = {
-  computador: { nome: 'Computador', medida: '1920 × 600 px', proporcao: 'aspect-[16/5]' },
-  celular: { nome: 'Celular', medida: '1080 × 1080 px', proporcao: 'aspect-square' },
+const FORMATOS: Record<
+  Formato,
+  { titulo: string; medida: string; formato: string; onde: string; proporcao: string }
+> = {
+  computador: {
+    titulo: 'Imagem para computador',
+    medida: '1920 × 600 px',
+    formato: 'horizontal, larga',
+    onde: 'Aparece em computadores e tablets.',
+    proporcao: 'aspect-[16/5]',
+  },
+  celular: {
+    titulo: 'Imagem para celular',
+    medida: '1080 × 1080 px',
+    formato: 'quadrada',
+    onde: 'Aparece nos celulares.',
+    proporcao: 'aspect-square',
+  },
 }
 
 interface ImagemForm {
@@ -104,6 +120,7 @@ export default function Banners() {
   const [ativo, setAtivo] = useState(true)
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
+  const [tentouSalvar, setTentouSalvar] = useState(false)
 
   const banners = useMemo(
     () => [...state.banners].sort((a, b) => a.ordem - b.ordem),
@@ -145,6 +162,7 @@ export default function Banners() {
     setValidoAte(b?.validoAte ?? '')
     setAtivo(b?.ativo ?? true)
     setErro('')
+    setTentouSalvar(false)
     setModalAberto(true)
   }
 
@@ -173,10 +191,16 @@ export default function Banners() {
   const handleSalvar = async (e: React.FormEvent) => {
     e.preventDefault()
     setErro('')
+    setTentouSalvar(true)
 
     if (!titulo.trim()) return setErro('Dê um nome ao banner (ex.: Natal 2026).')
-    if (!imagens.computador.url && !imagens.computador.nova)
-      return setErro('Envie a imagem para computador.')
+    const faltando = (['computador', 'celular'] as Formato[]).filter(
+      (f) => !imagens[f].url && !imagens[f].nova,
+    )
+    if (faltando.length === 2)
+      return setErro('Envie as duas imagens do banner: a de computador e a de celular.')
+    if (faltando.length === 1)
+      return setErro(`Falta a ${FORMATOS[faltando[0]].titulo.toLowerCase()}.`)
     if (destinoTipo !== 'nenhum' && !destinoValor)
       return setErro(
         destinoTipo === 'categoria'
@@ -211,7 +235,7 @@ export default function Banners() {
       id,
       titulo: titulo.trim(),
       imagemComputador: urls.computador,
-      imagemCelular: urls.celular || undefined,
+      imagemCelular: urls.celular,
       destinoTipo,
       destinoValor: destinoTipo === 'nenhum' ? undefined : destinoValor,
       ordem: editando?.ordem ?? Math.max(0, ...state.banners.map((b) => b.ordem)) + 1,
@@ -263,8 +287,8 @@ export default function Banners() {
               promoções.
             </p>
             <p>
-              Cada banner tem uma imagem para computador (larga) e outra para celular (quadrada).
-              Ele pode abrir uma categoria ou um produto ao ser clicado.
+              Cada banner tem duas imagens obrigatórias: uma para computador (larga) e outra para
+              celular (quadrada). Ele pode abrir uma categoria ou um produto ao ser clicado.
             </p>
           </DicaAjuda>
         }
@@ -322,7 +346,7 @@ export default function Banners() {
                     className="flex-1 min-w-0 aspect-[16/5] object-cover rounded-lg border border-[#DFC3AE]/60 bg-[#F7F3EA]"
                   />
                   <img
-                    src={b.imagemCelular || b.imagemComputador}
+                    src={b.imagemCelular}
                     alt=""
                     className="h-full max-h-[86px] aspect-square object-cover rounded-lg border border-[#DFC3AE]/60 bg-[#F7F3EA]"
                   />
@@ -352,11 +376,6 @@ export default function Banners() {
                         : b.validoDe
                           ? `A partir de ${formatDataBR(b.validoDe)}`
                           : `Até ${formatDataBR(b.validoAte)}`}
-                    </p>
-                  )}
-                  {!b.imagemCelular && (
-                    <p className="text-[11px] text-[#A84A34]">
-                      Sem imagem para celular: a do computador aparece recortada.
                     </p>
                   )}
                 </div>
@@ -441,17 +460,28 @@ export default function Banners() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-[1fr_200px] gap-4">
-              {(['computador', 'celular'] as Formato[]).map((formato) => (
-                <CampoImagem
-                  key={formato}
-                  formato={formato}
-                  imagem={imagens[formato]}
-                  onEscolher={(arq) => escolherImagem(formato, arq)}
-                  onRemover={() => removerImagem(formato)}
-                />
-              ))}
-            </div>
+            <fieldset className="space-y-2">
+              <legend className={`${lbl} mb-1`}>
+                Imagens do banner
+                <Obrigatorio />
+              </legend>
+              <p className="text-[11px] text-[#6B4B36]">
+                Envie as duas versões da arte: uma larga para computador e uma quadrada para
+                celular. As duas são obrigatórias.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] gap-3">
+                {(['computador', 'celular'] as Formato[]).map((formato) => (
+                  <CampoImagem
+                    key={formato}
+                    formato={formato}
+                    imagem={imagens[formato]}
+                    faltando={tentouSalvar && !imagens[formato].url && !imagens[formato].nova}
+                    onEscolher={(arq) => escolherImagem(formato, arq)}
+                    onRemover={() => removerImagem(formato)}
+                  />
+                ))}
+              </div>
+            </fieldset>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
@@ -634,15 +664,17 @@ export default function Banners() {
   )
 }
 
-/** Área de envio de uma das imagens do banner, já no formato em que aparece na loja. */
+/** Campo obrigatório de uma das imagens do banner, com prévia no formato em que aparece na loja. */
 function CampoImagem({
   formato,
   imagem,
+  faltando,
   onEscolher,
   onRemover,
 }: {
   formato: Formato
   imagem: ImagemForm
+  faltando: boolean
   onEscolher: (arquivo?: File | null) => void
   onRemover: () => void
 }) {
@@ -654,49 +686,76 @@ function CampoImagem({
   useEffect(() => setArrastando(false), [src])
 
   return (
-    <div className="space-y-1.5 min-w-0">
-      <Label className={`${lbl} flex items-center gap-1`}>
-        <Icone className="w-3.5 h-3.5" />
-        {info.nome}
-        {formato === 'computador' ? <Obrigatorio /> : <Opcional />}
-      </Label>
-      <div
-        role="button"
-        tabIndex={0}
-        aria-label={`Escolher imagem para ${info.nome.toLowerCase()}`}
-        onClick={() => input.current?.click()}
-        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && input.current?.click()}
-        onDragOver={(e) => {
-          e.preventDefault()
-          setArrastando(true)
-        }}
-        onDragLeave={() => setArrastando(false)}
-        onDrop={(e) => {
-          e.preventDefault()
-          setArrastando(false)
-          onEscolher(e.dataTransfer.files?.[0])
-        }}
-        className={`relative w-full ${info.proporcao} rounded-xl border-2 border-dashed overflow-hidden cursor-pointer group transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C48864] ${
-          arrastando
-            ? 'border-[#C48864] bg-[#C48864]/10'
-            : 'border-[#DFC3AE] bg-[#F7F3EA]/60 hover:border-[#C48864]'
-        }`}
-      >
+    <div
+      className={`min-w-0 rounded-xl border p-3 space-y-2.5 flex flex-col ${
+        faltando ? 'border-red-300 bg-red-50/60' : 'border-[#DFC3AE]/70 bg-white'
+      }`}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-xs font-bold text-[#0C1014] flex items-center gap-1.5">
+            <Icone className="w-4 h-4 text-[#94603D] shrink-0" />
+            {info.titulo}
+            <Obrigatorio />
+          </p>
+          <p className="text-[10px] text-[#6B4B36] mt-0.5">
+            {info.medida} ({info.formato}). {info.onde}
+          </p>
+        </div>
         {src ? (
-          <>
-            <img src={src} alt="" className="w-full h-full object-cover" />
-            <span className="absolute inset-0 bg-black/40 text-white text-xs font-semibold flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <ImagePlus className="w-5 h-5" />
-              Trocar imagem
-            </span>
-          </>
+          <span className="shrink-0 flex items-center gap-1 text-[10px] font-semibold text-[#3F7A4E]">
+            <CheckCircle2 className="w-3.5 h-3.5" /> Pronta
+          </span>
         ) : (
-          <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-[#6B4B36] text-center px-3">
-            <ImagePlus className="w-6 h-6 text-[#94603D]" />
-            <span className="text-xs font-semibold">Enviar imagem</span>
-            <span className="text-[10px] text-[#6B4B36]/90">Clique ou arraste aqui</span>
+          <span
+            className={`shrink-0 text-[10px] font-semibold ${faltando ? 'text-red-600' : 'text-[#6B4B36]/80'}`}
+          >
+            {faltando ? 'Falta enviar' : 'Pendente'}
           </span>
         )}
+      </div>
+      <div className={formato === 'celular' ? 'w-full max-w-[220px] mx-auto' : 'w-full'}>
+        <div
+          role="button"
+          tabIndex={0}
+          aria-label={`Escolher ${info.titulo.toLowerCase()}`}
+          aria-invalid={faltando}
+          onClick={() => input.current?.click()}
+          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && input.current?.click()}
+          onDragOver={(e) => {
+            e.preventDefault()
+            setArrastando(true)
+          }}
+          onDragLeave={() => setArrastando(false)}
+          onDrop={(e) => {
+            e.preventDefault()
+            setArrastando(false)
+            onEscolher(e.dataTransfer.files?.[0])
+          }}
+          className={`relative w-full ${info.proporcao} rounded-lg border-2 border-dashed overflow-hidden cursor-pointer group transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C48864] ${
+            arrastando
+              ? 'border-[#C48864] bg-[#C48864]/10'
+              : faltando
+                ? 'border-red-300 bg-white hover:border-red-400'
+                : 'border-[#DFC3AE] bg-[#F7F3EA]/60 hover:border-[#C48864]'
+          }`}
+        >
+          {src ? (
+            <>
+              <img src={src} alt="" className="w-full h-full object-cover" />
+              <span className="absolute inset-0 bg-black/40 text-white text-xs font-semibold flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <ImagePlus className="w-5 h-5" />
+                Trocar imagem
+              </span>
+            </>
+          ) : (
+            <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-[#6B4B36] text-center px-3">
+              <ImagePlus className="w-6 h-6 text-[#94603D]" />
+              <span className="text-xs font-semibold">Enviar imagem</span>
+              <span className="text-[10px] text-[#6B4B36]/90">Clique ou arraste aqui</span>
+            </span>
+          )}
+        </div>
       </div>
       <input
         ref={input}
@@ -708,9 +767,16 @@ function CampoImagem({
           e.target.value = ''
         }}
       />
-      <div className="flex items-center justify-between gap-2 text-[10px] text-[#6B4B36]/90">
-        <span>Ideal: {info.medida}</span>
-        {src && (
+      {src && (
+        <div className="flex items-center justify-end gap-3 text-[11px] mt-auto">
+          <button
+            type="button"
+            onClick={() => input.current?.click()}
+            className="text-[#94603D] hover:underline flex items-center gap-1"
+          >
+            <ImagePlus className="w-3 h-3" />
+            Trocar
+          </button>
           <button
             type="button"
             onClick={onRemover}
@@ -719,8 +785,8 @@ function CampoImagem({
             <Trash2 className="w-3 h-3" />
             Remover
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
