@@ -23,6 +23,7 @@ import {
   OrcamentoStatus,
   Despesa,
   Desconto,
+  Banner,
   Pagamento,
   OrderStatus,
   PaymentStatus,
@@ -53,6 +54,7 @@ const initialState: CriartereState = {
   pagamentos: [],
   despesas: [],
   descontos: [],
+  banners: [],
   categoriasDespesa: CATEGORIAS_DESPESA_PADRAO,
   formasPagamento: [...FORMAS_PAGAMENTO_PADRAO],
   historico: [],
@@ -103,6 +105,10 @@ export type Action =
   // Descontos e cupons
   | { type: 'SALVAR_DESCONTO'; payload: Desconto }
   | { type: 'EXCLUIR_DESCONTO'; payload: string }
+  // Banners da loja
+  | { type: 'SALVAR_BANNER'; payload: Banner }
+  | { type: 'EXCLUIR_BANNER'; payload: string }
+  | { type: 'REORDENAR_BANNERS'; payload: string[] } // ids na nova ordem
   // Categorias
   | { type: 'ADICIONAR_CATEGORIA'; payload: string }
   | { type: 'RENOMEAR_CATEGORIA'; payload: { antiga: string; nova: string } }
@@ -406,6 +412,33 @@ function criartereReducer(state: CriartereState, action: Action): CriartereState
     case 'EXCLUIR_DESCONTO':
       return { ...state, descontos: state.descontos.filter((d) => d.id !== action.payload) }
 
+    case 'SALVAR_BANNER': {
+      const banner = action.payload
+      const existe = state.banners.some((b) => b.id === banner.id)
+      return {
+        ...state,
+        banners: existe
+          ? state.banners.map((b) => (b.id === banner.id ? banner : b))
+          : [...state.banners, banner],
+      }
+    }
+
+    case 'EXCLUIR_BANNER':
+      return { ...state, banners: state.banners.filter((b) => b.id !== action.payload) }
+
+    case 'REORDENAR_BANNERS': {
+      const ids = action.payload
+      return {
+        ...state,
+        banners: ids
+          .map((id, i) => {
+            const b = state.banners.find((x) => x.id === id)
+            return b ? { ...b, ordem: i + 1 } : null
+          })
+          .filter((b): b is Banner => b !== null),
+      }
+    }
+
     case 'ADICIONAR_CATEGORIA': {
       const nova = action.payload.trim()
       if (!nova || state.categoriasDespesa.includes(nova)) return state
@@ -482,6 +515,7 @@ const FATIAS_POR_TABELA: Record<string, Fatia[]> = {
   orcamento_itens: ['orcamentos'],
   despesas: ['despesas'],
   descontos: ['descontos'],
+  banners: ['banners'],
   categorias_despesa: ['categoriasDespesa'],
   formas_pagamento: ['formasPagamento'],
   etapas_pedido: ['etapas'],

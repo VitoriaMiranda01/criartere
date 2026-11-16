@@ -12,6 +12,7 @@ import {
   Lightbulb,
   Package,
   Ticket,
+  Images,
   Search,
   Settings,
   ShoppingBag,
@@ -242,6 +243,24 @@ const TOPICOS: Topico[] = [
           'Informe se o desconto é em porcentagem ou valor fixo. Compra mínima e período de validade são opcionais.',
           'No pedido ou orçamento, escolha o desconto na lista ou digite o código do cupom: o valor é calculado sobre a soma dos itens e preenchido no campo "Desconto".',
           'Desligue "Ativo" para pausar uma promoção sem apagá-la. Cupons fora do período ou inativos não são aceitos.',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'banners',
+    titulo: 'Banners da Loja',
+    icone: Images,
+    resumo: 'Slides com novidades e promoções no topo da loja virtual.',
+    rota: '/admin/banners',
+    secoes: [
+      {
+        subtitulo: 'Como usar',
+        passos: [
+          'Clique em "Novo Banner", dê um nome e envie a imagem para computador (ideal 1920 × 600 px) e para celular (ideal 1080 × 1080 px).',
+          'Em "Ao clicar, abrir", escolha uma categoria ou um produto para o banner virar um link. Ou deixe "Nada" para ser só imagem.',
+          'Use as setas para mudar a ordem dos slides. Datas de início e fim tiram o banner do ar automaticamente.',
+          'Sem banners no ar, a loja mostra a apresentação padrão.',
         ],
       },
     ],

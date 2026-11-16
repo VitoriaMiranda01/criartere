@@ -161,6 +161,20 @@ export interface Desconto {
   descricao: string
 }
 
+/** Slide do topo da loja (novidades e promoções). */
+export interface Banner {
+  id: string
+  titulo: string // texto alternativo e nome no painel
+  imagemComputador: string
+  imagemCelular?: string // sem ela, a do computador é usada (recortada)
+  destinoTipo: 'nenhum' | 'categoria' | 'produto'
+  destinoValor?: string // nome da categoria ou id do produto
+  ordem: number
+  ativo: boolean
+  validoDe?: string // YYYY-MM-DD
+  validoAte?: string // YYYY-MM-DD
+}
+
 export interface LojaConfig {
   nome: string
   chavePix: string

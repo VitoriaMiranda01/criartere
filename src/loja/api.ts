@@ -5,6 +5,7 @@
    por RLS: cada cliente só enxerga e altera os próprios. */
 import { supabase } from '@/lib/supabase'
 import { caminhoProduto } from './seo-dados'
+import { hojeISO } from '@/lib/datas'
 
 export type Disponibilidade = 'pronta_entrega' | 'sob_encomenda'
 
@@ -61,6 +62,41 @@ function check<T>(res: { data: T; error: { message: string } | null }): T {
 export async function listarVitrine(): Promise<ProdutoVitrine[]> {
   const data = check(await supabase.rpc('vitrine_produtos').order('nome'))
   return ((data ?? []) as Row[]).map(mapProduto)
+}
+
+export interface BannerLoja {
+  id: string
+  titulo: string
+  imagemComputador: string
+  imagemCelular: string
+  destinoTipo: 'nenhum' | 'categoria' | 'produto'
+  destinoValor: string
+}
+
+/** Banners no ar: ativos e dentro do período (o admin logado enxerga todos, por isso o filtro aqui também). */
+export async function listarBannersLoja(): Promise<BannerLoja[]> {
+  const data = check(
+    await supabase
+      .from('banners')
+      .select(
+        'id, titulo, imagem_computador, imagem_celular, destino_tipo, destino_valor, valido_de, valido_ate',
+      )
+      .eq('ativo', true)
+      .order('ordem')
+      .order('criado_em'),
+  )
+  const hoje = hojeISO()
+  const noPeriodo = (r: Row) =>
+    (!r.valido_de || String(r.valido_de) <= hoje) && (!r.valido_ate || String(r.valido_ate) >= hoje)
+  return ((data ?? []) as Row[]).filter(noPeriodo).map((r) => ({
+    id: String(r.id),
+    titulo: String(r.titulo ?? ''),
+    imagemComputador: String(r.imagem_computador ?? ''),
+    imagemCelular: String(r.imagem_celular || r.imagem_computador || ''),
+    destinoTipo:
+      r.destino_tipo === 'categoria' || r.destino_tipo === 'produto' ? r.destino_tipo : 'nenhum',
+    destinoValor: String(r.destino_valor ?? ''),
+  }))
 }
 
 export async function buscarContatoLoja(): Promise<ContatoLoja | null> {

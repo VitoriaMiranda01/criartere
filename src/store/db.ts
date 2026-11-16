@@ -11,6 +11,7 @@ import type {
   Pagamento,
   Despesa,
   Desconto,
+  Banner,
   OrderHistoryEvent,
   LojaConfig,
   PaymentMethod,
@@ -29,6 +30,7 @@ export type Fatia =
   | 'pagamentos'
   | 'despesas'
   | 'descontos'
+  | 'banners'
   | 'categoriasDespesa'
   | 'formasPagamento'
   | 'historico'
@@ -43,6 +45,7 @@ export const TODAS_FATIAS: Fatia[] = [
   'pagamentos',
   'despesas',
   'descontos',
+  'banners',
   'categoriasDespesa',
   'formasPagamento',
   'historico',
@@ -173,6 +176,19 @@ const mapDesconto = (r: Row): Desconto => ({
   descricao: r.descricao ?? '',
 })
 
+const mapBanner = (r: Row): Banner => ({
+  id: r.id,
+  titulo: r.titulo,
+  imagemComputador: r.imagem_computador,
+  imagemCelular: opt(r.imagem_celular),
+  destinoTipo: r.destino_tipo,
+  destinoValor: opt(r.destino_valor),
+  ordem: r.ordem,
+  ativo: r.ativo,
+  validoDe: opt(r.valido_de),
+  validoAte: opt(r.valido_ate),
+})
+
 const mapHistorico = (r: Row): OrderHistoryEvent => ({
   id: r.id,
   pedidoId: r.pedido_id,
@@ -245,6 +261,19 @@ const descontoParaRow = (d: Desconto) => ({
   valido_ate: d.validoAte || null,
   ativo: d.ativo,
   descricao: d.descricao ?? '',
+})
+
+const bannerParaRow = (b: Banner) => ({
+  id: b.id,
+  titulo: b.titulo,
+  imagem_computador: b.imagemComputador,
+  imagem_celular: b.imagemCelular || null,
+  destino_tipo: b.destinoTipo,
+  destino_valor: b.destinoTipo === 'nenhum' ? null : b.destinoValor || null,
+  ordem: b.ordem,
+  ativo: b.ativo,
+  valido_de: b.validoDe || null,
+  valido_ate: b.validoAte || null,
 })
 
 const configParaRow = (c: LojaConfig) => ({
@@ -334,6 +363,12 @@ export async function carregarFatias(fatias: Fatia[]): Promise<Partial<Criartere
             descontos: check(
               await supabase.from('descontos').select('*').order('criado_em', { ascending: false }),
             ).map(mapDesconto),
+          }
+        case 'banners':
+          return {
+            banners: check(
+              await supabase.from('banners').select('*').order('ordem').order('criado_em'),
+            ).map(mapBanner),
           }
         case 'categoriasDespesa':
           return {
@@ -457,6 +492,31 @@ export async function limparImagensProduto(produtoId: string, urlsEmUso: string[
     .map((f) => `${produtoId}/${f.name}`)
     .filter((caminho) => !urlsEmUso.some((url) => url.endsWith(caminho)))
   if (apagar.length) await supabase.storage.from('produtos').remove(apagar)
+}
+
+/** Envia a imagem de um banner (computador ou celular) e devolve o endereço público. */
+export async function enviarImagemBanner(
+  bannerId: string,
+  formato: 'computador' | 'celular',
+  imagem: { blob: Blob; extensao: string },
+): Promise<string> {
+  const caminho = `${bannerId}/${formato}-${Date.now()}.${imagem.extensao}`
+  const { error } = await supabase.storage.from('banners').upload(caminho, imagem.blob, {
+    contentType: imagem.blob.type,
+    cacheControl: '31536000',
+    upsert: false,
+  })
+  if (error) throw new Error(error.message)
+  return supabase.storage.from('banners').getPublicUrl(caminho).data.publicUrl
+}
+
+/** Apaga as imagens do banner que não estão mais em uso. */
+async function limparImagensBanner(bannerId: string, urlsEmUso: string[]) {
+  const { data } = await supabase.storage.from('banners').list(bannerId, { limit: 100 })
+  const apagar = (data ?? [])
+    .map((f) => `${bannerId}/${f.name}`)
+    .filter((caminho) => !urlsEmUso.some((url) => url.endsWith(caminho)))
+  if (apagar.length) await supabase.storage.from('banners').remove(apagar)
 }
 
 /** Atualiza nome e foto do próprio usuário. */
@@ -607,6 +667,23 @@ export async function persistirAcao(
 
     case 'EXCLUIR_DESCONTO':
       check(await supabase.from('descontos').delete().eq('id', p))
+      return []
+
+    case 'SALVAR_BANNER':
+      check(await supabase.from('banners').upsert(bannerParaRow(p)))
+      await limparImagensBanner(p.id, [p.imagemComputador, p.imagemCelular ?? '']).catch(
+        () => undefined,
+      )
+      return []
+
+    case 'EXCLUIR_BANNER':
+      check(await supabase.from('banners').delete().eq('id', p))
+      await limparImagensBanner(p, []).catch(() => undefined)
+      return []
+
+    case 'REORDENAR_BANNERS':
+      for (const b of proximo.banners)
+        check(await supabase.from('banners').update({ ordem: b.ordem }).eq('id', b.id))
       return []
 
     case 'ADICIONAR_CATEGORIA': {

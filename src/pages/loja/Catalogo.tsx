@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useLocation, useSearchParams } from 'react-router-dom'
 import { Search, PackageSearch, RefreshCw, X, ArrowUpDown } from 'lucide-react'
 import {
   Select,
@@ -12,6 +13,7 @@ import { DESCRICAO_LOJA, jsonLdCatalogo } from '@/loja/seo-dados'
 import { cn } from '@/lib/utils'
 import { useLoja } from '@/loja/LojaContext'
 import { CardProduto, CarregandoLoja, EstadoVazio } from '@/loja/componentes'
+import { CarrosselBanners } from '@/loja/CarrosselBanners'
 
 const normalizar = (t: string) =>
   t
@@ -27,7 +29,15 @@ const OPCOES_ORDEM = [
 ] as const
 
 export default function Catalogo() {
-  const { produtos, carregandoProdutos, erroProdutos, recarregarVitrine, contato } = useLoja()
+  const {
+    produtos,
+    carregandoProdutos,
+    erroProdutos,
+    recarregarVitrine,
+    contato,
+    banners,
+    carregandoBanners,
+  } = useLoja()
   useSeo({
     titulo: 'Loja virtual: impressão 3D, papelaria e personalizados',
     descricao: DESCRICAO_LOJA,
@@ -37,7 +47,26 @@ export default function Catalogo() {
     ativo: !carregandoProdutos && !erroProdutos,
   })
   const [busca, setBusca] = useState('')
-  const [categoria, setCategoria] = useState<string>('')
+  // Categoria fica no endereço (?categoria=...) para os banners poderem abrir uma categoria
+  const [parametros, setParametros] = useSearchParams()
+  const categoria = parametros.get('categoria') ?? ''
+  const setCategoria = (c: string) =>
+    setParametros(
+      (atuais) => {
+        const novos = new URLSearchParams(atuais)
+        if (c) novos.set('categoria', c)
+        else novos.delete('categoria')
+        return novos
+      },
+      { replace: true, preventScrollReset: true },
+    )
+  // Ao vir de um banner de categoria, desce até os produtos
+  const location = useLocation()
+  const filtrosRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    if ((location.state as { rolarParaProdutos?: boolean } | null)?.rolarParaProdutos)
+      filtrosRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [location.key, location.state])
   const [ordem, setOrdem] = useState<'nome' | 'menor' | 'maior' | 'novos'>('nome')
 
   const categorias = useMemo(
@@ -65,33 +94,45 @@ export default function Catalogo() {
 
   return (
     <div className="space-y-8">
-      {/* Apresentação */}
-      <section className="relative overflow-hidden rounded-3xl bg-white border border-[#DFC3AE]/60 px-6 py-10 sm:px-12 sm:py-14">
+      {/* Destaques (banners do painel) ou apresentação padrão */}
+      {carregandoBanners ? (
         <div
-          className="absolute -top-24 -right-16 w-72 h-72 rounded-full bg-[#DFC3AE] opacity-40 blur-3xl pointer-events-none"
+          className="rounded-3xl bg-white border border-[#DFC3AE]/60 aspect-square sm:aspect-[16/5] animate-pulse"
           aria-hidden="true"
         />
-        <div
-          className="absolute -bottom-28 left-1/3 w-72 h-72 rounded-full bg-[#C48864] opacity-15 blur-3xl pointer-events-none"
-          aria-hidden="true"
-        />
-        <div className="relative max-w-xl">
-          <p className="text-[11px] uppercase tracking-[0.25em] text-[#A5683F] font-bold mb-3">
-            Catálogo Criartere
-          </p>
-          <h1 className="font-serif text-3xl sm:text-5xl font-semibold leading-[1.1] text-[#0C1014]">
-            Criações feitas com <em className="text-[#A5683F] not-italic sm:italic">carinho</em>,
-            camada por camada.
-          </h1>
-          <p className="text-sm sm:text-base text-[#6B4B36] mt-4 leading-relaxed">
-            Impressão 3D, papelaria e personalizados. Salve seus favoritos, monte seu carrinho e
-            fale com a gente pelo WhatsApp para encomendar.
-          </p>
-        </div>
-      </section>
+      ) : banners.length > 0 ? (
+        <>
+          <h1 className="sr-only">Criartere: criações feitas com carinho, camada por camada</h1>
+          <CarrosselBanners banners={banners} produtos={produtos} />
+        </>
+      ) : (
+        <section className="relative overflow-hidden rounded-3xl bg-white border border-[#DFC3AE]/60 px-6 py-10 sm:px-12 sm:py-14">
+          <div
+            className="absolute -top-24 -right-16 w-72 h-72 rounded-full bg-[#DFC3AE] opacity-40 blur-3xl pointer-events-none"
+            aria-hidden="true"
+          />
+          <div
+            className="absolute -bottom-28 left-1/3 w-72 h-72 rounded-full bg-[#C48864] opacity-15 blur-3xl pointer-events-none"
+            aria-hidden="true"
+          />
+          <div className="relative max-w-xl">
+            <p className="text-[11px] uppercase tracking-[0.25em] text-[#A5683F] font-bold mb-3">
+              Catálogo Criartere
+            </p>
+            <h1 className="font-serif text-3xl sm:text-5xl font-semibold leading-[1.1] text-[#0C1014]">
+              Criações feitas com <em className="text-[#A5683F] not-italic sm:italic">carinho</em>,
+              camada por camada.
+            </h1>
+            <p className="text-sm sm:text-base text-[#6B4B36] mt-4 leading-relaxed">
+              Impressão 3D, papelaria e personalizados. Salve seus favoritos, monte seu carrinho e
+              fale com a gente pelo WhatsApp para encomendar.
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* Busca e filtros */}
-      <section aria-label="Filtros" className="space-y-4">
+      <section ref={filtrosRef} aria-label="Filtros" className="space-y-4 scroll-mt-24">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search

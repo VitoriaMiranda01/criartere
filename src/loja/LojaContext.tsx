@@ -9,6 +9,8 @@ import {
   ContatoLoja,
   ItemCarrinho,
   listarVitrine,
+  listarBannersLoja,
+  BannerLoja,
   buscarContatoLoja,
   listarFavoritos,
   adicionarFavorito,
@@ -35,6 +37,8 @@ interface LojaContextValue {
   sessaoVerificada: boolean
   usuario: UsuarioLoja | null
   produtos: ProdutoVitrine[]
+  banners: BannerLoja[]
+  carregandoBanners: boolean
   carregandoProdutos: boolean
   erroProdutos: boolean
   contato: ContatoLoja | null
@@ -64,6 +68,8 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
   const [carregandoProdutos, setCarregandoProdutos] = useState(true)
   const [erroProdutos, setErroProdutos] = useState(false)
   const [contato, setContato] = useState<ContatoLoja | null>(null)
+  const [banners, setBanners] = useState<BannerLoja[]>([])
+  const [carregandoBanners, setCarregandoBanners] = useState(true)
   const [favoritos, setFavoritos] = useState<Set<string>>(new Set())
   const [carrinho, setCarrinho] = useState<ItemCarrinho[]>([])
   const [carregandoConta, setCarregandoConta] = useState(false)
@@ -104,6 +110,11 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     recarregarVitrine()
+    // Banners não impedem a loja de abrir: se falharem, fica a apresentação padrão
+    listarBannersLoja()
+      .then(setBanners)
+      .catch(() => setBanners([]))
+      .finally(() => setCarregandoBanners(false))
   }, [recarregarVitrine])
 
   // Sessão (mesmo login do Supabase Auth usado no painel)
@@ -286,6 +297,8 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
         sessaoVerificada,
         usuario,
         produtos,
+        banners,
+        carregandoBanners,
         carregandoProdutos,
         erroProdutos,
         contato,

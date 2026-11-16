@@ -19,6 +19,14 @@ export function prepararImagemProduto(arquivo: File): Promise<ImagemPreparada> {
   return prepararImagem(arquivo, { lado: 1000, quadrada: false })
 }
 
+/** Banner da loja: mantém a proporção; lado maior com até 1920 px (computador) ou 1080 px (celular). */
+export function prepararImagemBanner(
+  arquivo: File,
+  formato: 'computador' | 'celular',
+): Promise<ImagemPreparada> {
+  return prepararImagem(arquivo, { lado: formato === 'computador' ? 1920 : 1080, quadrada: false })
+}
+
 async function prepararImagem(
   arquivo: File,
   opcoes: { lado: number; quadrada: boolean },
