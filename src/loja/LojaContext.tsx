@@ -41,6 +41,7 @@ interface LojaContextValue {
   produtos: ProdutoVitrine[]
   banners: BannerLoja[]
   linhasCategorias: MapaLinhas | undefined
+  categoriasLoja: { nome: string; linha: string | null }[]
   carregandoBanners: boolean
   carregandoProdutos: boolean
   erroProdutos: boolean
@@ -73,6 +74,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
   const [contato, setContato] = useState<ContatoLoja | null>(null)
   const [banners, setBanners] = useState<BannerLoja[]>([])
   const [linhasCategorias, setLinhasCategorias] = useState<MapaLinhas | undefined>()
+  const [categoriasLoja, setCategoriasLoja] = useState<{ nome: string; linha: string | null }[]>([])
   const [carregandoBanners, setCarregandoBanners] = useState(true)
   const [favoritos, setFavoritos] = useState<Set<string>>(new Set())
   const [carrinho, setCarrinho] = useState<ItemCarrinho[]>([])
@@ -121,7 +123,10 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
       .finally(() => setCarregandoBanners(false))
     // Abas da loja (Catálogo 3D / Papelaria); se falhar, vale a divisão padrão
     listarCategoriasLoja()
-      .then((lista) => setLinhasCategorias(mapaDeLinhas(lista)))
+      .then((lista) => {
+        setCategoriasLoja(lista)
+        setLinhasCategorias(mapaDeLinhas(lista))
+      })
       .catch(() => undefined)
   }, [recarregarVitrine])
 
@@ -307,6 +312,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
         produtos,
         banners,
         linhasCategorias,
+        categoriasLoja,
         carregandoBanners,
         carregandoProdutos,
         erroProdutos,

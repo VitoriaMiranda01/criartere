@@ -111,7 +111,9 @@ export async function listarBannersLoja(): Promise<BannerLoja[]> {
 
 /** Categorias de produto e a aba da loja de cada uma (leitura pública). */
 export async function listarCategoriasLoja(): Promise<{ nome: string; linha: string | null }[]> {
-  const data = check(await supabase.from('categorias_produto').select('nome, linha'))
+  const data = check(
+    await supabase.from('categorias_produto').select('nome, linha').order('criado_em'),
+  )
   return ((data ?? []) as Row[]).map((r) => ({
     nome: String(r.nome ?? ''),
     linha: r.linha ? String(r.linha) : null,

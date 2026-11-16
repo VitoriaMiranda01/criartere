@@ -46,6 +46,7 @@ export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
     banners,
     carregandoBanners,
     linhasCategorias,
+    categoriasLoja,
   } = useLoja()
   const infoLinha = linha ? LINHAS_CATALOGO[linha] : null
   const produtos = useMemo(
@@ -94,18 +95,24 @@ export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
   }, [location.key, location.state])
   const [ordem, setOrdem] = useState<'nome' | 'menor' | 'maior' | 'novos'>('nome')
 
-  const categorias = useMemo(
-    () =>
-      [...new Set(produtos.map((p) => p.categoria.trim()).filter(Boolean))].sort((a, b) =>
-        a.localeCompare(b, 'pt-BR'),
-      ),
-    [produtos],
-  )
+  // Categorias cadastradas no painel (na ordem do cadastro; numa aba, só as dela),
+  // mais qualquer categoria usada em produtos que não esteja no cadastro
+  const categorias = useMemo(() => {
+    const cadastradas = categoriasLoja
+      .filter((c) => !linha || c.linha === linha)
+      .map((c) => c.nome.trim())
+      .filter(Boolean)
+    const conhecidas = new Set(cadastradas.map((c) => c.toLowerCase()))
+    const extras = [...new Set(produtos.map((p) => p.categoria.trim()).filter(Boolean))]
+      .filter((c) => !conhecidas.has(c.toLowerCase()))
+      .sort((a, b) => a.localeCompare(b, 'pt-BR'))
+    return [...cadastradas, ...extras]
+  }, [categoriasLoja, linha, produtos])
 
   const lista = useMemo(() => {
     const termo = normalizar(busca.trim())
     const filtrados = produtos.filter((p) => {
-      if (categoria && p.categoria.trim() !== categoria) return false
+      if (categoria && p.categoria.trim().toLowerCase() !== categoria.toLowerCase()) return false
       if (!termo) return true
       return normalizar(`${p.nome} ${p.descricao} ${p.categoria}`).includes(termo)
     })
@@ -266,11 +273,19 @@ export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
       ) : lista.length === 0 ? (
         <EstadoVazio
           icone={PackageSearch}
-          titulo={produtos.length === 0 ? 'Novidades em breve' : 'Nenhum produto encontrado'}
+          titulo={
+            produtos.length === 0
+              ? 'Novidades em breve'
+              : categoria && !busca.trim()
+                ? `Ainda não há produtos em ${categoria}`
+                : 'Nenhum produto encontrado'
+          }
           texto={
             produtos.length === 0
               ? 'Nosso catálogo está sendo preparado com carinho. Volte em breve!'
-              : 'Tente buscar por outro nome ou escolha outra categoria.'
+              : categoria && !busca.trim()
+                ? 'Estamos preparando novidades para esta categoria. Veja as outras enquanto isso!'
+                : 'Tente buscar por outro nome ou escolha outra categoria.'
           }
           acao={
             produtos.length > 0 ? (
@@ -282,7 +297,7 @@ export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
                 }}
                 className="h-10 px-5 rounded-lg border border-[#DFC3AE] bg-white text-sm font-semibold text-[#6B4B36] hover:text-[#0C1014]"
               >
-                Limpar filtros
+                {categoria && !busca.trim() ? 'Ver todos os produtos' : 'Limpar filtros'}
               </button>
             ) : undefined
           }
