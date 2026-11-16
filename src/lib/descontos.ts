@@ -1,6 +1,6 @@
 /* Regras dos descontos e cupons: situação, validade e cálculo do valor. */
 import type { Desconto } from '@/types/criartere'
-import { hojeISO } from '@/lib/datas'
+import { vigencia } from '@/lib/datas'
 import { formatBRL } from '@/store/periodUtils'
 
 export type SituacaoDesconto = 'ativo' | 'inativo' | 'agendado' | 'expirado'
@@ -15,11 +15,9 @@ export const normalizarCodigo = (codigo: string) =>
     .toUpperCase()
     .replace(/[^A-Z0-9_-]/g, '')
 
-export function situacaoDesconto(d: Desconto, hoje = hojeISO()): SituacaoDesconto {
-  if (!d.ativo) return 'inativo'
-  if (d.validoDe && hoje < d.validoDe) return 'agendado'
-  if (d.validoAte && hoje > d.validoAte) return 'expirado'
-  return 'ativo'
+export function situacaoDesconto(d: Desconto): SituacaoDesconto {
+  const v = vigencia(d.ativo, d.validoDe, d.validoAte)
+  return v === 'vigente' ? 'ativo' : v === 'encerrado' ? 'expirado' : v
 }
 
 /** Ex.: "10%" ou "R$ 15,00". */

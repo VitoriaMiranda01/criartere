@@ -3,7 +3,7 @@ import { AbasSecao, SECAO_LOJA_VIRTUAL } from '@/components/common/AbasSecao'
 import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { novoId } from '@/lib/supabase'
-import { hojeISO } from '@/lib/datas'
+import { vigencia } from '@/lib/datas'
 import { prepararImagemBanner, ImagemPreparada } from '@/lib/imagem'
 import { enviarImagemBanner, mensagemErro } from '@/store/db'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
@@ -67,11 +67,9 @@ const SITUACOES: Record<Situacao, { nome: string; classe: string }> = {
   inativo: { nome: 'Inativo', classe: 'bg-gray-500 text-white' },
 }
 
-function situacaoBanner(b: Banner, hoje = hojeISO()): Situacao {
-  if (!b.ativo) return 'inativo'
-  if (b.validoDe && hoje < b.validoDe) return 'agendado'
-  if (b.validoAte && hoje > b.validoAte) return 'encerrado'
-  return 'no_ar'
+function situacaoBanner(b: Banner): Situacao {
+  const v = vigencia(b.ativo, b.validoDe, b.validoAte)
+  return v === 'vigente' ? 'no_ar' : v
 }
 
 type Formato = 'computador' | 'celular'
@@ -134,20 +132,20 @@ export default function Banners() {
         .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')),
     [state.produtos],
   )
-  const categorias = useMemo(
-    () =>
-      [...new Set(produtosLoja.map((p) => p.categoria.trim()).filter(Boolean))].sort((a, b) =>
-        a.localeCompare(b, 'pt-BR'),
-      ),
-    [produtosLoja],
-  )
+  // Mesmas categorias que a loja mostra (as cadastradas em Loja virtual → Categorias)
+  const categorias = state.categoriasProduto.map((c) => c.nome)
 
-  // Libera as prévias locais ao fechar
-  const limparPrevias = () =>
-    setImagens((atual) => {
-      Object.values(atual).forEach((i) => i.previa && URL.revokeObjectURL(i.previa))
-      return atual
-    })
+  // Prévias locais das imagens escolhidas: liberadas da memória quando trocadas ou ao fechar
+  const imagensRef = useRef(imagens)
+  imagensRef.current = imagens
+  const liberarPrevia = (formato: Formato) => {
+    const previa = imagensRef.current[formato].previa
+    if (previa) URL.revokeObjectURL(previa)
+  }
+  const limparPrevias = () => {
+    liberarPrevia('computador')
+    liberarPrevia('celular')
+  }
 
   const abrir = (b: Banner | null) => {
     limparPrevias()
@@ -171,23 +169,21 @@ export default function Banners() {
     if (!arquivo) return
     try {
       const nova = await prepararImagemBanner(arquivo, formato)
-      setImagens((atual) => {
-        if (atual[formato].previa) URL.revokeObjectURL(atual[formato].previa!)
-        return {
-          ...atual,
-          [formato]: { url: atual[formato].url, nova, previa: URL.createObjectURL(nova.blob) },
-        }
-      })
+      liberarPrevia(formato)
+      const previa = URL.createObjectURL(nova.blob)
+      setImagens((atual) => ({
+        ...atual,
+        [formato]: { url: atual[formato].url, nova, previa },
+      }))
     } catch (err) {
       toast.error((err as Error).message)
     }
   }
 
-  const removerImagem = (formato: Formato) =>
-    setImagens((atual) => {
-      if (atual[formato].previa) URL.revokeObjectURL(atual[formato].previa!)
-      return { ...atual, [formato]: imagemVazia() }
-    })
+  const removerImagem = (formato: Formato) => {
+    liberarPrevia(formato)
+    setImagens((atual) => ({ ...atual, [formato]: imagemVazia() }))
+  }
 
   const handleSalvar = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -553,7 +549,7 @@ export default function Banners() {
                   </Select>
                   {categorias.length === 0 && (
                     <p className="text-[10px] text-[#A84A34]">
-                      Nenhuma categoria com produtos publicados na loja.
+                      Nenhuma categoria cadastrada (veja Loja virtual → Categorias).
                     </p>
                   )}
                 </div>

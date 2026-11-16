@@ -1,5 +1,6 @@
 /* Valores padrão usados antes de os dados do servidor carregarem. */
 import type { CategoriaProduto, LojaConfig, PaymentMethod } from '@/types/criartere'
+import { LINHAS_CATALOGO } from '@/loja/seo-dados'
 
 export const CONFIG_PADRAO: LojaConfig = {
   nome: 'Criartere',
@@ -13,12 +14,11 @@ export const CONFIG_PADRAO: LojaConfig = {
   periodoPadraoDashboard: 'mes_atual',
 }
 
+// Mesma divisão por aba usada pela loja (definida em um lugar só: LINHAS_CATALOGO)
 export const CATEGORIAS_PRODUTO_PADRAO: CategoriaProduto[] = [
-  { nome: 'Impressão 3D', linha: '3d' },
-  { nome: 'Miniaturas e colecionáveis', linha: '3d' },
-  { nome: 'Peças técnicas e protótipos', linha: '3d' },
-  { nome: 'Cartões e papelaria', linha: 'papelaria' },
-  { nome: 'Banners, adesivos e placas', linha: 'papelaria' },
+  ...(['3d', 'papelaria'] as const).flatMap((linha) =>
+    LINHAS_CATALOGO[linha].categorias.map((nome) => ({ nome, linha })),
+  ),
   { nome: 'Brindes personalizados' },
   { nome: 'Outros' },
 ]

@@ -13,6 +13,17 @@ export function hojeISO(): string {
   return dataISO(new Date())
 }
 
+/** Situação de algo que vale num período (desconto, banner): desligado, ainda não
+ *  começou, já terminou ou valendo hoje. Datas vazias = sem limite. */
+export type Vigencia = 'inativo' | 'agendado' | 'encerrado' | 'vigente'
+
+export function vigencia(ativo: boolean, de?: string, ate?: string, hoje = hojeISO()): Vigencia {
+  if (!ativo) return 'inativo'
+  if (de && hoje < de) return 'agendado'
+  if (ate && hoje > ate) return 'encerrado'
+  return 'vigente'
+}
+
 /** Data local daqui a N dias (negativo para dias atrás), YYYY-MM-DD. */
 export function daquiADias(dias: number): string {
   const d = new Date()

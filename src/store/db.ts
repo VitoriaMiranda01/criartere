@@ -680,9 +680,7 @@ export async function persistirAcao(
 
     case 'SALVAR_BANNER':
       check(await supabase.from('banners').upsert(bannerParaRow(p)))
-      await limparImagensBanner(p.id, [p.imagemComputador, p.imagemCelular]).catch(
-        () => undefined,
-      )
+      await limparImagensBanner(p.id, [p.imagemComputador, p.imagemCelular]).catch(() => undefined)
       return []
 
     case 'EXCLUIR_BANNER':
@@ -690,19 +688,28 @@ export async function persistirAcao(
       await limparImagensBanner(p, []).catch(() => undefined)
       return []
 
-    case 'REORDENAR_BANNERS':
+    case 'REORDENAR_BANNERS': {
+      // Grava só os banners que mudaram de posição
+      const ordemAntes = new Map(anterior.banners.map((b) => [b.id, b.ordem]))
       for (const b of proximo.banners)
-        check(await supabase.from('banners').update({ ordem: b.ordem }).eq('id', b.id))
+        if (ordemAntes.get(b.id) !== b.ordem)
+          check(await supabase.from('banners').update({ ordem: b.ordem }).eq('id', b.id))
       return []
+    }
 
     case 'ADICIONAR_CATEGORIA_PRODUTO': {
       const c = p as CategoriaProduto
       if (anterior.categoriasProduto.some((x) => x.nome.toLowerCase() === c.nome.toLowerCase()))
         return []
+      // Mesma função (com as validações do banco) usada pela tela de Categorias
       check(
-        await supabase.from('categorias_produto').insert({ nome: c.nome, linha: c.linha ?? null }),
+        await supabase.rpc('salvar_categoria_produto', {
+          p_antiga: null,
+          p_nome: c.nome,
+          p_linha: c.linha ?? null,
+        }),
       )
-      return []
+      return ['categoriasProduto']
     }
 
     case 'SALVAR_CATEGORIA_PRODUTO':
