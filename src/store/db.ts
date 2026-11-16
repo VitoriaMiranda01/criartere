@@ -10,6 +10,7 @@ import type {
   Orcamento,
   Pagamento,
   Despesa,
+  Desconto,
   OrderHistoryEvent,
   LojaConfig,
   PaymentMethod,
@@ -27,6 +28,7 @@ export type Fatia =
   | 'orcamentos'
   | 'pagamentos'
   | 'despesas'
+  | 'descontos'
   | 'categoriasDespesa'
   | 'formasPagamento'
   | 'historico'
@@ -40,6 +42,7 @@ export const TODAS_FATIAS: Fatia[] = [
   'orcamentos',
   'pagamentos',
   'despesas',
+  'descontos',
   'categoriasDespesa',
   'formasPagamento',
   'historico',
@@ -157,6 +160,19 @@ const mapDespesa = (r: Row): Despesa => ({
   observacoes: opt(r.observacoes),
 })
 
+const mapDesconto = (r: Row): Desconto => ({
+  id: r.id,
+  nome: r.nome,
+  codigo: opt(r.codigo),
+  tipo: r.tipo,
+  valor: num(r.valor),
+  valorMinimo: num(r.valor_minimo),
+  validoDe: opt(r.valido_de),
+  validoAte: opt(r.valido_ate),
+  ativo: r.ativo,
+  descricao: r.descricao ?? '',
+})
+
 const mapHistorico = (r: Row): OrderHistoryEvent => ({
   id: r.id,
   pedidoId: r.pedido_id,
@@ -216,6 +232,19 @@ const despesaParaRow = (d: Despesa) => ({
   forma_pagamento: d.formaPagamento,
   status: d.status,
   observacoes: d.observacoes || null,
+})
+
+const descontoParaRow = (d: Desconto) => ({
+  id: d.id,
+  nome: d.nome,
+  codigo: d.codigo?.trim().toUpperCase() || null,
+  tipo: d.tipo,
+  valor: d.valor,
+  valor_minimo: d.valorMinimo,
+  valido_de: d.validoDe || null,
+  valido_ate: d.validoAte || null,
+  ativo: d.ativo,
+  descricao: d.descricao ?? '',
 })
 
 const configParaRow = (c: LojaConfig) => ({
@@ -299,6 +328,12 @@ export async function carregarFatias(fatias: Fatia[]): Promise<Partial<Criartere
             despesas: check(
               await supabase.from('despesas').select('*').order('data', { ascending: false }),
             ).map(mapDespesa),
+          }
+        case 'descontos':
+          return {
+            descontos: check(
+              await supabase.from('descontos').select('*').order('criado_em', { ascending: false }),
+            ).map(mapDesconto),
           }
         case 'categoriasDespesa':
           return {
@@ -564,6 +599,14 @@ export async function persistirAcao(
 
     case 'EXCLUIR_DESPESA':
       check(await supabase.from('despesas').delete().eq('id', p))
+      return []
+
+    case 'SALVAR_DESCONTO':
+      check(await supabase.from('descontos').upsert(descontoParaRow(p)))
+      return []
+
+    case 'EXCLUIR_DESCONTO':
+      check(await supabase.from('descontos').delete().eq('id', p))
       return []
 
     case 'ADICIONAR_CATEGORIA': {

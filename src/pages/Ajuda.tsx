@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   Lightbulb,
   Package,
+  Ticket,
   Search,
   Settings,
   ShoppingBag,
@@ -223,6 +224,24 @@ const TOPICOS: Topico[] = [
           'Cadastre nome, preço de venda e categoria. Custo e estoque são opcionais, mas ajudam a ver a margem.',
           'Produtos cadastrados aparecem para escolha rápida em pedidos e orçamentos (o preço já vem preenchido).',
           'Desmarque "Produto Ativo no Catálogo" para tirar um produto da lista sem apagar o histórico.',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'descontos',
+    titulo: 'Descontos e Cupons',
+    icone: Ticket,
+    resumo: 'Promoções em % ou R$ para aplicar com um clique em pedidos e orçamentos.',
+    rota: '/admin/descontos',
+    secoes: [
+      {
+        subtitulo: 'Como usar',
+        passos: [
+          'Clique em "Novo Desconto" (escolhido na lista) ou "Novo Cupom" (tem um código, ex.: BEMVINDO10, que o cliente informa).',
+          'Informe se o desconto é em porcentagem ou valor fixo. Compra mínima e período de validade são opcionais.',
+          'No pedido ou orçamento, escolha o desconto na lista ou digite o código do cupom: o valor é calculado sobre a soma dos itens e preenchido no campo "Desconto".',
+          'Desligue "Ativo" para pausar uma promoção sem apagá-la. Cupons fora do período ou inativos não são aceitos.',
         ],
       },
     ],

@@ -14,6 +14,7 @@ const Pedidos = lazy(() => import('./pages/Pedidos'))
 const Orcamentos = lazy(() => import('./pages/Orcamentos'))
 const Clientes = lazy(() => import('./pages/Clientes'))
 const Produtos = lazy(() => import('./pages/Produtos'))
+const Descontos = lazy(() => import('./pages/Descontos'))
 const Financeiro = lazy(() => import('./pages/Financeiro'))
 const FluxoDeCaixa = lazy(() => import('./pages/FluxoDeCaixa'))
 const Relatorios = lazy(() => import('./pages/Relatorios'))
@@ -92,6 +93,7 @@ const App = () => (
                 <Route path="orcamentos" element={<Orcamentos />} />
                 <Route path="clientes" element={<Clientes />} />
                 <Route path="produtos" element={<Produtos />} />
+                <Route path="descontos" element={<Descontos />} />
                 <Route path="financeiro" element={<Financeiro />} />
                 <Route path="fluxo-de-caixa" element={<FluxoDeCaixa />} />
                 <Route path="relatorios" element={<Relatorios />} />

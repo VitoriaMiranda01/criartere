@@ -2,6 +2,7 @@ import { daquiADias, hojeISO } from '@/lib/datas'
 import { etapasDoKanban } from '@/store/etapas'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { novoId } from '@/lib/supabase'
+import { AplicarDesconto } from '@/components/common/AplicarDesconto'
 import React, { useState } from 'react'
 import { Pedido, PedidoItem, PaymentMethod, OrderStatus } from '@/types/criartere'
 import { useCriartere } from '@/store/CriartereContext'
@@ -541,6 +542,10 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                   />
                 </div>
               </div>
+              <AplicarDesconto
+                subtotal={subtotalProdutos}
+                onAplicar={(v) => setValorDescontoStr(v.toFixed(2))}
+              />
               <div className="pt-2.5 border-t border-[#DFC3AE]/50 flex items-end justify-between gap-2">
                 <div>
                   <span className="text-[11px] uppercase font-bold text-[#6B4B36] tracking-wider">

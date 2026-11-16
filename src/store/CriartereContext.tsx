@@ -22,6 +22,7 @@ import {
   Orcamento,
   OrcamentoStatus,
   Despesa,
+  Desconto,
   Pagamento,
   OrderStatus,
   PaymentStatus,
@@ -51,6 +52,7 @@ const initialState: CriartereState = {
   orcamentos: [],
   pagamentos: [],
   despesas: [],
+  descontos: [],
   categoriasDespesa: CATEGORIAS_DESPESA_PADRAO,
   formasPagamento: [...FORMAS_PAGAMENTO_PADRAO],
   historico: [],
@@ -98,6 +100,9 @@ export type Action =
   | { type: 'SALVAR_DESPESA'; payload: Despesa }
   | { type: 'ALTERNAR_STATUS_DESPESA'; payload: string }
   | { type: 'EXCLUIR_DESPESA'; payload: string }
+  // Descontos e cupons
+  | { type: 'SALVAR_DESCONTO'; payload: Desconto }
+  | { type: 'EXCLUIR_DESCONTO'; payload: string }
   // Categorias
   | { type: 'ADICIONAR_CATEGORIA'; payload: string }
   | { type: 'RENOMEAR_CATEGORIA'; payload: { antiga: string; nova: string } }
@@ -387,6 +392,20 @@ function criartereReducer(state: CriartereState, action: Action): CriartereState
       }
     }
 
+    case 'SALVAR_DESCONTO': {
+      const desc = action.payload
+      const existe = state.descontos.some((d) => d.id === desc.id)
+      return {
+        ...state,
+        descontos: existe
+          ? state.descontos.map((d) => (d.id === desc.id ? desc : d))
+          : [desc, ...state.descontos],
+      }
+    }
+
+    case 'EXCLUIR_DESCONTO':
+      return { ...state, descontos: state.descontos.filter((d) => d.id !== action.payload) }
+
     case 'ADICIONAR_CATEGORIA': {
       const nova = action.payload.trim()
       if (!nova || state.categoriasDespesa.includes(nova)) return state
@@ -462,6 +481,7 @@ const FATIAS_POR_TABELA: Record<string, Fatia[]> = {
   orcamentos: ['orcamentos'],
   orcamento_itens: ['orcamentos'],
   despesas: ['despesas'],
+  descontos: ['descontos'],
   categorias_despesa: ['categoriasDespesa'],
   formas_pagamento: ['formasPagamento'],
   etapas_pedido: ['etapas'],

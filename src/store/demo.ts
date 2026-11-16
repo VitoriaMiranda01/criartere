@@ -3,6 +3,7 @@
    página, tudo volta ao estado inicial. */
 import type {
   Cliente,
+  Desconto,
   Despesa,
   OrderHistoryEvent,
   Orcamento,
@@ -160,9 +161,33 @@ export function dadosDemo(): Partial<CriartereState> {
     orcamentoDemo('d0c55e00-0000-4000-8000-000000000002', 'Henrique Teste', produtos[5], 3, 4),
   ]
 
+  const descontos: Desconto[] = [
+    {
+      id: id('d0c5c0b0', 1),
+      nome: 'Primeira compra',
+      codigo: 'BEMVINDO10',
+      tipo: 'percentual',
+      valor: 10,
+      valorMinimo: 0,
+      ativo: true,
+      descricao: 'Cupom para clientes novos',
+    },
+    {
+      id: id('d0c5c0b0', 2),
+      nome: 'Pedido acima de R$ 150',
+      tipo: 'valor',
+      valor: 15,
+      valorMinimo: 150,
+      validoAte: daquiADias(30),
+      ativo: true,
+      descricao: '',
+    },
+  ]
+
   return {
     clientes,
     produtos,
+    descontos,
     pedidos,
     pagamentos,
     historico,

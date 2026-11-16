@@ -147,6 +147,20 @@ export interface Orcamento {
   origem?: 'painel' | 'loja' // 'loja': pedido feito pelo cliente na loja virtual
 }
 
+/** Desconto (escolhido na lista) ou cupom (tem código para o cliente informar). */
+export interface Desconto {
+  id: string
+  nome: string
+  codigo?: string // em maiúsculas; preenchido = cupom
+  tipo: 'percentual' | 'valor'
+  valor: number // % (até 100) ou R$
+  valorMinimo: number // subtotal mínimo dos itens para valer (0 = sem mínimo)
+  validoDe?: string // YYYY-MM-DD
+  validoAte?: string // YYYY-MM-DD
+  ativo: boolean
+  descricao: string
+}
+
 export interface LojaConfig {
   nome: string
   chavePix: string

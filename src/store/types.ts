@@ -5,6 +5,7 @@ import {
   EtapaPedido,
   Orcamento,
   Despesa,
+  Desconto,
   Pagamento,
   OrderHistoryEvent,
   LojaConfig,
@@ -34,6 +35,7 @@ export interface CriartereState {
   orcamentos: Orcamento[]
   pagamentos: Pagamento[]
   despesas: Despesa[]
+  descontos: Desconto[]
   categoriasDespesa: string[]
   formasPagamento: PaymentMethod[]
   historico: OrderHistoryEvent[]

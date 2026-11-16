@@ -3,6 +3,7 @@ import { hojeISO } from '@/lib/datas'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import React, { useEffect, useState } from 'react'
 import { novoId } from '@/lib/supabase'
+import { AplicarDesconto } from '@/components/common/AplicarDesconto'
 import { Orcamento, OrcamentoItem, OrcamentoStatus } from '@/types/criartere'
 import { useCriartere } from '@/store/CriartereContext'
 import { formatBRL } from '@/store/periodUtils'
@@ -407,6 +408,11 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
                     className={inp}
                   />
                 </div>
+                <AplicarDesconto
+                  subtotal={subtotal}
+                  onAplicar={(v) => setDescontoStr(v.toFixed(2))}
+                  className="col-span-2"
+                />
               </div>
               <div className="space-y-1.5">
                 <Label className={lbl}>
