@@ -484,6 +484,7 @@ export default function Banners() {
             </fieldset>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Linha 1: destino do clique e situação */}
               <div className="space-y-1.5">
                 <Label htmlFor="ban-destino" className={lbl}>
                   Ao clicar, abrir
@@ -511,9 +512,24 @@ export default function Banners() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ban-ativo" className={lbl}>
+                  Situação
+                </Label>
+                <div className="h-10 flex items-center justify-between gap-2 px-3 bg-[#F7F3EA] rounded-md border border-[#DFC3AE]/60">
+                  <Label
+                    htmlFor="ban-ativo"
+                    className="text-xs font-bold text-[#0C1014] cursor-pointer"
+                  >
+                    Ativo (aparece na loja)
+                  </Label>
+                  <Switch id="ban-ativo" checked={ativo} onCheckedChange={setAtivo} />
+                </div>
+              </div>
 
+              {/* Linha 2 (quando há destino): categoria ou produto */}
               {destinoTipo === 'categoria' && (
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 sm:col-span-2">
                   <Label htmlFor="ban-categoria" className={lbl}>
                     Categoria
                     <Obrigatorio />
@@ -542,7 +558,7 @@ export default function Banners() {
               )}
 
               {destinoTipo === 'produto' && (
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 sm:col-span-2">
                   <Label htmlFor="ban-produto" className={lbl}>
                     Produto
                     <Obrigatorio />
@@ -562,6 +578,7 @@ export default function Banners() {
                 </div>
               )}
 
+              {/* Linha 3: período em que o banner fica no ar */}
               <div className="space-y-1.5">
                 <Label htmlFor="ban-de" className={lbl}>
                   Mostrar a partir de
@@ -589,16 +606,6 @@ export default function Banners() {
                   className="h-10 text-xs border-[#DFC3AE]"
                 />
               </div>
-            </div>
-
-            <div className="flex items-center justify-between gap-2 p-2.5 bg-[#F7F3EA] rounded-xl border border-[#DFC3AE]/60">
-              <Label
-                htmlFor="ban-ativo"
-                className="text-xs font-bold text-[#0C1014] cursor-pointer"
-              >
-                Ativo (aparece na loja)
-              </Label>
-              <Switch id="ban-ativo" checked={ativo} onCheckedChange={setAtivo} />
             </div>
 
             {erro && (
