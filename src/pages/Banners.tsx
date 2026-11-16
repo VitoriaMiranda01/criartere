@@ -714,7 +714,9 @@ function CampoImagem({
           </span>
         )}
       </div>
-      <div className={formato === 'celular' ? 'w-full max-w-[220px] mx-auto' : 'w-full'}>
+      <div
+        className={`shrink-0 ${formato === 'celular' ? 'w-full max-w-[220px] mx-auto' : 'w-full'}`}
+      >
         <div
           role="button"
           tabIndex={0}

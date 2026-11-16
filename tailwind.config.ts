@@ -26,6 +26,12 @@ export default {
       },
     },
     extend: {
+      // O plugin @tailwindcss/aspect-ratio troca a escala de proporções e some com
+      // aspect-square e aspect-video; aqui elas voltam a funcionar.
+      aspectRatio: {
+        square: '1 / 1',
+        video: '16 / 9',
+      },
       fontFamily: {
         sans: ['"Nunito Sans"', 'system-ui', 'sans-serif'],
         display: ['"Fraunces"', 'Georgia', 'serif'],
