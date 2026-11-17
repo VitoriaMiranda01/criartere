@@ -1,5 +1,5 @@
 /* Regras dos descontos e cupons: situação, validade e cálculo do valor. */
-import type { Desconto } from '@/types/criartere'
+import type { Desconto, Produto } from '@/types/criartere'
 import { vigencia } from '@/lib/datas'
 import { formatBRL } from '@/store/periodUtils'
 
@@ -46,12 +46,29 @@ export const promocaoValeParaProduto = (d: Desconto, produto: { id: string; cate
   (d.produtoIds.includes(produto.id) ||
     d.categorias.some((c) => c.trim().toLowerCase() === produto.categoria.trim().toLowerCase()))
 
-/** Preço do produto com a melhor promoção válida hoje (mesma regra do banco/loja). */
+/** Preço com o desconto informado no cadastro do produto (ou o preço normal). */
+export function precoComDescontoDoProduto(
+  produto: Pick<Produto, 'precoVenda' | 'promoTipo' | 'promoValor' | 'promoDe' | 'promoAte'>,
+): number {
+  if (!produto.promoValor || vigencia(true, produto.promoDe, produto.promoAte) !== 'vigente')
+    return produto.precoVenda
+  const preco =
+    produto.promoTipo === 'valor'
+      ? produto.precoVenda - produto.promoValor
+      : produto.precoVenda * (1 - produto.promoValor / 100)
+  return Math.max(0, Math.round(preco * 100) / 100)
+}
+
+/** Preço do produto com a melhor promoção válida hoje (mesma regra do banco/loja):
+ *  o desconto do próprio produto ou as promoções de Descontos e Cupons. */
 export function precoPromocional(
-  produto: { id: string; categoria: string; precoVenda: number },
+  produto: Pick<
+    Produto,
+    'id' | 'categoria' | 'precoVenda' | 'promoTipo' | 'promoValor' | 'promoDe' | 'promoAte'
+  >,
   descontos: Desconto[],
 ): number {
-  let melhor = produto.precoVenda
+  let melhor = precoComDescontoDoProduto(produto)
   for (const d of descontos) {
     if (situacaoDesconto(d) !== 'ativo' || !promocaoValeParaProduto(d, produto)) continue
     const preco =

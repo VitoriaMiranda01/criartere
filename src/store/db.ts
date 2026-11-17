@@ -95,6 +95,10 @@ const mapProduto = (r: Row): Produto => ({
   ativo: r.ativo,
   publicadoLoja: r.publicado_loja ?? true,
   estoqueAproximado: opt(r.estoque_aproximado),
+  promoTipo: opt(r.promo_tipo),
+  promoValor: r.promo_valor == null ? undefined : num(r.promo_valor),
+  promoDe: opt(r.promo_de),
+  promoAte: opt(r.promo_ate),
 })
 
 const mapItem = (r: Row): PedidoItem => ({
@@ -244,6 +248,10 @@ const produtoParaRow = (p: Produto) => ({
   ativo: p.ativo,
   publicado_loja: p.publicadoLoja ?? true,
   estoque_aproximado: p.estoqueAproximado ?? null,
+  promo_tipo: p.promoValor ? (p.promoTipo ?? 'percentual') : null,
+  promo_valor: p.promoValor || null,
+  promo_de: p.promoValor ? p.promoDe || null : null,
+  promo_ate: p.promoValor ? p.promoAte || null : null,
 })
 
 const despesaParaRow = (d: Despesa) => ({

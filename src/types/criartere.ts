@@ -50,6 +50,11 @@ export interface Produto {
   ativo: boolean
   publicadoLoja?: boolean // aparece na loja virtual (padrão: sim)
   estoqueAproximado?: number
+  /** Desconto informado no cadastro do produto (vazio = sem desconto próprio) */
+  promoTipo?: 'percentual' | 'valor'
+  promoValor?: number
+  promoDe?: string // YYYY-MM-DD
+  promoAte?: string // YYYY-MM-DD
 }
 
 export interface PedidoItem {

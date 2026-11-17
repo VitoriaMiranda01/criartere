@@ -7,8 +7,8 @@ import { enviarImagemProduto, mensagemErro } from '@/store/db'
 import React, { useEffect, useRef, useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
 import { Produto } from '@/types/criartere'
-import { formatBRL } from '@/store/periodUtils'
-import { percentualDesconto, precoPromocional } from '@/lib/descontos'
+import { formatBRL, formatDataBR } from '@/store/periodUtils'
+import { percentualDesconto, precoComDescontoDoProduto, precoPromocional } from '@/lib/descontos'
 import {
   Package,
   Plus,
@@ -90,6 +90,12 @@ export default function Produtos() {
   const [ativo, setAtivo] = useState(true)
   const [publicadoLoja, setPublicadoLoja] = useState(true)
   const [estoqueStr, setEstoqueStr] = useState('10')
+  // Desconto do próprio produto
+  const [emPromocao, setEmPromocao] = useState(false)
+  const [promoTipo, setPromoTipo] = useState<'percentual' | 'valor'>('percentual')
+  const [promoValorStr, setPromoValorStr] = useState('')
+  const [promoDe, setPromoDe] = useState('')
+  const [promoAte, setPromoAte] = useState('')
   const [erro, setErro] = useState('')
 
   // Categorias cadastradas + qualquer categoria já usada em produtos
@@ -153,6 +159,11 @@ export default function Produtos() {
     setAtivo(true)
     setPublicadoLoja(true)
     setEstoqueStr('12')
+    setEmPromocao(false)
+    setPromoTipo('percentual')
+    setPromoValorStr('')
+    setPromoDe('')
+    setPromoAte('')
     setErro('')
     setModalFormAberto(true)
   }
@@ -176,6 +187,11 @@ export default function Produtos() {
     setAtivo(prod.ativo)
     setPublicadoLoja(prod.publicadoLoja ?? true)
     setEstoqueStr(prod.estoqueAproximado ? prod.estoqueAproximado.toString() : '0')
+    setEmPromocao(Boolean(prod.promoValor))
+    setPromoTipo(prod.promoTipo ?? 'percentual')
+    setPromoValorStr(prod.promoValor ? String(prod.promoValor) : '')
+    setPromoDe(prod.promoDe ?? '')
+    setPromoAte(prod.promoAte ?? '')
     setErro('')
     setModalFormAberto(true)
   }
@@ -254,6 +270,18 @@ export default function Produtos() {
       return
     }
 
+    const promoValor = emPromocao ? parseFloat(promoValorStr.replace(',', '.')) : 0
+    if (emPromocao) {
+      if (isNaN(promoValor) || promoValor <= 0)
+        return setErro('Informe o valor do desconto do produto (maior que zero).')
+      if (promoTipo === 'percentual' && promoValor >= 100)
+        return setErro('O desconto em porcentagem deve ser menor que 100%.')
+      if (promoTipo === 'valor' && promoValor >= precoVenda)
+        return setErro('O desconto em R$ deve ser menor que o preço de venda.')
+      if (promoDe && promoAte && promoDe > promoAte)
+        return setErro('No desconto, a data de início deve ser antes da data de término.')
+    }
+
     const id = produtoEditando ? produtoEditando.id : novoId()
     // Envia as fotos novas (na ordem escolhida) e monta a lista final de endereços
     const urls: string[] = []
@@ -289,6 +317,10 @@ export default function Produtos() {
       ativo,
       publicadoLoja,
       estoqueAproximado: estoque,
+      promoTipo: emPromocao ? promoTipo : undefined,
+      promoValor: emPromocao ? Math.round(promoValor * 100) / 100 : undefined,
+      promoDe: emPromocao ? promoDe || undefined : undefined,
+      promoAte: emPromocao ? promoAte || undefined : undefined,
     }
 
     dispatch({ type: 'SALVAR_PRODUTO', payload })
@@ -930,6 +962,149 @@ export default function Produtos() {
                       onChange={(e) => setEstoqueStr(e.target.value)}
                       className="h-10 text-xs border-[#DFC3AE]"
                     />
+                  </div>
+
+                  {/* Desconto do próprio produto */}
+                  <div className="col-span-2 rounded-xl border border-[#DFC3AE]/70 bg-[#F7F3EA]/60 p-3 space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <Label
+                        htmlFor="em-promocao"
+                        className="text-xs font-bold text-[#0C1014] cursor-pointer flex items-center gap-1.5"
+                      >
+                        <Tag className="w-3.5 h-3.5 text-[#B5533C]" />
+                        Desconto neste produto
+                        <DicaAjuda titulo="Desconto do produto">
+                          <p>
+                            A loja mostra a etiqueta (ex.: -15%) e o preço antigo riscado, e o
+                            pedido já entra com o preço com desconto.
+                          </p>
+                          <p>
+                            Para a mesma promoção em vários produtos, use Descontos e Cupons → "Em
+                            produtos".
+                          </p>
+                        </DicaAjuda>
+                      </Label>
+                      <Switch
+                        id="em-promocao"
+                        checked={emPromocao}
+                        onCheckedChange={setEmPromocao}
+                      />
+                    </div>
+                    {emPromocao && (
+                      <>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                          <div className="space-y-1">
+                            <Label
+                              htmlFor="promo-tipo"
+                              className="text-[11px] font-semibold text-[#6B4B36]"
+                            >
+                              Tipo
+                            </Label>
+                            <Select
+                              value={promoTipo}
+                              onValueChange={(v) => v && setPromoTipo(v as 'percentual' | 'valor')}
+                            >
+                              <SelectTrigger
+                                id="promo-tipo"
+                                className="h-9 text-xs border-[#DFC3AE] bg-white"
+                              >
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="percentual" className="text-xs">
+                                  Em %
+                                </SelectItem>
+                                <SelectItem value="valor" className="text-xs">
+                                  Em R$
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-1">
+                            <Label
+                              htmlFor="promo-valor"
+                              className="text-[11px] font-semibold text-[#6B4B36]"
+                            >
+                              {promoTipo === 'percentual' ? 'Desconto (%)' : 'Desconto (R$)'}
+                              <Obrigatorio />
+                            </Label>
+                            <Input
+                              id="promo-valor"
+                              type="number"
+                              step="0.01"
+                              min="0.01"
+                              placeholder={promoTipo === 'percentual' ? 'Ex: 15' : '0,00'}
+                              value={promoValorStr}
+                              onChange={(e) => setPromoValorStr(e.target.value)}
+                              className="h-9 text-xs border-[#DFC3AE] bg-white"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label
+                              htmlFor="promo-de"
+                              className="text-[11px] font-semibold text-[#6B4B36]"
+                            >
+                              A partir de
+                              <Opcional />
+                            </Label>
+                            <Input
+                              id="promo-de"
+                              type="date"
+                              value={promoDe}
+                              onChange={(e) => setPromoDe(e.target.value)}
+                              className="h-9 text-xs border-[#DFC3AE] bg-white"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label
+                              htmlFor="promo-ate"
+                              className="text-[11px] font-semibold text-[#6B4B36]"
+                            >
+                              Até
+                              <Opcional />
+                            </Label>
+                            <Input
+                              id="promo-ate"
+                              type="date"
+                              value={promoAte}
+                              min={promoDe || undefined}
+                              onChange={(e) => setPromoAte(e.target.value)}
+                              className="h-9 text-xs border-[#DFC3AE] bg-white"
+                            />
+                          </div>
+                        </div>
+                        {(() => {
+                          const preco = parseFloat(precoVendaStr.replace(',', '.'))
+                          const valor = parseFloat(promoValorStr.replace(',', '.'))
+                          if (!(preco > 0) || !(valor > 0)) return null
+                          const promo = precoComDescontoDoProduto({
+                            precoVenda: preco,
+                            promoTipo,
+                            promoValor: valor,
+                          })
+                          return (
+                            <p className="text-xs text-[#6B4B36]">
+                              Na loja: <span className="line-through">{formatBRL(preco)}</span>{' '}
+                              <strong className="text-[#B5533C]">{formatBRL(promo)}</strong>{' '}
+                              <span className="font-semibold text-[#B5533C]">
+                                (-{percentualDesconto(preco, promo)}%)
+                              </span>
+                              {(promoDe || promoAte) && (
+                                <span>
+                                  {' '}
+                                  •{' '}
+                                  {promoDe && promoAte
+                                    ? `de ${formatDataBR(promoDe)} a ${formatDataBR(promoAte)}`
+                                    : promoDe
+                                      ? `a partir de ${formatDataBR(promoDe)}`
+                                      : `até ${formatDataBR(promoAte)}`}
+                                </span>
+                              )}
+                            </p>
+                          )
+                        })()}
+                      </>
+                    )}
                   </div>
 
                   {criandoCategoria && (
