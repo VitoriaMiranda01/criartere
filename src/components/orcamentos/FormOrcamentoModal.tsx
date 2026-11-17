@@ -66,6 +66,7 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
   const [itens, setItens] = useState<OrcamentoItem[]>([itemVazio()])
   const [freteStr, setFreteStr] = useState('0')
   const [descontoStr, setDescontoStr] = useState('0')
+  const [descontoId, setDescontoId] = useState<string | undefined>()
   const [observacoes, setObservacoes] = useState('')
   const [status, setStatus] = useState<OrcamentoStatus>('aguardando')
   const [erro, setErro] = useState('')
@@ -92,6 +93,7 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
     setItens(o?.itens.length ? o.itens.map((i) => ({ ...i })) : [itemVazio()])
     setFreteStr(String(o?.valorFrete ?? 0))
     setDescontoStr(String(o?.valorDesconto ?? 0))
+    setDescontoId(o?.descontoId)
     setObservacoes(o?.observacoes ?? '')
     setStatus(o?.status || 'aguardando')
   }, [aberto, o])
@@ -159,6 +161,7 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
       valorProdutos: itensValidos.reduce((s, i) => s + i.subtotal, 0),
       valorFrete: frete,
       valorDesconto: desconto,
+      descontoId: desconto > 0 ? descontoId : undefined,
       valorTotal: total,
       observacoes: observacoes.trim(),
       status,
@@ -406,13 +409,21 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
                     min="0"
                     step="0.01"
                     value={descontoStr}
-                    onChange={(e) => setDescontoStr(e.target.value)}
+                    onChange={(e) => {
+                      // Valor digitado à mão: deixa de seguir o desconto aplicado
+                      setDescontoStr(e.target.value)
+                      setDescontoId(undefined)
+                    }}
                     className={inp}
                   />
                 </div>
                 <AplicarDesconto
                   subtotal={subtotal}
-                  onAplicar={(v) => setDescontoStr(v.toFixed(2))}
+                  descontoId={descontoId}
+                  onAplicar={(v, id) => {
+                    setDescontoStr(v.toFixed(2))
+                    setDescontoId(id)
+                  }}
                   className="col-span-2"
                 />
               </div>

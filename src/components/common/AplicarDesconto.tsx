@@ -1,6 +1,9 @@
 /* Aplica um desconto cadastrado (lista) ou um cupom (código) no pedido/orçamento.
-   Calcula o valor em R$ sobre o subtotal dos itens e devolve para o campo "Desconto". */
-import { useState } from 'react'
+   O desconto escolhido fica vinculado: quando os itens mudam, o valor é recalculado
+   sozinho (e sai, com aviso, se a soma ficar abaixo da compra mínima). Digitar um
+   valor à mão no campo "Desconto" desfaz o vínculo. */
+import { useEffect, useRef, useState } from 'react'
+import { X } from 'lucide-react'
 import { useCriartere } from '@/store/CriartereContext'
 import {
   calcularDesconto,
@@ -25,18 +28,39 @@ import { toast } from 'sonner'
 
 interface Props {
   subtotal: number
-  onAplicar: (valor: number) => void
+  /** Desconto/cupom vinculado ao pedido (undefined = valor digitado à mão ou nenhum). */
+  descontoId?: string
+  /** Chamado ao aplicar, recalcular ou remover: novo valor em R$ e o desconto vinculado. */
+  onAplicar: (valor: number, descontoId?: string) => void
   className?: string
 }
 
-export function AplicarDesconto({ subtotal, onAplicar, className }: Props) {
+export function AplicarDesconto({ subtotal, descontoId, onAplicar, className }: Props) {
   const { state } = useCriartere()
   const [codigo, setCodigo] = useState('')
   const [escolhido, setEscolhido] = useState('')
 
+  const vinculado = descontoId ? state.descontos.find((d) => d.id === descontoId) : undefined
+
+  // Recalcula quando a soma dos itens muda (com a mesma soma, o valor não muda)
+  const subtotalAnterior = useRef(subtotal)
+  useEffect(() => {
+    if (subtotalAnterior.current === subtotal) return
+    subtotalAnterior.current = subtotal
+    if (!vinculado) return
+    if (subtotal <= 0 || subtotal < vinculado.valorMinimo) {
+      onAplicar(0, undefined)
+      toast.warning(
+        `"${vinculado.nome}" foi retirado: vale para compras a partir de ${formatBRL(vinculado.valorMinimo)}.`,
+      )
+      return
+    }
+    onAplicar(calcularDesconto(vinculado, subtotal), vinculado.id)
+  }, [subtotal, vinculado, onAplicar])
+
   const semCodigo = descontosDisponiveis(state.descontos).filter((d) => !ehCupom(d))
   const temCupons = state.descontos.some(ehCupom)
-  if (semCodigo.length === 0 && !temCupons) return null
+  if (semCodigo.length === 0 && !temCupons && !vinculado) return null
 
   const aplicar = (d: Desconto) => {
     if (subtotal <= 0) {
@@ -50,7 +74,7 @@ export function AplicarDesconto({ subtotal, onAplicar, className }: Props) {
       return false
     }
     const valor = calcularDesconto(d, subtotal)
-    onAplicar(valor)
+    onAplicar(valor, d.id)
     toast.success(
       `${d.nome} (${rotuloValorDesconto(d)}): desconto de ${formatBRL(valor)} aplicado.`,
     )
@@ -72,6 +96,24 @@ export function AplicarDesconto({ subtotal, onAplicar, className }: Props) {
 
   return (
     <div className={`grid grid-cols-1 gap-2 ${className ?? ''}`}>
+      {vinculado && (
+        <div className="flex items-center justify-between gap-2 rounded-lg border border-[#C48864]/50 bg-[#C48864]/10 px-2.5 py-1.5">
+          <p className="text-[11px] text-[#6B4B36] min-w-0">
+            <span className="font-semibold text-[#94603D]">
+              {ehCupom(vinculado) ? `Cupom ${vinculado.codigo}` : vinculado.nome}
+            </span>{' '}
+            ({rotuloValorDesconto(vinculado)}) aplicado • recalcula sozinho se os itens mudarem
+          </p>
+          <button
+            type="button"
+            onClick={() => onAplicar(0, undefined)}
+            aria-label="Remover desconto aplicado"
+            className="shrink-0 p-1 rounded text-[#6B4B36] hover:text-red-600 hover:bg-white"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
       {semCodigo.length > 0 && (
         <Select
           value={escolhido}
@@ -85,7 +127,11 @@ export function AplicarDesconto({ subtotal, onAplicar, className }: Props) {
             aria-label="Aplicar desconto cadastrado"
             className="h-9 text-xs border-[#DFC3AE] bg-white"
           >
-            <SelectValue placeholder="Aplicar desconto cadastrado..." />
+            <SelectValue
+              placeholder={
+                vinculado ? 'Trocar por outro desconto...' : 'Aplicar desconto cadastrado...'
+              }
+            />
           </SelectTrigger>
           <SelectContent>
             {semCodigo.map((d) => (

@@ -25,6 +25,7 @@ import {
   Copy,
   CalendarDays,
   Tag,
+  ShoppingBag,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -104,6 +105,24 @@ export default function Descontos() {
     [state.produtos],
   )
   const nomeProduto = (id: string) => state.produtos.find((x) => x.id === id)?.nome
+
+  // Quantas vezes cada desconto/cupom foi usado
+  const usos = useMemo(() => {
+    const m = new Map<string, { pedidos: number; orcamentos: number }>()
+    const contar = (id: string | undefined, campo: 'pedidos' | 'orcamentos') => {
+      if (!id) return
+      const atual = m.get(id) ?? { pedidos: 0, orcamentos: 0 }
+      atual[campo]++
+      m.set(id, atual)
+    }
+    state.pedidos
+      .filter((pe) => pe.status !== 'cancelado')
+      .forEach((pe) => contar(pe.descontoId, 'pedidos'))
+    state.orcamentos
+      .filter((o) => !o.pedidoId && o.status === 'aguardando')
+      .forEach((o) => contar(o.descontoId, 'orcamentos'))
+    return m
+  }, [state.pedidos, state.orcamentos])
   const alternar = (lista: string[], valor: string) =>
     lista.includes(valor) ? lista.filter((v) => v !== valor) : [...lista, valor]
 
@@ -417,6 +436,29 @@ export default function Descontos() {
                       {rotuloValorDesconto(d)}{' '}
                       <span className="text-xs font-sans">de desconto</span>
                     </p>
+                    {d.alcance === 'pedido' &&
+                      (() => {
+                        const u = usos.get(d.id) ?? { pedidos: 0, orcamentos: 0 }
+                        return (
+                          <p className="flex items-center gap-1 font-semibold text-[#0C1014]">
+                            <ShoppingBag className="w-3 h-3 shrink-0 text-[#94603D]" />
+                            {u.pedidos === 0
+                              ? 'Ainda não usado em pedidos'
+                              : u.pedidos === 1
+                                ? 'Usado em 1 pedido'
+                                : `Usado em ${u.pedidos} pedidos`}
+                            {u.orcamentos > 0 && (
+                              <span className="font-normal text-[#6B4B36]">
+                                {' '}
+                                • {u.orcamentos}{' '}
+                                {u.orcamentos === 1
+                                  ? 'orçamento em aberto'
+                                  : 'orçamentos em aberto'}
+                              </span>
+                            )}
+                          </p>
+                        )
+                      })()}
                     {d.alcance === 'pedido' && d.valorMinimo > 0 && (
                       <p>Em compras a partir de {formatBRL(d.valorMinimo)}</p>
                     )}

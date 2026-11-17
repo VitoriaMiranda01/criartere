@@ -49,6 +49,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
   const [valorDescontoStr, setValorDescontoStr] = useState(
     pedidoParaEditar ? pedidoParaEditar.valorDesconto.toString() : '0',
   )
+  const [descontoId, setDescontoId] = useState<string | undefined>(pedidoParaEditar?.descontoId)
   const [formaPagamento, setFormaPagamento] = useState<PaymentMethod>(
     pedidoParaEditar?.formaPagamento || 'Pix',
   )
@@ -71,6 +72,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
       setItens(pedidoParaEditar.itens)
       setValorFreteStr(pedidoParaEditar.valorFrete.toString())
       setValorDescontoStr(pedidoParaEditar.valorDesconto.toString())
+      setDescontoId(pedidoParaEditar.descontoId)
       setFormaPagamento(pedidoParaEditar.formaPagamento)
       setStatus(pedidoParaEditar.status)
       setPrazoEntrega(pedidoParaEditar.prazoEntrega)
@@ -82,6 +84,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
       ])
       setValorFreteStr('0')
       setValorDescontoStr('0')
+      setDescontoId(undefined)
       setFormaPagamento('Pix')
       setStatus('novo')
       setPrazoEntrega(daquiADias(7))
@@ -216,6 +219,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
         valorProdutos: subtotalProdutos,
         valorFrete: frete,
         valorDesconto: desconto,
+        descontoId: desconto > 0 ? descontoId : undefined,
         valorTotal: valorTotalFinal,
         status,
         formaPagamento,
@@ -234,6 +238,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
           valorProdutos: subtotalProdutos,
           valorFrete: frete,
           valorDesconto: desconto,
+          descontoId: desconto > 0 ? descontoId : undefined,
           valorTotal: valorTotalFinal,
           status,
           statusPagamento: 'pendente',
@@ -540,14 +545,22 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                     step="0.01"
                     min="0"
                     value={valorDescontoStr}
-                    onChange={(e) => setValorDescontoStr(e.target.value)}
+                    onChange={(e) => {
+                      // Valor digitado à mão: deixa de seguir o desconto aplicado
+                      setValorDescontoStr(e.target.value)
+                      setDescontoId(undefined)
+                    }}
                     className="h-9 text-xs border-[#DFC3AE] bg-white"
                   />
                 </div>
               </div>
               <AplicarDesconto
                 subtotal={subtotalProdutos}
-                onAplicar={(v) => setValorDescontoStr(v.toFixed(2))}
+                descontoId={descontoId}
+                onAplicar={(v, id) => {
+                  setValorDescontoStr(v.toFixed(2))
+                  setDescontoId(id)
+                }}
               />
               <div className="pt-2.5 border-t border-[#DFC3AE]/50 flex items-end justify-between gap-2">
                 <div>

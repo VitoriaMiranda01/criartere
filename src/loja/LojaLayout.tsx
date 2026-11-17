@@ -251,8 +251,6 @@ function LojaEstrutura() {
                 icon: PenTool,
               },
               { to: PAGINA_SOBRE.caminho, label: PAGINA_SOBRE.menu, icon: BookHeart },
-              { to: '/favoritos', label: 'Favoritos', icon: Heart },
-              { to: '/carrinho', label: 'Carrinho', icon: ShoppingBag },
             ]
               .map((l) => (
                 <NavLink

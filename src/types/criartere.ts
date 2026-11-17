@@ -86,6 +86,7 @@ export interface Pedido {
   valorProdutos: number
   valorFrete: number
   valorDesconto: number
+  descontoId?: string // desconto/cupom aplicado (para recalcular e contar os usos)
   valorTotal: number
   status: OrderStatus
   statusPagamento: PaymentStatus
@@ -146,6 +147,7 @@ export interface Orcamento {
   valorProdutos: number
   valorFrete: number
   valorDesconto: number
+  descontoId?: string // desconto/cupom aplicado (para recalcular e contar os usos)
   valorTotal: number
   observacoes: string // uma observação por linha
   status: OrcamentoStatus
