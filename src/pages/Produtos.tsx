@@ -8,7 +8,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
 import { Produto } from '@/types/criartere'
 import { formatBRL, formatDataBR } from '@/store/periodUtils'
-import { percentualDesconto, precoComDescontoDoProduto, precoPromocional } from '@/lib/descontos'
+import { percentualDesconto, precoPromocional } from '@/lib/descontos'
 import {
   Package,
   Plus,
@@ -538,7 +538,7 @@ export default function Produtos() {
                       </span>
                     </div>
                     {(() => {
-                      const promo = precoPromocional(prod, state.descontos)
+                      const promo = precoPromocional(prod)
                       if (promo >= prod.precoVenda) return null
                       return (
                         <div className="flex items-center justify-between text-[11px]">
@@ -978,10 +978,7 @@ export default function Produtos() {
                             A loja mostra a etiqueta (ex.: -15%) e o preço antigo riscado, e o
                             pedido já entra com o preço com desconto.
                           </p>
-                          <p>
-                            Para a mesma promoção em vários produtos, use Descontos e Cupons → "Em
-                            produtos".
-                          </p>
+                          <p>O período é opcional: sem datas, o desconto vale até ser desligado.</p>
                         </DicaAjuda>
                       </Label>
                       <Switch
@@ -1077,7 +1074,7 @@ export default function Produtos() {
                           const preco = parseFloat(precoVendaStr.replace(',', '.'))
                           const valor = parseFloat(promoValorStr.replace(',', '.'))
                           if (!(preco > 0) || !(valor > 0)) return null
-                          const promo = precoComDescontoDoProduto({
+                          const promo = precoPromocional({
                             precoVenda: preco,
                             promoTipo,
                             promoValor: valor,

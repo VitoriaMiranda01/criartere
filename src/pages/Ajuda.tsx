@@ -233,19 +233,24 @@ const TOPICOS: Topico[] = [
   },
   {
     id: 'descontos',
-    titulo: 'Descontos e Cupons',
+    titulo: 'Cupons e descontos',
     icone: Ticket,
-    resumo: 'Promoções em % ou R$ para aplicar com um clique em pedidos e orçamentos.',
+    resumo: 'Cupons com código para pedidos e orçamentos, e desconto direto no produto.',
     rota: '/admin/descontos',
     secoes: [
       {
-        subtitulo: 'Como usar',
+        subtitulo: 'Cupons',
         passos: [
-          'Clique em "Novo Desconto" (escolhido na lista) ou "Novo Cupom" (tem um código, ex.: BEMVINDO10, que o cliente informa).',
-          'Em "Novo Desconto", escolha "Em produtos" para uma promoção automática: marque produtos ou categorias inteiras. A loja mostra a etiqueta (ex.: -15%) e o preço antigo riscado, e o pedido já entra com o preço promocional.',
-          'Informe se o desconto é em porcentagem ou valor fixo. Compra mínima e período de validade são opcionais.',
-          'No pedido ou orçamento, escolha o desconto na lista ou digite o código do cupom: o valor é calculado sobre a soma dos itens e preenchido no campo "Desconto".',
-          'Desligue "Ativo" para pausar uma promoção sem apagá-la. Cupons fora do período ou inativos não são aceitos.',
+          'Em Cupons, clique em "Novo Cupom": informe nome, código (ex.: BEMVINDO10), se o desconto é em % ou R$, e opcionalmente compra mínima e período.',
+          'No pedido ou orçamento, digite o código do cupom: o desconto é calculado sobre a soma dos itens e recalcula sozinho se os itens mudarem.',
+          'Cada cupom mostra quantas vezes foi usado. Desligue "Ativo" para pausar um cupom sem apagá-lo.',
+        ],
+      },
+      {
+        subtitulo: 'Desconto em um produto',
+        passos: [
+          'No cadastro do produto, ligue "Desconto neste produto" e informe o valor em % ou R$ (período opcional).',
+          'A loja mostra a etiqueta (ex.: -15%) e o preço antigo riscado, e o pedido já entra com o preço com desconto.',
         ],
       },
     ],

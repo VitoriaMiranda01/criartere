@@ -72,7 +72,7 @@ export default function Layout() {
     '/admin/orcamentos': 'Orçamentos',
     '/admin/clientes': 'Clientes',
     '/admin/produtos': 'Produtos',
-    '/admin/descontos': 'Descontos e Cupons',
+    '/admin/descontos': 'Cupons',
     '/admin/banners': 'Banners da Loja',
     '/admin/sobre': 'Página Sobre Nós',
     '/admin/categorias': 'Categorias de Produto',
@@ -168,7 +168,7 @@ export default function Layout() {
     },
     { label: 'Clientes', path: '/admin/clientes', icon: Users },
     { label: 'Produtos', path: '/admin/produtos', icon: Package },
-    { label: 'Descontos e Cupons', path: '/admin/descontos', icon: Ticket },
+    { label: 'Cupons', path: '/admin/descontos', icon: Ticket },
     // Seções com abas: um item no menu, ativo em qualquer uma das telas da seção
     {
       label: 'Loja virtual',

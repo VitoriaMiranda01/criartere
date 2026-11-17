@@ -114,7 +114,7 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
     const prod = state.produtos.find((p) => p.id === produtoId)
     if (!prod) return
 
-    const preco = precoPromocional(prod, state.descontos)
+    const preco = precoPromocional(prod)
     const novos = [...itens]
     novos[index] = {
       ...novos[index],
@@ -434,8 +434,8 @@ export const FormPedidoModal: React.FC<FormPedidoModalProps> = ({
                           </SelectItem>
                           {produtosAtivos.map((p) => (
                             <SelectItem key={p.id} value={p.id} className="text-xs">
-                              {p.nome} — {formatBRL(precoPromocional(p, state.descontos))}
-                              {precoPromocional(p, state.descontos) < p.precoVenda && ' (promoção)'}
+                              {p.nome} — {formatBRL(precoPromocional(p))}
+                              {precoPromocional(p) < p.precoVenda && ' (promoção)'}
                             </SelectItem>
                           ))}
                         </SelectContent>

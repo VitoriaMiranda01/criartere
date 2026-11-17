@@ -91,7 +91,7 @@ export interface Pedido {
   valorProdutos: number
   valorFrete: number
   valorDesconto: number
-  descontoId?: string // desconto/cupom aplicado (para recalcular e contar os usos)
+  descontoId?: string // cupom aplicado (para recalcular e contar os usos)
   valorTotal: number
   status: OrderStatus
   statusPagamento: PaymentStatus
@@ -152,7 +152,7 @@ export interface Orcamento {
   valorProdutos: number
   valorFrete: number
   valorDesconto: number
-  descontoId?: string // desconto/cupom aplicado (para recalcular e contar os usos)
+  descontoId?: string // cupom aplicado (para recalcular e contar os usos)
   valorTotal: number
   observacoes: string // uma observação por linha
   status: OrcamentoStatus
@@ -160,19 +160,14 @@ export interface Orcamento {
   origem?: 'painel' | 'loja' // 'loja': pedido feito pelo cliente na loja virtual
 }
 
-/** Desconto (escolhido na lista) ou cupom (tem código para o cliente informar). */
+/** Cupom de desconto: código que o cliente informa, aplicado no pedido/orçamento. */
 export interface Desconto {
   id: string
   nome: string
-  codigo?: string // em maiúsculas; preenchido = cupom
+  codigo: string // em maiúsculas
   tipo: 'percentual' | 'valor'
   valor: number // % (até 100) ou R$
-  valorMinimo: number // subtotal mínimo dos itens para valer (0 = sem mínimo; só no pedido)
-  /** 'pedido': escolhido ao montar pedido/orçamento. 'produtos': promoção automática
-   *  nos produtos/categorias escolhidos, com etiqueta na loja (nunca é cupom). */
-  alcance: 'pedido' | 'produtos'
-  produtoIds: string[]
-  categorias: string[]
+  valorMinimo: number // subtotal mínimo dos itens para valer (0 = sem mínimo)
   validoDe?: string // YYYY-MM-DD
   validoAte?: string // YYYY-MM-DD
   ativo: boolean

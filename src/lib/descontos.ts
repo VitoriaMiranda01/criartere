@@ -1,11 +1,11 @@
-/* Regras dos descontos e cupons: situação, validade e cálculo do valor. */
+/* Regras de desconto:
+   - Cupons (tela Cupons): código que o cliente informa, aplicado no pedido/orçamento.
+   - Desconto do produto: campo no cadastro do produto, aparece na loja com etiqueta. */
 import type { Desconto, Produto } from '@/types/criartere'
 import { vigencia } from '@/lib/datas'
 import { formatBRL } from '@/store/periodUtils'
 
 export type SituacaoDesconto = 'ativo' | 'inativo' | 'agendado' | 'expirado'
-
-export const ehCupom = (d: Desconto) => Boolean(d.codigo)
 
 /** Normaliza o código digitado: maiúsculas, sem espaços nem acentos. */
 export const normalizarCodigo = (codigo: string) =>
@@ -25,7 +25,7 @@ export const rotuloValorDesconto = (d: Desconto) =>
   d.tipo === 'percentual' ? `${d.valor.toLocaleString('pt-BR')}%` : formatBRL(d.valor)
 
 /**
- * Valor em R$ do desconto sobre o subtotal dos itens.
+ * Valor em R$ do cupom sobre o subtotal dos itens.
  * Retorna 0 se o subtotal não atinge o mínimo. Nunca passa do subtotal.
  */
 export function calcularDesconto(d: Desconto, subtotal: number): number {
@@ -34,20 +34,8 @@ export function calcularDesconto(d: Desconto, subtotal: number): number {
   return Math.round(Math.min(bruto, subtotal) * 100) / 100
 }
 
-/** Descontos e cupons do pedido inteiro que podem ser usados hoje
- *  (as promoções por produto já entram no preço do item). */
-export const descontosDisponiveis = (lista: Desconto[]) =>
-  lista.filter((d) => d.alcance === 'pedido' && situacaoDesconto(d) === 'ativo')
-
-/** Promoção por produto: vale para este produto (pelo próprio produto ou pela categoria)? */
-export const promocaoValeParaProduto = (d: Desconto, produto: { id: string; categoria: string }) =>
-  d.alcance === 'produtos' &&
-  !d.codigo &&
-  (d.produtoIds.includes(produto.id) ||
-    d.categorias.some((c) => c.trim().toLowerCase() === produto.categoria.trim().toLowerCase()))
-
-/** Preço com o desconto informado no cadastro do produto (ou o preço normal). */
-export function precoComDescontoDoProduto(
+/** Preço do produto com o desconto do cadastro, se estiver valendo hoje (mesma regra do banco/loja). */
+export function precoPromocional(
   produto: Pick<Produto, 'precoVenda' | 'promoTipo' | 'promoValor' | 'promoDe' | 'promoAte'>,
 ): number {
   if (!produto.promoValor || vigencia(true, produto.promoDe, produto.promoAte) !== 'vigente')
@@ -57,27 +45,6 @@ export function precoComDescontoDoProduto(
       ? produto.precoVenda - produto.promoValor
       : produto.precoVenda * (1 - produto.promoValor / 100)
   return Math.max(0, Math.round(preco * 100) / 100)
-}
-
-/** Preço do produto com a melhor promoção válida hoje (mesma regra do banco/loja):
- *  o desconto do próprio produto ou as promoções de Descontos e Cupons. */
-export function precoPromocional(
-  produto: Pick<
-    Produto,
-    'id' | 'categoria' | 'precoVenda' | 'promoTipo' | 'promoValor' | 'promoDe' | 'promoAte'
-  >,
-  descontos: Desconto[],
-): number {
-  let melhor = precoComDescontoDoProduto(produto)
-  for (const d of descontos) {
-    if (situacaoDesconto(d) !== 'ativo' || !promocaoValeParaProduto(d, produto)) continue
-    const preco =
-      d.tipo === 'percentual'
-        ? produto.precoVenda * (1 - d.valor / 100)
-        : produto.precoVenda - d.valor
-    melhor = Math.min(melhor, Math.max(0, Math.round(preco * 100) / 100))
-  }
-  return melhor
 }
 
 /** Percentual de desconto para a etiqueta (ex.: 15 para "-15%"). */

@@ -1,3 +1,5 @@
+/* Cupons de desconto: código que o cliente informa e que é aplicado no pedido/orçamento.
+   (O desconto em produtos fica no próprio cadastro do produto.) */
 import { CabecalhoPagina } from '@/components/common/CabecalhoPagina'
 import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
@@ -7,14 +9,12 @@ import { useCriartere } from '@/store/CriartereContext'
 import { Desconto } from '@/types/criartere'
 import { formatBRL, formatDataBR } from '@/store/periodUtils'
 import {
-  ehCupom,
   normalizarCodigo,
   rotuloValorDesconto,
   situacaoDesconto,
   SituacaoDesconto,
 } from '@/lib/descontos'
 import {
-  BadgePercent,
   Ticket,
   Plus,
   Search,
@@ -24,7 +24,6 @@ import {
   X,
   Copy,
   CalendarDays,
-  Tag,
   ShoppingBag,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -69,14 +68,12 @@ const SITUACOES: Record<SituacaoDesconto, { nome: string; classe: string }> = {
   inativo: { nome: 'Inativo', classe: 'bg-gray-500 text-white' },
 }
 
-type FiltroTipo = 'todos' | 'descontos' | 'cupons' | 'produtos'
 type FiltroSituacao = 'todas' | SituacaoDesconto
 
 export default function Descontos() {
   const { state, dispatch } = useCriartere()
 
   const [busca, setBusca] = useState('')
-  const [filtroTipo, setFiltroTipo] = useState<FiltroTipo>('todos')
   const [filtroSituacao, setFiltroSituacao] = useState<FiltroSituacao>('todas')
 
   const [modalAberto, setModalAberto] = useState(false)
@@ -84,7 +81,6 @@ export default function Descontos() {
   const [paraExcluir, setParaExcluir] = useState<Desconto | null>(null)
 
   // Campos do formulário
-  const [ehCupomForm, setEhCupomForm] = useState(false)
   const [nome, setNome] = useState('')
   const [codigo, setCodigo] = useState('')
   const [tipo, setTipo] = useState<Desconto['tipo']>('percentual')
@@ -94,19 +90,9 @@ export default function Descontos() {
   const [validoAte, setValidoAte] = useState('')
   const [ativo, setAtivo] = useState(true)
   const [descricao, setDescricao] = useState('')
-  const [alcance, setAlcance] = useState<Desconto['alcance']>('pedido')
-  const [produtoIds, setProdutoIds] = useState<string[]>([])
-  const [categoriasSel, setCategoriasSel] = useState<string[]>([])
-  const [buscaProduto, setBuscaProduto] = useState('')
   const [erro, setErro] = useState('')
 
-  const produtosOrdenados = useMemo(
-    () => [...state.produtos].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')),
-    [state.produtos],
-  )
-  const nomeProduto = (id: string) => state.produtos.find((x) => x.id === id)?.nome
-
-  // Quantas vezes cada desconto/cupom foi usado
+  // Quantas vezes cada cupom foi usado
   const usos = useMemo(() => {
     const m = new Map<string, { pedidos: number; orcamentos: number }>()
     const contar = (id: string | undefined, campo: 'pedidos' | 'orcamentos') => {
@@ -123,45 +109,18 @@ export default function Descontos() {
       .forEach((o) => contar(o.descontoId, 'orcamentos'))
     return m
   }, [state.pedidos, state.orcamentos])
-  const alternar = (lista: string[], valor: string) =>
-    lista.includes(valor) ? lista.filter((v) => v !== valor) : [...lista, valor]
 
-  const abrirNovo = (cupom: boolean) => {
-    setEditando(null)
-    setEhCupomForm(cupom)
-    setNome('')
-    setCodigo('')
-    setTipo('percentual')
-    setValorStr('')
-    setMinimoStr('')
-    setValidoDe('')
-    setValidoAte('')
-    setAtivo(true)
-    setDescricao('')
-    setAlcance('pedido')
-    setProdutoIds([])
-    setCategoriasSel([])
-    setBuscaProduto('')
-    setErro('')
-    setModalAberto(true)
-  }
-
-  const abrirEditar = (d: Desconto) => {
+  const abrir = (d: Desconto | null) => {
     setEditando(d)
-    setEhCupomForm(ehCupom(d))
-    setNome(d.nome)
-    setCodigo(d.codigo ?? '')
-    setTipo(d.tipo)
-    setValorStr(String(d.valor))
-    setMinimoStr(d.valorMinimo ? String(d.valorMinimo) : '')
-    setValidoDe(d.validoDe ?? '')
-    setValidoAte(d.validoAte ?? '')
-    setAtivo(d.ativo)
-    setDescricao(d.descricao)
-    setAlcance(d.alcance)
-    setProdutoIds(d.produtoIds)
-    setCategoriasSel(d.categorias)
-    setBuscaProduto('')
+    setNome(d?.nome ?? '')
+    setCodigo(d?.codigo ?? '')
+    setTipo(d?.tipo ?? 'percentual')
+    setValorStr(d ? String(d.valor) : '')
+    setMinimoStr(d?.valorMinimo ? String(d.valorMinimo) : '')
+    setValidoDe(d?.validoDe ?? '')
+    setValidoAte(d?.validoAte ?? '')
+    setAtivo(d?.ativo ?? true)
+    setDescricao(d?.descricao ?? '')
     setErro('')
     setModalAberto(true)
   }
@@ -172,36 +131,26 @@ export default function Descontos() {
 
     const valor = parseFloat(valorStr.replace(',', '.'))
     const valorMinimo = Math.max(0, parseFloat(minimoStr.replace(',', '.')) || 0)
-    const codigoFinal = ehCupomForm ? normalizarCodigo(codigo) : ''
+    const codigoFinal = normalizarCodigo(codigo)
 
-    if (!nome.trim()) return setErro('Informe um nome para identificar a promoção.')
-    if (ehCupomForm) {
-      if (codigoFinal.length < 3 || codigoFinal.length > 30)
-        return setErro('O código do cupom deve ter de 3 a 30 letras ou números.')
-      const repetido = state.descontos.some(
-        (d) => d.codigo === codigoFinal && d.id !== editando?.id,
-      )
-      if (repetido) return setErro(`Já existe um cupom com o código "${codigoFinal}".`)
-    }
+    if (!nome.trim()) return setErro('Informe um nome para identificar o cupom.')
+    if (codigoFinal.length < 3 || codigoFinal.length > 30)
+      return setErro('O código do cupom deve ter de 3 a 30 letras ou números.')
+    if (state.descontos.some((d) => d.codigo === codigoFinal && d.id !== editando?.id))
+      return setErro(`Já existe um cupom com o código "${codigoFinal}".`)
     if (isNaN(valor) || valor <= 0) return setErro('Informe um valor de desconto maior que zero.')
     if (tipo === 'percentual' && valor > 100)
       return setErro('O desconto em porcentagem não pode passar de 100%.')
     if (validoDe && validoAte && validoDe > validoAte)
       return setErro('A data de início deve ser antes da data de término.')
-    const porProduto = !ehCupomForm && alcance === 'produtos'
-    if (porProduto && produtoIds.length === 0 && categoriasSel.length === 0)
-      return setErro('Escolha ao menos um produto ou uma categoria para a promoção.')
 
     const payload: Desconto = {
       id: editando?.id ?? novoId(),
       nome: nome.trim(),
-      codigo: codigoFinal || undefined,
+      codigo: codigoFinal,
       tipo,
       valor: Math.round(valor * 100) / 100,
-      valorMinimo: porProduto ? 0 : valorMinimo,
-      alcance: porProduto ? 'produtos' : 'pedido',
-      produtoIds: porProduto ? produtoIds : [],
-      categorias: porProduto ? categoriasSel : [],
+      valorMinimo,
       validoDe: validoDe || undefined,
       validoAte: validoAte || undefined,
       ativo,
@@ -209,15 +158,16 @@ export default function Descontos() {
     }
 
     dispatch({ type: 'SALVAR_DESCONTO', payload })
-    const rotulo = ehCupomForm ? 'Cupom' : porProduto ? 'Promoção' : 'Desconto'
-    toast.success(editando ? `${rotulo} "${payload.nome}" atualizado!` : `${rotulo} cadastrado!`)
+    toast.success(
+      editando ? `Cupom ${payload.codigo} atualizado!` : `Cupom ${payload.codigo} criado!`,
+    )
     setModalAberto(false)
   }
 
   const handleExcluir = () => {
     if (!paraExcluir) return
     dispatch({ type: 'EXCLUIR_DESCONTO', payload: paraExcluir.id })
-    toast.success(`"${paraExcluir.nome}" foi excluído.`)
+    toast.success(`Cupom ${paraExcluir.codigo} excluído.`)
     setParaExcluir(null)
   }
 
@@ -232,42 +182,25 @@ export default function Descontos() {
 
   const filtrados = state.descontos.filter((d) => {
     const termo = busca.trim().toLowerCase()
-    if (
-      termo &&
-      !d.nome.toLowerCase().includes(termo) &&
-      !(d.codigo ?? '').toLowerCase().includes(termo)
-    )
+    if (termo && !d.nome.toLowerCase().includes(termo) && !d.codigo.toLowerCase().includes(termo))
       return false
-    if (filtroTipo === 'cupons' && !ehCupom(d)) return false
-    if (filtroTipo === 'descontos' && (ehCupom(d) || d.alcance === 'produtos')) return false
-    if (filtroTipo === 'produtos' && d.alcance !== 'produtos') return false
     if (filtroSituacao !== 'todas' && situacaoDesconto(d) !== filtroSituacao) return false
     return true
   })
-
-  const qtdCupons = state.descontos.filter(ehCupom).length
-  const qtdPromocoes = state.descontos.filter((d) => d.alcance === 'produtos').length
-  const qtdDescontos = state.descontos.length - qtdCupons - qtdPromocoes
+  const validos = state.descontos.filter((d) => situacaoDesconto(d) === 'ativo').length
 
   return (
     <div className="space-y-6">
       <CabecalhoPagina
-        titulo="Descontos e Cupons"
-        descricao={`${qtdPromocoes} promoções em produtos • ${qtdDescontos} descontos no pedido • ${qtdCupons} cupons`}
+        titulo="Cupons"
+        descricao={`${state.descontos.length} cupons cadastrados • ${validos} valendo hoje`}
         ajuda={
-          <DicaAjuda titulo="Descontos e cupons" topico="descontos" lado="bottom">
+          <DicaAjuda titulo="Cupons" topico="descontos" lado="bottom">
             <p>
-              <strong>Promoção em produtos</strong> vale para produtos ou categorias escolhidos: a
-              loja mostra a etiqueta de desconto e o preço antigo riscado.
+              O cupom tem um código (ex.: BEMVINDO10) que o cliente informa. Digite o código no
+              pedido ou orçamento para aplicar o desconto.
             </p>
-            <p>
-              <strong>Desconto no pedido</strong> é escolhido na lista ao montar um pedido ou
-              orçamento.
-            </p>
-            <p>
-              <strong>Cupons</strong> têm um código (ex.: BEMVINDO10) que o cliente informa. Basta
-              digitar o código no pedido ou orçamento.
-            </p>
+            <p>Desconto em um produto específico fica no cadastro do produto.</p>
           </DicaAjuda>
         }
       />
@@ -277,7 +210,7 @@ export default function Descontos() {
         <div className="flex-1 min-w-0">
           <div className="bg-white p-3.5 rounded-xl border border-[#DFC3AE]/70 shadow-xs">
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-              <div className="sm:col-span-6 relative">
+              <div className="sm:col-span-8 relative">
                 <Search className="w-4 h-4 text-[#6B4B36]/90 absolute left-3 top-1/2 -translate-y-1/2" />
                 <Input
                   placeholder="Buscar por nome ou código..."
@@ -295,34 +228,10 @@ export default function Descontos() {
                   </button>
                 )}
               </div>
-              <div className="sm:col-span-3">
-                <Select value={filtroTipo} onValueChange={(v) => setFiltroTipo(v as FiltroTipo)}>
-                  <SelectTrigger
-                    aria-label="Filtrar por tipo"
-                    className="h-9 text-xs border-[#DFC3AE]"
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos" className="text-xs">
-                      Descontos e cupons
-                    </SelectItem>
-                    <SelectItem value="produtos" className="text-xs">
-                      Promoções em produtos
-                    </SelectItem>
-                    <SelectItem value="descontos" className="text-xs">
-                      Descontos no pedido
-                    </SelectItem>
-                    <SelectItem value="cupons" className="text-xs">
-                      Somente cupons
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="sm:col-span-3">
+              <div className="sm:col-span-4">
                 <Select
                   value={filtroSituacao}
-                  onValueChange={(v) => setFiltroSituacao(v as FiltroSituacao)}
+                  onValueChange={(v) => v && setFiltroSituacao(v as FiltroSituacao)}
                 >
                   <SelectTrigger
                     aria-label="Filtrar por situação"
@@ -345,23 +254,13 @@ export default function Descontos() {
             </div>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <Button
-            onClick={() => abrirNovo(false)}
-            variant="outline"
-            className="border-[#DFC3AE] text-[#6B4B36] font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5"
-          >
-            <BadgePercent className="w-4 h-4" />
-            <span>Novo Desconto</span>
-          </Button>
-          <Button
-            onClick={() => abrirNovo(true)}
-            className="bg-[#A5683F] hover:bg-[#8C5636] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Novo Cupom</span>
-          </Button>
-        </div>
+        <Button
+          onClick={() => abrir(null)}
+          className="bg-[#A5683F] hover:bg-[#8C5636] text-white font-medium text-xs h-10 px-4 rounded-xl shadow-xs flex items-center gap-1.5 self-start sm:self-auto"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Novo Cupom</span>
+        </Button>
       </div>
 
       {/* LISTA */}
@@ -371,17 +270,17 @@ export default function Descontos() {
             <Ticket className="w-8 h-8 text-[#94603D] mx-auto opacity-70" />
             <p className="text-sm font-semibold text-[#0C1014]">
               {state.descontos.length === 0
-                ? 'Nenhum desconto ou cupom cadastrado'
-                : 'Nada encontrado com esses filtros'}
+                ? 'Nenhum cupom cadastrado'
+                : 'Nenhum cupom encontrado com esses filtros'}
             </p>
             <p className="text-xs text-[#6B4B36]">
-              Crie promoções para aplicar com um clique em pedidos e orçamentos.
+              Crie cupons para divulgar e aplicar com um clique em pedidos e orçamentos.
             </p>
           </div>
         ) : (
           filtrados.map((d) => {
             const situacao = situacaoDesconto(d)
-            const cupom = ehCupom(d)
+            const u = usos.get(d.id) ?? { pedidos: 0, orcamentos: 0 }
             return (
               <Card
                 key={d.id}
@@ -393,24 +292,11 @@ export default function Descontos() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="w-9 h-9 rounded-xl bg-[#F7F3EA] border border-[#DFC3AE]/60 flex items-center justify-center shrink-0">
-                        {cupom ? (
-                          <Ticket className="w-4.5 h-4.5 text-[#94603D]" />
-                        ) : (
-                          <BadgePercent className="w-4.5 h-4.5 text-[#94603D]" />
-                        )}
+                        <Ticket className="w-4.5 h-4.5 text-[#94603D]" />
                       </span>
-                      <div className="min-w-0">
-                        <p className="text-[10px] uppercase font-bold tracking-wider text-[#6B4B36]/90">
-                          {cupom
-                            ? 'Cupom'
-                            : d.alcance === 'produtos'
-                              ? 'Promoção na loja'
-                              : 'Desconto no pedido'}
-                        </p>
-                        <h3 className="font-serif font-bold text-sm text-[#0C1014] line-clamp-1">
-                          {d.nome}
-                        </h3>
-                      </div>
+                      <h3 className="font-serif font-bold text-sm text-[#0C1014] line-clamp-2">
+                        {d.nome}
+                      </h3>
                     </div>
                     <Badge
                       className={`${SITUACOES[situacao].classe} border-none text-[10px] font-semibold px-2 py-0.5 shrink-0`}
@@ -419,69 +305,37 @@ export default function Descontos() {
                     </Badge>
                   </div>
 
-                  {cupom && (
-                    <button
-                      type="button"
-                      onClick={() => copiarCodigo(d.codigo!)}
-                      className="self-start flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-dashed border-[#C48864] bg-[#F7F3EA] font-mono text-xs font-bold text-[#94603D] hover:bg-[#C48864]/10"
-                      aria-label={`Copiar código ${d.codigo}`}
-                    >
-                      {d.codigo}
-                      <Copy className="w-3 h-3" />
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => copiarCodigo(d.codigo)}
+                    className="self-start flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-dashed border-[#C48864] bg-[#F7F3EA] font-mono text-xs font-bold text-[#94603D] hover:bg-[#C48864]/10"
+                    aria-label={`Copiar código ${d.codigo}`}
+                  >
+                    {d.codigo}
+                    <Copy className="w-3 h-3" />
+                  </button>
 
                   <div className="space-y-1 text-[11px] text-[#6B4B36]">
                     <p className="font-serif font-bold text-xl text-[#94603D]">
                       {rotuloValorDesconto(d)}{' '}
                       <span className="text-xs font-sans">de desconto</span>
                     </p>
-                    {d.alcance === 'pedido' &&
-                      (() => {
-                        const u = usos.get(d.id) ?? { pedidos: 0, orcamentos: 0 }
-                        return (
-                          <p className="flex items-center gap-1 font-semibold text-[#0C1014]">
-                            <ShoppingBag className="w-3 h-3 shrink-0 text-[#94603D]" />
-                            {u.pedidos === 0
-                              ? 'Ainda não usado em pedidos'
-                              : u.pedidos === 1
-                                ? 'Usado em 1 pedido'
-                                : `Usado em ${u.pedidos} pedidos`}
-                            {u.orcamentos > 0 && (
-                              <span className="font-normal text-[#6B4B36]">
-                                {' '}
-                                • {u.orcamentos}{' '}
-                                {u.orcamentos === 1
-                                  ? 'orçamento em aberto'
-                                  : 'orçamentos em aberto'}
-                              </span>
-                            )}
-                          </p>
-                        )
-                      })()}
-                    {d.alcance === 'pedido' && d.valorMinimo > 0 && (
-                      <p>Em compras a partir de {formatBRL(d.valorMinimo)}</p>
-                    )}
-                    {d.alcance === 'produtos' && (
-                      <p className="flex items-start gap-1">
-                        <Tag className="w-3 h-3 mt-0.5 shrink-0" />
-                        <span className="line-clamp-2">
-                          Vale para{' '}
-                          {[
-                            d.categorias.length
-                              ? `${d.categorias.length === 1 ? 'a categoria' : 'as categorias'} ${d.categorias.join(', ')}`
-                              : '',
-                            d.produtoIds.length
-                              ? d.produtoIds.length === 1
-                                ? (nomeProduto(d.produtoIds[0]) ?? '1 produto')
-                                : `${d.produtoIds.length} produtos`
-                              : '',
-                          ]
-                            .filter(Boolean)
-                            .join(' e ')}
+                    <p className="flex items-center gap-1 font-semibold text-[#0C1014]">
+                      <ShoppingBag className="w-3 h-3 shrink-0 text-[#94603D]" />
+                      {u.pedidos === 0
+                        ? 'Ainda não usado em pedidos'
+                        : u.pedidos === 1
+                          ? 'Usado em 1 pedido'
+                          : `Usado em ${u.pedidos} pedidos`}
+                      {u.orcamentos > 0 && (
+                        <span className="font-normal text-[#6B4B36]">
+                          {' '}
+                          • {u.orcamentos}{' '}
+                          {u.orcamentos === 1 ? 'orçamento em aberto' : 'orçamentos em aberto'}
                         </span>
-                      </p>
-                    )}
+                      )}
+                    </p>
+                    {d.valorMinimo > 0 && <p>Em compras a partir de {formatBRL(d.valorMinimo)}</p>}
                     {(d.validoDe || d.validoAte) && (
                       <p className="flex items-center gap-1">
                         <CalendarDays className="w-3 h-3" />
@@ -499,14 +353,14 @@ export default function Descontos() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => abrirEditar(d)}
+                      onClick={() => abrir(d)}
                       className="h-8 text-xs text-[#6B4B36] hover:text-[#0C1014] px-2"
                     >
                       <Edit className="w-3.5 h-3.5 mr-1" />
                       Editar
                     </Button>
                     <Button
-                      aria-label={`Excluir ${d.nome}`}
+                      aria-label={`Excluir cupom ${d.codigo}`}
                       size="sm"
                       variant="ghost"
                       onClick={() => setParaExcluir(d)}
@@ -527,117 +381,49 @@ export default function Descontos() {
         <DialogContent className="sm:max-w-xl bg-white border-[#DFC3AE] p-5 sm:p-6 max-h-[95vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-serif text-xl font-bold text-[#0C1014]">
-              {editando
-                ? ehCupomForm
-                  ? 'Editar Cupom'
-                  : 'Editar Desconto'
-                : ehCupomForm
-                  ? 'Novo Cupom'
-                  : 'Novo Desconto'}
+              {editando ? 'Editar Cupom' : 'Novo Cupom'}
             </DialogTitle>
           </DialogHeader>
 
           <form onSubmit={handleSalvar} className="space-y-4">
-            <div className="flex items-center justify-between gap-2 p-2.5 bg-[#F7F3EA] rounded-xl border border-[#DFC3AE]/60">
-              <Label
-                htmlFor="eh-cupom"
-                className="text-xs font-bold text-[#0C1014] cursor-pointer flex items-center gap-1"
-              >
-                É um cupom (tem código)
-                <DicaAjuda titulo="Desconto × Cupom">
-                  <p>
-                    Cupom tem um código que o cliente informa. Desconto sem código é escolhido
-                    direto na lista do pedido ou orçamento.
-                  </p>
-                </DicaAjuda>
-              </Label>
-              <Switch id="eh-cupom" checked={ehCupomForm} onCheckedChange={setEhCupomForm} />
-            </div>
-
-            {!ehCupomForm && (
-              <fieldset className="space-y-1.5">
-                <legend className={`${lbl} mb-1.5`}>Onde o desconto vale</legend>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {(
-                    [
-                      {
-                        valor: 'produtos',
-                        titulo: 'Em produtos',
-                        texto: 'Promoção automática: a loja mostra a etiqueta e o preço riscado.',
-                        icone: Tag,
-                      },
-                      {
-                        valor: 'pedido',
-                        titulo: 'No pedido inteiro',
-                        texto: 'Você escolhe na lista ao montar um pedido ou orçamento.',
-                        icone: BadgePercent,
-                      },
-                    ] as const
-                  ).map((op) => (
-                    <button
-                      key={op.valor}
-                      type="button"
-                      onClick={() => setAlcance(op.valor)}
-                      aria-pressed={alcance === op.valor}
-                      className={`text-left rounded-xl border p-3 transition-colors ${
-                        alcance === op.valor
-                          ? 'border-[#A5683F] bg-[#C48864]/10 ring-1 ring-[#A5683F]'
-                          : 'border-[#DFC3AE] bg-white hover:border-[#C48864]'
-                      }`}
-                    >
-                      <span className="flex items-center gap-1.5 text-xs font-bold text-[#0C1014]">
-                        <op.icone className="w-4 h-4 text-[#94603D]" />
-                        {op.titulo}
-                      </span>
-                      <span className="block text-[11px] text-[#6B4B36] mt-0.5 leading-snug">
-                        {op.texto}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
-            )}
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className={`space-y-1.5 ${ehCupomForm ? '' : 'sm:col-span-2'}`}>
-                <Label htmlFor="desc-nome" className={lbl}>
+              <div className="space-y-1.5">
+                <Label htmlFor="cupom-nome" className={lbl}>
                   Nome
                   <Obrigatorio />
                 </Label>
                 <Input
-                  id="desc-nome"
-                  placeholder="Ex: Black Friday, Cliente fiel"
+                  id="cupom-nome"
+                  placeholder="Ex: Primeira compra, Black Friday"
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
                   className="h-10 text-xs border-[#DFC3AE]"
                   required
                 />
               </div>
-              {ehCupomForm && (
-                <div className="space-y-1.5">
-                  <Label htmlFor="desc-codigo" className={lbl}>
-                    Código do cupom
-                    <Obrigatorio />
-                  </Label>
-                  <Input
-                    id="desc-codigo"
-                    placeholder="Ex: BEMVINDO10"
-                    value={codigo}
-                    onChange={(e) => setCodigo(normalizarCodigo(e.target.value))}
-                    maxLength={30}
-                    className="h-10 text-xs border-[#DFC3AE] font-mono uppercase"
-                    required
-                  />
-                </div>
-              )}
+              <div className="space-y-1.5">
+                <Label htmlFor="cupom-codigo" className={lbl}>
+                  Código
+                  <Obrigatorio />
+                </Label>
+                <Input
+                  id="cupom-codigo"
+                  placeholder="Ex: BEMVINDO10"
+                  value={codigo}
+                  onChange={(e) => setCodigo(normalizarCodigo(e.target.value))}
+                  maxLength={30}
+                  className="h-10 text-xs border-[#DFC3AE] font-mono uppercase"
+                  required
+                />
+              </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="desc-tipo" className={lbl}>
+                <Label htmlFor="cupom-tipo" className={lbl}>
                   Tipo de desconto
                   <Obrigatorio />
                 </Label>
-                <Select value={tipo} onValueChange={(v) => setTipo(v as Desconto['tipo'])}>
-                  <SelectTrigger id="desc-tipo" className="h-10 text-xs border-[#DFC3AE]">
+                <Select value={tipo} onValueChange={(v) => v && setTipo(v as Desconto['tipo'])}>
+                  <SelectTrigger id="cupom-tipo" className="h-10 text-xs border-[#DFC3AE]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -651,12 +437,12 @@ export default function Descontos() {
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="desc-valor" className={lbl}>
+                <Label htmlFor="cupom-valor" className={lbl}>
                   {tipo === 'percentual' ? 'Desconto (%)' : 'Desconto (R$)'}
                   <Obrigatorio />
                 </Label>
                 <Input
-                  id="desc-valor"
+                  id="cupom-valor"
                   type="number"
                   step="0.01"
                   min="0.01"
@@ -669,114 +455,33 @@ export default function Descontos() {
                 />
               </div>
 
-              {!ehCupomForm && alcance === 'produtos' ? (
-                <div className="space-y-3 sm:col-span-2 rounded-xl border border-[#DFC3AE]/70 bg-[#F7F3EA]/50 p-3">
-                  <div className="space-y-1.5">
-                    <p className={lbl}>Categorias inteiras</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {state.categoriasProduto.map((c) => (
-                        <button
-                          key={c.nome}
-                          type="button"
-                          onClick={() => setCategoriasSel((l) => alternar(l, c.nome))}
-                          aria-pressed={categoriasSel.includes(c.nome)}
-                          className={`h-7 px-2.5 rounded-full text-[11px] font-semibold border transition-colors ${
-                            categoriasSel.includes(c.nome)
-                              ? 'bg-[#A5683F] text-white border-[#A5683F]'
-                              : 'bg-white text-[#6B4B36] border-[#DFC3AE] hover:border-[#C48864]'
-                          }`}
-                        >
-                          {c.nome}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <p className={`${lbl} flex items-center justify-between gap-2`}>
-                      <span>Produtos</span>
-                      <span className="normal-case tracking-normal font-normal">
-                        {produtoIds.length === 0
-                          ? 'nenhum selecionado'
-                          : produtoIds.length === 1
-                            ? '1 selecionado'
-                            : `${produtoIds.length} selecionados`}
-                      </span>
-                    </p>
-                    <div className="relative">
-                      <Search className="w-3.5 h-3.5 text-[#6B4B36]/90 absolute left-2.5 top-1/2 -translate-y-1/2" />
-                      <Input
-                        aria-label="Buscar produto"
-                        placeholder="Buscar produto..."
-                        value={buscaProduto}
-                        onChange={(e) => setBuscaProduto(e.target.value)}
-                        className="h-8 pl-8 text-xs border-[#DFC3AE] bg-white"
-                      />
-                    </div>
-                    <ul className="max-h-44 overflow-y-auto rounded-lg border border-[#DFC3AE]/70 bg-white divide-y divide-[#DFC3AE]/40">
-                      {produtosOrdenados
-                        .filter((pr) =>
-                          pr.nome.toLowerCase().includes(buscaProduto.trim().toLowerCase()),
-                        )
-                        .map((pr) => {
-                          const marcado = produtoIds.includes(pr.id)
-                          const pelaCategoria = categoriasSel.includes(pr.categoria)
-                          return (
-                            <li key={pr.id}>
-                              <label className="flex items-center gap-2 px-2.5 py-1.5 text-xs cursor-pointer hover:bg-[#F7F3EA]">
-                                <input
-                                  type="checkbox"
-                                  checked={marcado || pelaCategoria}
-                                  disabled={pelaCategoria}
-                                  onChange={() => setProdutoIds((l) => alternar(l, pr.id))}
-                                  className="accent-[#A5683F]"
-                                />
-                                <span className="flex-1 min-w-0 truncate text-[#0C1014]">
-                                  {pr.nome}
-                                </span>
-                                <span className="shrink-0 text-[10px] text-[#6B4B36]">
-                                  {pelaCategoria ? 'pela categoria' : formatBRL(pr.precoVenda)}
-                                </span>
-                              </label>
-                            </li>
-                          )
-                        })}
-                      {produtosOrdenados.length === 0 && (
-                        <li className="px-2.5 py-3 text-xs text-[#6B4B36]">
-                          Nenhum produto cadastrado.
-                        </li>
-                      )}
-                    </ul>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="desc-minimo" className={lbl}>
-                    Compra mínima (R$)
-                    <Opcional />
-                  </Label>
-                  <Input
-                    id="desc-minimo"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="Sem mínimo"
-                    value={minimoStr}
-                    onChange={(e) => setMinimoStr(e.target.value)}
-                    className="h-10 text-xs border-[#DFC3AE]"
-                  />
-                  <p className="text-[10px] text-[#6B4B36]/90">
-                    Soma dos itens (sem frete) necessária para o desconto valer.
-                  </p>
-                </div>
-              )}
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="cupom-minimo" className={lbl}>
+                  Compra mínima (R$)
+                  <Opcional />
+                </Label>
+                <Input
+                  id="cupom-minimo"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="Sem mínimo"
+                  value={minimoStr}
+                  onChange={(e) => setMinimoStr(e.target.value)}
+                  className="h-10 text-xs border-[#DFC3AE]"
+                />
+                <p className="text-[10px] text-[#6B4B36]/90">
+                  Soma dos itens (sem frete) necessária para o cupom valer.
+                </p>
+              </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="desc-de" className={lbl}>
+                <Label htmlFor="cupom-de" className={lbl}>
                   Válido a partir de
                   <Opcional />
                 </Label>
                 <Input
-                  id="desc-de"
+                  id="cupom-de"
                   type="date"
                   value={validoDe}
                   onChange={(e) => setValidoDe(e.target.value)}
@@ -784,12 +489,12 @@ export default function Descontos() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="desc-ate" className={lbl}>
+                <Label htmlFor="cupom-ate" className={lbl}>
                   Válido até
                   <Opcional />
                 </Label>
                 <Input
-                  id="desc-ate"
+                  id="cupom-ate"
                   type="date"
                   value={validoAte}
                   min={validoDe || undefined}
@@ -799,13 +504,13 @@ export default function Descontos() {
               </div>
 
               <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="desc-obs" className={lbl}>
+                <Label htmlFor="cupom-obs" className={lbl}>
                   Observações
                   <Opcional />
                 </Label>
                 <Textarea
-                  id="desc-obs"
-                  placeholder="Regras combinadas, onde o cupom foi divulgado..."
+                  id="cupom-obs"
+                  placeholder="Onde o cupom foi divulgado, regras combinadas..."
                   value={descricao}
                   onChange={(e) => setDescricao(e.target.value)}
                   rows={2}
@@ -816,12 +521,12 @@ export default function Descontos() {
 
             <div className="flex items-center justify-between gap-2 p-2.5 bg-[#F7F3EA] rounded-xl border border-[#DFC3AE]/60">
               <Label
-                htmlFor="desc-ativo"
+                htmlFor="cupom-ativo"
                 className="text-xs font-bold text-[#0C1014] cursor-pointer"
               >
                 Ativo (pode ser usado)
               </Label>
-              <Switch id="desc-ativo" checked={ativo} onCheckedChange={setAtivo} />
+              <Switch id="cupom-ativo" checked={ativo} onCheckedChange={setAtivo} />
             </div>
 
             {erro && (
@@ -843,7 +548,7 @@ export default function Descontos() {
                 type="submit"
                 className="bg-[#A5683F] hover:bg-[#8C5636] text-white h-10 text-xs font-semibold"
               >
-                {ehCupomForm ? 'Salvar Cupom' : 'Salvar Desconto'}
+                Salvar Cupom
               </Button>
             </DialogFooter>
           </form>
@@ -859,12 +564,11 @@ export default function Descontos() {
           <AlertDialogHeader>
             <AlertDialogTitle className="font-serif text-lg font-bold text-[#0C1014] flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-[#A84A34]" />
-              Excluir {paraExcluir && ehCupom(paraExcluir) ? 'cupom' : 'desconto'}?
+              Excluir o cupom {paraExcluir?.codigo}?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-[#6B4B36]">
-              Tem certeza que deseja excluir <strong>{paraExcluir?.nome}</strong>? Pedidos e
-              orçamentos que já usaram este desconto não serão alterados. Para só pausar, desligue
-              "Ativo" na edição.
+              Pedidos e orçamentos que já usaram este cupom continuam com o desconto. Para só
+              pausar, desligue "Ativo" na edição.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

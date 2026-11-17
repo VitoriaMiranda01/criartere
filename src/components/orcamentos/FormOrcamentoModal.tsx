@@ -297,7 +297,7 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
                         atualizarItem(idx, {
                           produtoId: p.id,
                           nome: p.nome,
-                          valorUnitario: precoPromocional(p, state.descontos),
+                          valorUnitario: precoPromocional(p),
                         })
                     }}
                   >
@@ -312,8 +312,8 @@ export const FormOrcamentoModal: React.FC<Props> = ({ aberto, onFechar, orcament
                       )}
                       {produtosAtivos.map((p) => (
                         <SelectItem key={p.id} value={p.id} className="text-xs">
-                          {p.nome} — {formatBRL(precoPromocional(p, state.descontos))}
-                          {precoPromocional(p, state.descontos) < p.precoVenda && ' (promoção)'}
+                          {p.nome} — {formatBRL(precoPromocional(p))}
+                          {precoPromocional(p) < p.precoVenda && ' (promoção)'}
                         </SelectItem>
                       ))}
                     </SelectContent>
