@@ -225,10 +225,11 @@ export default function Catalogo({
           aria-hidden="true"
         />
       ) : banners.length > 0 ? (
-        <>
+        <div>
+          {/* Num só bloco: o título escondido não empurra o banner para baixo */}
           <h1 className="sr-only">Criartere: criações feitas com carinho, camada por camada</h1>
           <CarrosselBanners banners={banners} produtos={produtos} />
-        </>
+        </div>
       ) : (
         <section className="relative overflow-hidden rounded-3xl bg-white border border-[#DFC3AE]/60 px-6 py-10 sm:px-12 sm:py-14">
           <div

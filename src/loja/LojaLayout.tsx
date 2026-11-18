@@ -311,7 +311,10 @@ function LojaEstrutura() {
         id="conteudo"
         className={cn(
           'flex-1 w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10',
-          telaFocada ? 'flex flex-col justify-center py-4 sm:py-6' : 'py-6 sm:py-10',
+          // Espaço do topo igual ao das laterais
+          telaFocada
+            ? 'flex flex-col justify-center py-4 sm:py-6'
+            : 'pt-4 sm:pt-6 lg:pt-10 pb-6 sm:pb-10',
         )}
       >
         <ErroTela>
