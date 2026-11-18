@@ -275,6 +275,8 @@ export function linkWhatsAppProduto(whatsapp: string, produto: { id: string; nom
 export function mensagemErroLoja(e: unknown): string {
   const m = e instanceof Error ? e.message : String(e)
   if (/fetch|network/i.test(m)) return 'Verifique sua conexão com a internet.'
+  // Mensagens do cupom vêm prontas do banco (código errado, expirado, valor mínimo...)
+  if (/cupom/i.test(m)) return m
   if (
     /não está disponível|Quantidade inválida|Entre na sua conta|carrinho está vazio|WhatsApp válido|Informe seu nome|vários pedidos|retirada ou entrega|endereço e a cidade/.test(
       m,
@@ -295,6 +297,11 @@ export interface ItemPedidoLoja {
 export interface PedidoCriado {
   id: string
   numero: string
+  /** Soma dos produtos, antes do cupom */
+  subtotal: number
+  /** Desconto do cupom em R$ (0 sem cupom) */
+  desconto: number
+  cupom?: string
   total: number
   formaPagamento: string
   entrega: string // ex.: "Retirada na loja" ou "Entrega em ... (frete a combinar)"
@@ -318,6 +325,24 @@ const mapItemPedido = (r: Row): ItemPedidoLoja => ({
   valorUnitario: r.valorUnitario !== undefined ? Number(r.valorUnitario) : undefined,
 })
 
+export interface CupomAplicado {
+  codigo: string
+  desconto: number
+  subtotal: number
+  total: number
+}
+
+/** Confere o cupom contra o carrinho atual (a prévia; o pedido confere de novo). */
+export async function validarCupom(codigo: string): Promise<CupomAplicado> {
+  const r = check(await supabase.rpc('validar_cupom_loja', { p_codigo: codigo })) as Row
+  return {
+    codigo: String(r.codigo),
+    desconto: Number(r.desconto ?? 0),
+    subtotal: Number(r.subtotal ?? 0),
+    total: Number(r.total ?? 0),
+  }
+}
+
 /** Registra o pedido (como orçamento no painel) com os itens do carrinho e esvazia o carrinho. */
 export async function enviarPedido(dados: {
   nome: string
@@ -327,6 +352,7 @@ export async function enviarPedido(dados: {
   entrega: 'retirada' | 'entrega'
   endereco: string
   cidadeUf: string
+  cupom?: string
 }): Promise<PedidoCriado> {
   const r = check(
     await supabase.rpc('criar_pedido_loja', {
@@ -337,11 +363,15 @@ export async function enviarPedido(dados: {
       p_entrega: dados.entrega,
       p_endereco: dados.entrega === 'entrega' ? dados.endereco : null,
       p_cidade_uf: dados.entrega === 'entrega' ? dados.cidadeUf : null,
+      p_cupom: dados.cupom || null,
     }),
   ) as Row
   return {
     id: String(r.id),
     numero: String(r.numero),
+    subtotal: Number(r.subtotal ?? r.total ?? 0),
+    desconto: Number(r.desconto ?? 0),
+    cupom: r.cupom ? String(r.cupom) : undefined,
     total: Number(r.total ?? 0),
     formaPagamento: String(r.formaPagamento ?? ''),
     entrega: String(r.entrega ?? 'A combinar'),
@@ -394,6 +424,12 @@ export function mensagemPedidoWhatsApp(pedido: PedidoCriado, nome: string, obser
     `*Pedido Nº ${pedido.numero}*`,
     ...pedido.itens.map((i) => `• ${qtd(i.quantidade)}x ${i.nome} — ${formatarPreco(i.subtotal)}`),
     ``,
+    ...(pedido.desconto > 0
+      ? [
+          `*Produtos:* ${formatarPreco(pedido.subtotal)}`,
+          `*Cupom ${pedido.cupom}:* −${formatarPreco(pedido.desconto)}`,
+        ]
+      : []),
     `*Total dos produtos:* ${formatarPreco(pedido.total)}`,
     `*Pagamento:* ${pedido.formaPagamento}`,
     `*Entrega:* ${textoEntrega(pedido.entrega)}`,

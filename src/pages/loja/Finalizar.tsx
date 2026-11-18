@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { ArrowLeft, MessageCircle, ShoppingBag, Store, Truck } from 'lucide-react'
+import { ArrowLeft, MessageCircle, ShoppingBag, Store, TicketPercent, Truck, X } from 'lucide-react'
 import { FaWhatsapp } from 'react-icons/fa'
 import { useSeo } from '@/lib/seo'
 import { cn } from '@/lib/utils'
@@ -18,6 +18,8 @@ import {
   mascararTelefone,
   mensagemErroLoja,
   numeroWhatsApp,
+  validarCupom,
+  type CupomAplicado,
 } from '@/loja/api'
 import { PrecisaEntrar } from './PrecisaEntrar'
 
@@ -50,9 +52,33 @@ export default function Finalizar() {
   const [cidadeUf, setCidadeUf] = useState('')
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState('')
+  // Cupom: o código digitado, o cupom já conferido e a mensagem de problema
+  const [codigoCupom, setCodigoCupom] = useState('')
+  const [cupom, setCupom] = useState<CupomAplicado | null>(null)
+  const [erroCupom, setErroCupom] = useState('')
+  const [conferindoCupom, setConferindoCupom] = useState(false)
 
   // O aviso de erro some assim que a pessoa corrige algum campo
   useEffect(() => setErro(''), [nome, whatsapp, entrega, endereco, cidadeUf])
+
+  // Se o carrinho mudar, o desconto (e o valor mínimo) precisam ser conferidos de novo
+  const assinaturaCarrinho = carrinho.map((i) => `${i.produtoId}:${i.quantidade}`).join('|')
+  const codigoAplicado = cupom?.codigo
+  useEffect(() => {
+    if (!codigoAplicado) return
+    let ativo = true
+    validarCupom(codigoAplicado)
+      .then((c) => ativo && setCupom(c))
+      .catch((e) => {
+        if (!ativo) return
+        setCupom(null)
+        setErroCupom(`O cupom ${codigoAplicado} foi removido. ${mensagemErroLoja(e)}`)
+      })
+    return () => {
+      ativo = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assinaturaCarrinho])
 
   // Preenche com os dados do último pedido (ou o nome da conta)
   useEffect(() => {
@@ -89,8 +115,31 @@ export default function Finalizar() {
     .filter((l) => l.produto)
   if (linhas.length === 0 && !enviando) return <Navigate to="/carrinho" replace />
 
-  const total = linhas.reduce((s, l) => s + l.produto!.preco * l.item.quantidade, 0)
+  const subtotal = linhas.reduce((s, l) => s + l.produto!.preco * l.item.quantidade, 0)
+  const desconto = cupom ? Math.min(cupom.desconto, subtotal) : 0
+  const total = subtotal - desconto
   const qtdItens = linhas.reduce((s, l) => s + l.item.quantidade, 0)
+
+  const aplicarCupom = async () => {
+    const codigo = codigoCupom.trim()
+    if (!codigo) return setErroCupom('Digite o código do cupom.')
+    setConferindoCupom(true)
+    setErroCupom('')
+    try {
+      const c = await validarCupom(codigo)
+      setCupom(c)
+      setCodigoCupom('')
+    } catch (err) {
+      setCupom(null)
+      setErroCupom(mensagemErroLoja(err))
+    } finally {
+      setConferindoCupom(false)
+    }
+  }
+  const removerCupom = () => {
+    setCupom(null)
+    setErroCupom('')
+  }
 
   const enviar = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -111,6 +160,7 @@ export default function Finalizar() {
         entrega,
         endereco: endereco.trim(),
         cidadeUf: cidadeUf.trim(),
+        cupom: cupom?.codigo,
       })
       const link = numeroWhatsApp(contato?.whatsapp ?? '')
         ? linkWhatsAppPedido(contato!.whatsapp, pedido, nome.trim(), observacoes)
@@ -124,7 +174,14 @@ export default function Finalizar() {
       })
     } catch (err) {
       setEnviando(false)
-      setErro(`Não foi possível enviar o pedido. ${mensagemErroLoja(err)}`)
+      const mensagem = mensagemErroLoja(err)
+      // Cupom deixou de valer entre a prévia e o envio: tira o cupom e explica
+      if (cupom && /cupom/i.test(mensagem)) {
+        setCupom(null)
+        setErroCupom(mensagem)
+        return setErro('O cupom não pôde ser usado. Confira o total e envie de novo.')
+      }
+      setErro(`Não foi possível enviar o pedido. ${mensagem}`)
     }
   }
 
@@ -348,18 +405,96 @@ export default function Finalizar() {
               </li>
             ))}
           </ul>
+          {/* Cupom de desconto */}
+          <div className="border-t border-[#DFC3AE]/60 pt-4 space-y-2">
+            {cupom ? (
+              <div className="flex items-center gap-2 rounded-lg border border-[#2F7A4F]/30 bg-[#2F7A4F]/5 px-3 py-2">
+                <TicketPercent className="w-4 h-4 shrink-0 text-[#2F7A4F]" aria-hidden="true" />
+                <p className="flex-1 min-w-0 text-xs text-[#2F7A4F]">
+                  Cupom <strong className="font-bold">{cupom.codigo}</strong> aplicado
+                </p>
+                <button
+                  type="button"
+                  onClick={removerCupom}
+                  aria-label={`Remover o cupom ${cupom.codigo}`}
+                  className="p-1 rounded text-[#6B4B36] hover:text-[#0C1014] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C48864]"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                <Label htmlFor="pedido-cupom" className={classeRotulo}>
+                  Cupom de desconto
+                  <Opcional />
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="pedido-cupom"
+                    value={codigoCupom}
+                    maxLength={30}
+                    autoComplete="off"
+                    autoCapitalize="characters"
+                    spellCheck={false}
+                    placeholder="Ex.: BEMVINDO10"
+                    aria-invalid={erroCupom ? true : undefined}
+                    aria-describedby={erroCupom ? 'pedido-cupom-erro' : undefined}
+                    onChange={(e) => {
+                      setCodigoCupom(e.target.value.toUpperCase())
+                      setErroCupom('')
+                    }}
+                    onKeyDown={(e) => {
+                      // Enter aplica o cupom em vez de enviar o pedido
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        aplicarCupom()
+                      }
+                    }}
+                    className={cn(classeCampo, 'uppercase placeholder:normal-case')}
+                  />
+                  <button
+                    type="button"
+                    onClick={aplicarCupom}
+                    disabled={conferindoCupom}
+                    className="h-11 px-4 shrink-0 rounded-lg border border-[#A5683F] text-sm font-semibold text-[#A5683F] hover:bg-[#F6EDE7] transition-colors disabled:opacity-60 inline-flex items-center justify-center min-w-[84px]"
+                  >
+                    {conferindoCupom ? (
+                      <span
+                        className="inline-block w-4 h-4 border-2 border-[#A5683F] border-t-transparent rounded-full animate-spin"
+                        aria-label="Conferindo cupom"
+                      />
+                    ) : (
+                      'Aplicar'
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+            {erroCupom && (
+              <p id="pedido-cupom-erro" role="alert" className="text-xs font-medium text-red-700">
+                {erroCupom}
+              </p>
+            )}
+          </div>
+
           <div className="border-t border-[#DFC3AE]/60 pt-4 space-y-1.5 text-sm">
             <div className="flex justify-between text-[#6B4B36]">
               <span>Produtos ({qtdItens})</span>
-              <span>{formatarPreco(total)}</span>
+              <span>{formatarPreco(subtotal)}</span>
             </div>
+            {desconto > 0 && (
+              <div className="flex justify-between text-[#2F7A4F] font-medium">
+                <span>Desconto do cupom</span>
+                <span>−{formatarPreco(desconto)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-[#6B4B36]">
               <span>{entrega === 'retirada' ? 'Retirada' : 'Frete'}</span>
               <span>{entrega === 'retirada' ? 'Sem custo' : 'A combinar'}</span>
             </div>
             <div className="flex justify-between items-baseline pt-2">
               <span className="font-semibold">Total</span>
-              <span className="font-serif text-2xl font-bold text-[#A5683F]">
+              <span className="font-serif text-2xl font-bold text-[#A5683F]" aria-live="polite">
                 {formatarPreco(total)}
               </span>
             </div>

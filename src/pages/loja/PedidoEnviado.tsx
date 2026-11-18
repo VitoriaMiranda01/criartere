@@ -64,6 +64,12 @@ export default function PedidoEnviado() {
           <p className="border-t border-[#DFC3AE]/70 mt-3 pt-3 text-sm text-[#3a2c22]">
             <span className="font-semibold">Entrega:</span> {textoEntrega(pedido.entrega)}
           </p>
+          {pedido.desconto > 0 && (
+            <p className="border-t border-[#DFC3AE]/70 mt-3 pt-3 flex justify-between text-sm text-[#2F7A4F]">
+              <span>Cupom {pedido.cupom}</span>
+              <span className="font-semibold">−{formatarPreco(pedido.desconto)}</span>
+            </p>
+          )}
           <div className="border-t border-[#DFC3AE]/70 mt-3 pt-3 flex justify-between text-sm">
             <span className="text-[#6B4B36]">Total dos produtos · {pedido.formaPagamento}</span>
             <strong className="font-serif text-lg text-[#A5683F]">
