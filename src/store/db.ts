@@ -216,6 +216,8 @@ const mapConfig = (r: Row): LojaConfig => ({
   instagram: r.instagram,
   incluirAguardandoNoFaturamento: r.incluir_aguardando_no_faturamento,
   periodoPadraoDashboard: r.periodo_padrao_dashboard,
+  barraAvisosAtiva: r.barra_avisos_ativa ?? false,
+  barraAvisos: Array.isArray(r.barra_avisos) ? (r.barra_avisos as string[]) : [],
 })
 
 // ---------------- Mapeadores (app -> banco) ----------------
@@ -299,6 +301,8 @@ const configParaRow = (c: LojaConfig) => ({
   instagram: c.instagram,
   incluir_aguardando_no_faturamento: c.incluirAguardandoNoFaturamento,
   periodo_padrao_dashboard: c.periodoPadraoDashboard,
+  barra_avisos_ativa: c.barraAvisosAtiva,
+  barra_avisos: c.barraAvisos.map((f) => f.trim()).filter(Boolean),
 })
 
 // ---------------- Leitura ----------------

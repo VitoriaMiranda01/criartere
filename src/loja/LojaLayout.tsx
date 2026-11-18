@@ -32,6 +32,7 @@ import { LojaProvider, useLoja } from './LojaContext'
 import { CarregandoLoja } from './componentes'
 import { numeroWhatsApp } from './api'
 import { LINHAS_CATALOGO, LinhaCatalogo, PAGINA_SOBRE } from './seo-dados'
+import { BarraAvisos } from './BarraAvisos'
 
 export default function LojaLayout() {
   // Ativa os estilos da loja (avisos, barras de rolagem, seleção de texto, preenchimento automático)
@@ -67,6 +68,7 @@ function LojaEstrutura() {
     contato,
     sessaoVerificada,
     categoriasLoja,
+    avisos,
   } = useLoja()
   // Categorias de cada aba (cadastro do painel; enquanto não carrega, a divisão padrão)
   const categoriasDaLinha = (linha: LinhaCatalogo) => {
@@ -107,6 +109,9 @@ function LojaEstrutura() {
       >
         Pular para o conteúdo
       </a>
+
+      {/* Letreiro de avisos (configurado em Loja virtual → Avisos); fora das telas focadas */}
+      {!telaFocada && <BarraAvisos frases={avisos} />}
 
       <header className="sticky top-0 z-40 bg-[#F7F3EA]/90 backdrop-blur border-b border-[#DFC3AE]/60">
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 h-16 flex items-center gap-4">

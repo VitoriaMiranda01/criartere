@@ -198,6 +198,8 @@ export interface LojaConfig {
   instagram: string
   incluirAguardandoNoFaturamento: boolean
   periodoPadraoDashboard: PeriodoFiltro
+  barraAvisosAtiva: boolean // letreiro no topo da loja
+  barraAvisos: string[] // frases do letreiro, na ordem
 }
 
 export type PeriodoFiltro = 'hoje' | 'ultimos_7' | 'mes_atual' | 'mes_anterior' | 'personalizado'

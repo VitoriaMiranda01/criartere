@@ -13,6 +13,7 @@ import {
   listarCategoriasLoja,
   BannerLoja,
   buscarContatoLoja,
+  buscarAvisosLoja,
   listarFavoritos,
   adicionarFavorito,
   removerFavorito,
@@ -46,6 +47,7 @@ interface LojaContextValue {
   carregandoProdutos: boolean
   erroProdutos: boolean
   contato: ContatoLoja | null
+  avisos: string[]
   favoritos: Set<string>
   carrinho: ItemCarrinho[]
   carregandoConta: boolean
@@ -72,6 +74,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
   const [carregandoProdutos, setCarregandoProdutos] = useState(true)
   const [erroProdutos, setErroProdutos] = useState(false)
   const [contato, setContato] = useState<ContatoLoja | null>(null)
+  const [avisos, setAvisos] = useState<string[]>([])
   const [banners, setBanners] = useState<BannerLoja[]>([])
   const [linhasCategorias, setLinhasCategorias] = useState<MapaLinhas | undefined>()
   const [categoriasLoja, setCategoriasLoja] = useState<{ nome: string; linha: string | null }[]>([])
@@ -122,6 +125,10 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
       .catch(() => setBanners([]))
       .finally(() => setCarregandoBanners(false))
     // Abas da loja (Catálogo 3D / Papelaria); se falhar, vale a divisão padrão
+    // Barra de avisos: se falhar, a loja abre sem ela
+    buscarAvisosLoja()
+      .then(setAvisos)
+      .catch(() => setAvisos([]))
     listarCategoriasLoja()
       .then((lista) => {
         setCategoriasLoja(lista)
@@ -317,6 +324,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
         carregandoProdutos,
         erroProdutos,
         contato,
+        avisos,
         favoritos,
         carrinho,
         carregandoConta,

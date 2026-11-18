@@ -494,3 +494,33 @@ html[data-area='loja'] [data-sonner-toaster][data-y-position='bottom'] {
   --offset-bottom: 96px !important;
   --mobile-offset-bottom: 84px !important;
 }
+
+/* Barra de avisos da loja (letreiro). A faixa é desenhada duas vezes: andar metade
+   (-50%) faz a volta emendar sem salto. */
+@keyframes barra-avisos-letreiro {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.barra-avisos__faixa {
+  animation: barra-avisos-letreiro 28s linear infinite;
+}
+/* Pausa com o mouse em cima ou com foco no botão de fechar */
+.barra-avisos:hover .barra-avisos__faixa,
+.barra-avisos:focus-within .barra-avisos__faixa {
+  animation-play-state: paused;
+}
+/* Quem pediu menos movimento no sistema vê as frases paradas e centralizadas */
+@media (prefers-reduced-motion: reduce) {
+  .barra-avisos__faixa {
+    animation: none;
+    justify-content: center;
+    width: 100%;
+  }
+  .barra-avisos__faixa > ul:last-child {
+    display: none;
+  }
+}

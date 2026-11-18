@@ -122,6 +122,14 @@ export async function listarCategoriasLoja(): Promise<{ nome: string; linha: str
   }))
 }
 
+/** Frases da barra de avisos (vazio quando a barra está desligada). */
+export async function buscarAvisosLoja(): Promise<string[]> {
+  const data = check(await supabase.rpc('vitrine_avisos'))
+  const r = ((data ?? []) as Row[])[0]
+  if (!r?.ativa || !Array.isArray(r.frases)) return []
+  return (r.frases as unknown[]).map((f) => String(f).trim()).filter(Boolean)
+}
+
 export async function buscarContatoLoja(): Promise<ContatoLoja | null> {
   const data = check(await supabase.rpc('vitrine_contato'))
   const r = ((data ?? []) as Row[])[0]

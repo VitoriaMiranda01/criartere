@@ -15,6 +15,7 @@ import {
   Images,
   BookHeart,
   Tags,
+  Megaphone,
   Search,
   Settings,
   ShoppingBag,
@@ -305,6 +306,24 @@ const TOPICOS: Topico[] = [
           'Em "Editar" dá para renomear (os produtos são atualizados juntos) ou trocar a aba da loja.',
           'Para excluir uma categoria com produtos, escolha para qual categoria movê-los. Banners que abriam a categoria passam a abrir a nova.',
           'Também dá para criar uma categoria na hora, pelo cadastro do produto ("Nova categoria").',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'avisos',
+    titulo: 'Barra de Avisos',
+    icone: Megaphone,
+    resumo: 'Letreiro com frases que passam no topo de todas as páginas da loja.',
+    rota: '/admin/avisos',
+    secoes: [
+      {
+        subtitulo: 'Como usar',
+        passos: [
+          'Fica em Loja virtual → Avisos. Escreva a frase e clique em "Adicionar" (ou aperte Enter).',
+          'Edite direto na lista, use as setas para mudar a ordem e a lixeira para remover.',
+          'Ligue "Mostrar a barra de avisos na loja" e clique em "Salvar". A prévia mostra como fica.',
+          'Na loja, as frases passam em sequência; o cliente pausa passando o mouse e fecha no ✕.',
         ],
       },
     ],

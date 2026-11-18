@@ -12,6 +12,8 @@ export const CONFIG_PADRAO: LojaConfig = {
   instagram: '',
   incluirAguardandoNoFaturamento: true,
   periodoPadraoDashboard: 'mes_atual',
+  barraAvisosAtiva: false,
+  barraAvisos: [],
 }
 
 // Mesma divisão por aba usada pela loja (definida em um lugar só: LINHAS_CATALOGO)

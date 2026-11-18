@@ -76,6 +76,7 @@ export default function Layout() {
     '/admin/banners': 'Banners da Loja',
     '/admin/sobre': 'Página Sobre Nós',
     '/admin/categorias': 'Categorias de Produto',
+    '/admin/avisos': 'Barra de Avisos',
     '/admin/financeiro': 'Financeiro',
     '/admin/fluxo-de-caixa': 'Fluxo de Caixa',
     '/admin/relatorios': 'Relatórios',
