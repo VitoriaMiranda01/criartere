@@ -246,7 +246,7 @@ function EditorSecao({
   return (
     <div className="space-y-3">
       {/* O que a seção mostra */}
-      <div className="grid grid-cols-2 gap-1.5" role="radiogroup" aria-label="O que a seção mostra">
+      <div className="grid grid-cols-2 gap-1.5" role="group" aria-label="O que a seção mostra">
         {(
           [
             { valor: 'categoria', rotulo: 'Uma categoria', icone: Tags },
@@ -256,8 +256,7 @@ function EditorSecao({
           <button
             key={op.valor}
             type="button"
-            role="radio"
-            aria-checked={secao.tipo === op.valor}
+            aria-pressed={secao.tipo === op.valor}
             onClick={() => onMudar({ tipo: op.valor })}
             className={`flex items-center justify-center gap-1.5 h-9 rounded-lg border text-xs font-semibold transition-colors ${
               secao.tipo === op.valor

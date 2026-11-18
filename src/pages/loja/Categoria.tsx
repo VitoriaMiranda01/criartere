@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { useLoja } from '@/loja/LojaContext'
-import { CarregandoLoja } from '@/loja/componentes'
+import { RefreshCw } from 'lucide-react'
+import { CarregandoLoja, EstadoVazio } from '@/loja/componentes'
 import { categoriaDoSlug, categoriasDoProduto } from '@/loja/seo-dados'
 import Catalogo from './Catalogo'
 import NaoEncontrada from './NaoEncontrada'
@@ -10,7 +11,14 @@ import NaoEncontrada from './NaoEncontrada'
  *  ganha a sua própria tela automaticamente. */
 export default function Categoria() {
   const { slug } = useParams()
-  const { categoriasLoja, produtos, carregandoProdutos, carregandoCategorias } = useLoja()
+  const {
+    categoriasLoja,
+    produtos,
+    carregandoProdutos,
+    carregandoCategorias,
+    erroProdutos,
+    recarregarVitrine,
+  } = useLoja()
 
   const categoria = useMemo(
     () =>
@@ -24,6 +32,24 @@ export default function Categoria() {
   if (!categoria) {
     // Ainda carregando a lista: espera antes de dizer que não existe
     if (carregandoCategorias || carregandoProdutos) return <CarregandoLoja />
+    // Sem conexão não dá para saber se a categoria existe: oferece tentar de novo
+    if (erroProdutos)
+      return (
+        <EstadoVazio
+          icone={RefreshCw}
+          titulo="Não foi possível carregar esta categoria"
+          texto="Verifique sua conexão com a internet e tente de novo."
+          acao={
+            <button
+              type="button"
+              onClick={() => recarregarVitrine()}
+              className="h-10 px-5 rounded-lg bg-[#A5683F] hover:bg-[#8C5636] text-white text-sm font-semibold"
+            >
+              Tentar de novo
+            </button>
+          }
+        />
+      )
     return <NaoEncontrada />
   }
   return <Catalogo key={categoria} categoriaFixa={categoria} />

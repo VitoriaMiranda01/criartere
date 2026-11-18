@@ -72,6 +72,17 @@ export const descricaoCategoria = (categoria: string) =>
   `${categoria} na Criartere: peças feitas com carinho em impressão 3D e papelaria personalizada. ` +
   'Veja preços e encomende pelo WhatsApp.'
 
+/** Início › aba (se houver) › categoria */
+export function trilhaCategoria(categoria: string, linha?: LinhaCatalogo | null) {
+  return [
+    { nome: 'Início', caminho: '/' },
+    ...(linha
+      ? [{ nome: LINHAS_CATALOGO[linha].menu, caminho: LINHAS_CATALOGO[linha].caminho }]
+      : []),
+    { nome: categoria, caminho: caminhoCategoria(categoria) },
+  ]
+}
+
 /** Categoria cujo endereço é este (procura nas categorias cadastradas e nas dos produtos). */
 export function categoriaDoSlug(
   parametro: string | undefined,
@@ -228,7 +239,13 @@ export function jsonLdProduto(p: ProdutoSeo) {
 export function jsonLdCatalogo(
   produtos: ProdutoSeo[],
   contato?: ContatoSeo,
-  pagina: { nome: string; caminho: string; descricao: string } = {
+  pagina: {
+    nome: string
+    caminho: string
+    descricao: string
+    /** Caminho até a página (Início › aba › categoria), para os buscadores */
+    trilha?: { nome: string; caminho: string }[]
+  } = {
     nome: 'Catálogo Criartere',
     caminho: '/',
     descricao: DESCRICAO_LOJA,
@@ -244,6 +261,19 @@ export function jsonLdCatalogo(
         url: `${SITE}${pagina.caminho}`,
         inLanguage: 'pt-BR',
         description: pagina.descricao,
+        ...(pagina.trilha?.length
+          ? {
+              breadcrumb: {
+                '@type': 'BreadcrumbList',
+                itemListElement: pagina.trilha.map((t, i) => ({
+                  '@type': 'ListItem',
+                  position: i + 1,
+                  name: t.nome,
+                  item: `${SITE}${t.caminho}`,
+                })),
+              },
+            }
+          : {}),
         mainEntity: {
           '@type': 'ItemList',
           numberOfItems: produtos.length,

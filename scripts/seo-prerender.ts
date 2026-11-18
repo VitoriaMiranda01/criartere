@@ -37,6 +37,7 @@ import {
   descricaoCategoria,
   produtoTemCategoria,
   categoriasDoProduto,
+  trilhaCategoria,
 } from '../src/loja/seo-dados'
 
 const esc = (t: string) =>
@@ -52,6 +53,8 @@ interface Pagina {
   caminho: string
   imagem?: string
   tipo: 'website' | 'product'
+  /** false: página sem conteúdo útil (ex.: categoria ainda vazia), fora dos buscadores */
+  indexar?: boolean
   jsonLd: unknown
   conteudo: string // HTML simples para quem não executa JavaScript
 }
@@ -65,7 +68,7 @@ function blocoSeo(p: Pagina): string {
       : ''
   return `<title>${esc(`${p.titulo} | ${SUFIXO_TITULO}`)}</title>
     <meta name="description" content="${esc(p.descricao)}" />
-    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="robots" content="${p.indexar === false ? 'noindex, follow' : 'index, follow, max-image-preview:large'}" />
     <link rel="canonical" href="${esc(url)}" />
     <meta property="og:type" content="${p.tipo}" />
     <meta property="og:title" content="${esc(p.titulo)}" />
@@ -308,7 +311,13 @@ export function seoPrerender(opcoes: { supabaseUrl: string; chave: string }) {
               caminho,
               imagem: daCategoria[0]?.imagemUrl,
               tipo: 'website',
-              jsonLd: jsonLdCatalogo(daCategoria, contato, { nome: nome.trim(), caminho, descricao }),
+              indexar: daCategoria.length > 0,
+              jsonLd: jsonLdCatalogo(daCategoria, contato, {
+                nome: nome.trim(),
+                caminho,
+                descricao,
+                trilha: trilhaCategoria(nome.trim(), linhas?.get(nome.trim().toLowerCase())),
+              }),
               conteudo: conteudoCatalogo(daCategoria, nome.trim(), descricao),
             }),
           )

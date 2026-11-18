@@ -83,7 +83,10 @@ export function SecoesInicio({
   secoes: SecaoInicio[]
   produtos: ProdutoVitrine[]
 }) {
-  const montadas = montarSecoes(secoes, produtos)
+  // Se as seções escolhidas ficarem todas vazias (ex.: produtos despublicados),
+  // mostra as categorias com mais produtos em vez de deixar a página sem nada
+  const escolhidas = montarSecoes(secoes, produtos)
+  const montadas = escolhidas.length ? escolhidas : montarSecoes([], produtos)
   return (
     <div className="space-y-10 sm:space-y-12">
       {montadas.map((s) => (
@@ -94,11 +97,11 @@ export function SecoesInicio({
 }
 
 /** Faixa horizontal de produtos com setas (computador) e arraste (celular). */
-function FaixaProdutos({ titulo, produtos, verTodos }: SecaoMontada) {
+function FaixaProdutos({ chave, titulo, produtos, verTodos }: SecaoMontada) {
   const faixa = useRef<HTMLDivElement>(null)
   const [podeVoltar, setPodeVoltar] = useState(false)
   const [podeAvancar, setPodeAvancar] = useState(false)
-  const idTitulo = `secao-${titulo.replace(/\W+/g, '-').toLowerCase()}`
+  const idTitulo = `secao-inicio-${chave}`
 
   const atualizarSetas = () => {
     const el = faixa.current
@@ -122,6 +125,8 @@ function FaixaProdutos({ titulo, produtos, verTodos }: SecaoMontada) {
     <button
       type="button"
       onClick={() => rolar(direcao)}
+      // Seta escondida também sai da navegação pelo teclado
+      disabled={!visivel}
       aria-label={direcao < 0 ? `Produtos anteriores de ${titulo}` : `Mais produtos de ${titulo}`}
       className={cn(
         'hidden sm:flex absolute top-[38%] -translate-y-1/2 z-10 w-10 h-10 items-center justify-center rounded-full bg-white border border-[#DFC3AE] text-[#0C1014] shadow-md transition-opacity hover:border-[#C48864]',
@@ -142,6 +147,7 @@ function FaixaProdutos({ titulo, produtos, verTodos }: SecaoMontada) {
         {verTodos && (
           <Link
             to={verTodos}
+            aria-label={`Ver todos os produtos de ${titulo}`}
             className="shrink-0 inline-flex items-center gap-1 text-sm font-semibold text-[#A5683F] hover:text-[#8C5636] hover:underline underline-offset-4"
           >
             Ver todos <ArrowRight className="w-4 h-4" />

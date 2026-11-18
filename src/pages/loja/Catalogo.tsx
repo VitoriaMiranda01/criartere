@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useLocation, useSearchParams } from 'react-router-dom'
 import { Search, PackageSearch, RefreshCw, X, ArrowUpDown, ChevronRight } from 'lucide-react'
 import {
   Select,
@@ -13,6 +13,7 @@ import {
   DESCRICAO_LOJA,
   caminhoCategoria,
   descricaoCategoria,
+  trilhaCategoria,
   jsonLdCatalogo,
   LINHAS_CATALOGO,
   LinhaCatalogo,
@@ -76,6 +77,7 @@ export default function Catalogo({
         nome: categoriaFixa,
         caminho: caminhoCategoria(categoriaFixa),
         descricao: descricaoCategoria(categoriaFixa),
+        trilha: trilhaCategoria(categoriaFixa, linhaDaCategoria),
       }
     : null
   const paginaSeo =
@@ -94,39 +96,30 @@ export default function Catalogo({
       'Loja virtual: impressão 3D, papelaria e personalizados',
     descricao: paginaSeo?.descricao ?? DESCRICAO_LOJA,
     caminho: paginaSeo?.caminho ?? '/',
-    indexar: true,
+    // Categoria ainda sem produtos não vai para os buscadores (página vazia)
+    indexar: !categoriaFixa || carregandoProdutos || produtos.length > 0,
     jsonLd: produtos.length ? jsonLdCatalogo(produtos, contato ?? undefined, paginaSeo) : undefined,
     ativo: !carregandoProdutos && !erroProdutos,
   })
-  const navigate = useNavigate()
   const [busca, setBusca] = useState('')
-  // Categoria fica no endereço (?categoria=...) para os banners poderem abrir uma categoria
+  // Nas abas, o filtro de categoria fica no endereço (?categoria=...)
   const [parametros, setParametros] = useSearchParams()
   const categoriaNoEndereco = parametros.get('categoria') ?? ''
   const categoria = categoriaFixa ?? categoriaNoEndereco
+  // No início e na tela de uma categoria, os botões de categoria são links para as telas delas
+  const chipsSaoLinks = !linha
   const setCategoria = (c: string) =>
-    !linha && !categoriaFixa && c
-      ? // No início, escolher uma categoria abre a tela dela
-        navigate(caminhoCategoria(c))
-      : categoriaFixa
-        ? // Na tela de uma categoria, as outras categorias abrem as telas delas
-          navigate(
-            c
-              ? caminhoCategoria(c)
-              : linhaDaCategoria
-                ? LINHAS_CATALOGO[linhaDaCategoria].caminho
-                : '/',
-          )
-        : setParametros(
-            (atuais) => {
-              const novos = new URLSearchParams(atuais)
-              if (c) novos.set('categoria', c)
-              else novos.delete('categoria')
-              return novos
-            },
-            { replace: true, preventScrollReset: true },
-          )
-  // Ao vir de um banner de categoria, desce até os produtos
+    linha &&
+    setParametros(
+      (atuais) => {
+        const novos = new URLSearchParams(atuais)
+        if (c) novos.set('categoria', c)
+        else novos.delete('categoria')
+        return novos
+      },
+      { replace: true, preventScrollReset: true },
+    )
+  // Ao vir do link "Ver todo o Catálogo ...", desce até os produtos
   const location = useLocation()
   const filtrosRef = useRef<HTMLElement>(null)
   useEffect(() => {
@@ -136,6 +129,15 @@ export default function Catalogo({
         block: 'start',
       })
   }, [location.key, location.state])
+  // Fila de categorias (rola sozinha até a categoria aberta, no celular)
+  const chipsRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    const fila = chipsRef.current
+    const ativa = fila?.querySelector<HTMLElement>('[aria-current="page"], [aria-pressed="true"]')
+    if (!fila || !ativa || fila.scrollWidth <= fila.clientWidth) return
+    const desvio = ativa.getBoundingClientRect().left - fila.getBoundingClientRect().left
+    fila.scrollLeft += desvio - (fila.clientWidth - ativa.offsetWidth) / 2
+  }, [categoria, categoriasLoja])
   const [ordem, setOrdem] = useState<'nome' | 'menor' | 'maior' | 'novos'>('nome')
   // Página inicial sem categoria escolhida: vitrine com as seções do painel
   const vitrineInicio = !linha && !categoria
@@ -255,7 +257,13 @@ export default function Catalogo({
 
       <>
         {/* Busca e filtros */}
-        <section ref={filtrosRef} aria-label="Filtros" className="space-y-4 scroll-mt-24">
+        <section
+          ref={filtrosRef}
+          aria-label="Filtros"
+          // Categoria ainda vazia: sem busca nem ordem (não há o que filtrar)
+          hidden={Boolean(categoriaFixa) && !carregandoProdutos && produtos.length === 0}
+          className="space-y-4 scroll-mt-24"
+        >
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search
@@ -281,47 +289,66 @@ export default function Catalogo({
                 </button>
               )}
             </div>
-            <Select value={ordem} onValueChange={(v) => setOrdem(v as typeof ordem)}>
-              <SelectTrigger
-                aria-label="Ordenar produtos"
-                className="h-11 w-full sm:w-56 rounded-xl border-[#DFC3AE] bg-white justify-start gap-2 pl-4 pr-3 text-sm font-semibold text-[#0C1014] [&>svg:last-child]:ml-auto focus:ring-2 focus:ring-[#C48864]/50 focus:ring-offset-0 focus:border-[#C48864] [&>svg]:text-[#A5683F] [&>svg]:opacity-100 [&>svg]:shrink-0"
-              >
-                <ArrowUpDown className="w-4 h-4 text-[#A5683F]" aria-hidden="true" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl border-[#DFC3AE] bg-white shadow-[0_10px_30px_rgba(12,16,20,0.10)]">
-                {OPCOES_ORDEM.map((o) => (
-                  <SelectItem
-                    key={o.valor}
-                    value={o.valor}
-                    className="rounded-lg outline-none focus-visible:outline-none py-2.5 pl-8 pr-3 text-sm text-[#6B4B36] cursor-pointer focus:bg-[#F6EDE7] focus:text-[#0C1014] data-[state=checked]:font-semibold data-[state=checked]:text-[#A5683F] [&_svg]:text-[#A5683F]"
-                  >
-                    {o.rotulo}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {(!vitrineInicio || busca.trim()) && (
+              <Select value={ordem} onValueChange={(v) => setOrdem(v as typeof ordem)}>
+                <SelectTrigger
+                  aria-label="Ordenar produtos"
+                  className="h-11 w-full sm:w-56 rounded-xl border-[#DFC3AE] bg-white justify-start gap-2 pl-4 pr-3 text-sm font-semibold text-[#0C1014] [&>svg:last-child]:ml-auto focus:ring-2 focus:ring-[#C48864]/50 focus:ring-offset-0 focus:border-[#C48864] [&>svg]:text-[#A5683F] [&>svg]:opacity-100 [&>svg]:shrink-0"
+                >
+                  <ArrowUpDown className="w-4 h-4 text-[#A5683F]" aria-hidden="true" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-[#DFC3AE] bg-white shadow-[0_10px_30px_rgba(12,16,20,0.10)]">
+                  {OPCOES_ORDEM.map((o) => (
+                    <SelectItem
+                      key={o.valor}
+                      value={o.valor}
+                      className="rounded-lg outline-none focus-visible:outline-none py-2.5 pl-8 pr-3 text-sm text-[#6B4B36] cursor-pointer focus:bg-[#F6EDE7] focus:text-[#0C1014] data-[state=checked]:font-semibold data-[state=checked]:text-[#A5683F] [&_svg]:text-[#A5683F]"
+                    >
+                      {o.rotulo}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           {(categorias.length > 1 || (linha && categorias.length > 0)) && (
-            <div className="flex gap-2 overflow-x-auto sem-barra pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
-              {(categoriaFixa ? categorias : ['', ...categorias]).map((c) => (
-                <button
-                  key={c || 'todas'}
-                  type="button"
-                  onClick={() => setCategoria(c)}
-                  aria-pressed={categoria.toLowerCase() === c.toLowerCase()}
-                  className={cn(
-                    'shrink-0 h-9 px-4 rounded-full text-sm font-semibold border transition-colors',
-                    categoria.toLowerCase() === c.toLowerCase()
-                      ? 'bg-[#0C1014] text-white border-[#0C1014]'
-                      : 'bg-white text-[#6B4B36] border-[#DFC3AE] hover:border-[#C48864] hover:text-[#0C1014]',
-                  )}
-                >
-                  {c || 'Todos'}
-                </button>
-              ))}
-            </div>
+            <nav
+              ref={chipsRef}
+              aria-label="Categorias"
+              className="flex gap-2 overflow-x-auto sem-barra pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap"
+            >
+              {(categoriaFixa ? categorias : ['', ...categorias]).map((c) => {
+                const ativa = categoria.toLowerCase() === c.toLowerCase()
+                const estilo = cn(
+                  'shrink-0 inline-flex items-center h-9 px-4 rounded-full text-sm font-semibold border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C48864] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F7F3EA]',
+                  ativa
+                    ? 'bg-[#0C1014] text-white border-[#0C1014]'
+                    : 'bg-white text-[#6B4B36] border-[#DFC3AE] hover:border-[#C48864] hover:text-[#0C1014]',
+                )
+                return chipsSaoLinks ? (
+                  <Link
+                    key={c || 'todas'}
+                    to={c ? caminhoCategoria(c) : '/'}
+                    aria-current={ativa ? 'page' : undefined}
+                    className={estilo}
+                  >
+                    {c || 'Todos'}
+                  </Link>
+                ) : (
+                  <button
+                    key={c || 'todas'}
+                    type="button"
+                    onClick={() => setCategoria(c)}
+                    aria-pressed={ativa}
+                    className={estilo}
+                  >
+                    {c || 'Todos'}
+                  </button>
+                )
+              })}
+            </nav>
           )}
         </section>
 
@@ -401,7 +428,7 @@ export default function Catalogo({
                       type="button"
                       onClick={() => {
                         setBusca('')
-                        setCategoria('')
+                        if (!categoriaFixa) setCategoria('')
                       }}
                       className="h-10 px-5 rounded-lg border border-[#DFC3AE] bg-white text-sm font-semibold text-[#6B4B36] hover:text-[#0C1014]"
                     >
@@ -415,7 +442,7 @@ export default function Catalogo({
                 <h2 id="titulo-produtos" className="sr-only">
                   Produtos
                 </h2>
-                <p className="text-xs text-[#6B4B36] mb-3">
+                <p className="text-xs text-[#6B4B36] mb-3" aria-live="polite">
                   {lista.length} {lista.length === 1 ? 'produto' : 'produtos'}
                 </p>
                 <div className="grid grid-cols-1 min-[440px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 min-[1800px]:grid-cols-6 gap-4 sm:gap-5">
