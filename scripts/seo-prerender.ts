@@ -28,7 +28,7 @@ import {
   formatarPrecoSeo,
   LINHAS_CATALOGO,
   LinhaCatalogo,
-  produtoDaLinha,
+  produtoNaLinha,
   mapaDeLinhas,
   MapaLinhas,
   PAGINA_SOBRE,
@@ -221,6 +221,9 @@ export function seoPrerender(opcoes: { supabaseUrl: string; chave: string }) {
             descricao: String(r.descricao ?? ''),
             preco: Number(r.preco ?? 0),
             categoria: String(r.categoria ?? ''),
+            outrasCategorias: Array.isArray(r.outras_categorias)
+              ? (r.outras_categorias as unknown[]).map(String)
+              : [],
             imagens: (Array.isArray(r.imagens) ? (r.imagens as string[]) : [r.imagem_url as string])
               .filter((u) => u && !String(u).endsWith('/placeholder.svg'))
               .map(String),
@@ -261,9 +264,7 @@ export function seoPrerender(opcoes: { supabaseUrl: string; chave: string }) {
         // Abas "Catálogo 3D" e "Catálogo Papelaria"
         const linhas = await buscarLinhas(opcoes.supabaseUrl, opcoes.chave)
         for (const [linha, info] of Object.entries(LINHAS_CATALOGO)) {
-          const daLinha = produtos.filter((p) =>
-            produtoDaLinha(p.categoria, linha as LinhaCatalogo, linhas),
-          )
+          const daLinha = produtos.filter((p) => produtoNaLinha(p, linha as LinhaCatalogo, linhas))
           gravar(
             info.caminho,
             montarHtml(modelo, {

@@ -470,7 +470,11 @@ function criartereReducer(state: CriartereState, action: Action): CriartereState
           c.nome === antiga ? { nome, linha: cat.linha } : c,
         ),
         produtos: renomeou
-          ? state.produtos.map((p) => (p.categoria === antiga ? { ...p, categoria: nome } : p))
+          ? state.produtos.map((p) => ({
+              ...p,
+              categoria: p.categoria === antiga ? nome : p.categoria,
+              outrasCategorias: p.outrasCategorias?.map((c) => (c === antiga ? nome : c)),
+            }))
           : state.produtos,
         banners: renomeou
           ? state.banners.map((b) =>
@@ -489,7 +493,10 @@ function criartereReducer(state: CriartereState, action: Action): CriartereState
         categoriasProduto: state.categoriasProduto.filter((c) => c.nome !== nome),
         produtos: moverPara
           ? state.produtos.map((p) => (p.categoria === nome ? { ...p, categoria: moverPara } : p))
-          : state.produtos,
+          : state.produtos.map((p) => ({
+              ...p,
+              outrasCategorias: p.outrasCategorias?.filter((c) => c !== nome),
+            })),
         banners: state.banners.map((b) =>
           b.destinoTipo === 'categoria' && b.destinoValor === nome
             ? moverPara

@@ -14,6 +14,7 @@ import {
   BannerLoja,
   buscarContatoLoja,
   buscarAvisosLoja,
+  buscarSecoesInicio,
   listarFavoritos,
   adicionarFavorito,
   removerFavorito,
@@ -26,6 +27,7 @@ import {
   mensagemErroLoja,
 } from './api'
 import { mapaDeLinhas, MapaLinhas } from './seo-dados'
+import type { SecaoInicio } from '@/types/criartere'
 
 export interface UsuarioLoja {
   id: string
@@ -48,6 +50,7 @@ interface LojaContextValue {
   erroProdutos: boolean
   contato: ContatoLoja | null
   avisos: string[]
+  secoesInicio: SecaoInicio[]
   favoritos: Set<string>
   carrinho: ItemCarrinho[]
   carregandoConta: boolean
@@ -75,6 +78,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
   const [erroProdutos, setErroProdutos] = useState(false)
   const [contato, setContato] = useState<ContatoLoja | null>(null)
   const [avisos, setAvisos] = useState<string[]>([])
+  const [secoesInicio, setSecoesInicio] = useState<SecaoInicio[]>([])
   const [banners, setBanners] = useState<BannerLoja[]>([])
   const [linhasCategorias, setLinhasCategorias] = useState<MapaLinhas | undefined>()
   const [categoriasLoja, setCategoriasLoja] = useState<{ nome: string; linha: string | null }[]>([])
@@ -125,6 +129,10 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
       .catch(() => setBanners([]))
       .finally(() => setCarregandoBanners(false))
     // Abas da loja (Catálogo 3D / Papelaria); se falhar, vale a divisão padrão
+    // Seções da página inicial: se falhar, a home mostra as categorias com mais produtos
+    buscarSecoesInicio()
+      .then(setSecoesInicio)
+      .catch(() => setSecoesInicio([]))
     // Barra de avisos: se falhar, a loja abre sem ela
     buscarAvisosLoja()
       .then(setAvisos)
@@ -325,6 +333,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
         erroProdutos,
         contato,
         avisos,
+        secoesInicio,
         favoritos,
         carrinho,
         carregandoConta,

@@ -19,6 +19,7 @@ const Banners = lazy(() => import('./pages/Banners'))
 const SobreNos = lazy(() => import('./pages/SobreNos'))
 const Categorias = lazy(() => import('./pages/Categorias'))
 const Avisos = lazy(() => import('./pages/Avisos'))
+const PaginaInicial = lazy(() => import('./pages/PaginaInicial'))
 const LojaSobre = lazy(() => import('./pages/loja/Sobre'))
 const Financeiro = lazy(() => import('./pages/Financeiro'))
 const FluxoDeCaixa = lazy(() => import('./pages/FluxoDeCaixa'))
@@ -109,6 +110,7 @@ const App = () => (
                 <Route path="sobre" element={<SobreNos />} />
                 <Route path="categorias" element={<Categorias />} />
                 <Route path="avisos" element={<Avisos />} />
+                <Route path="inicio" element={<PaginaInicial />} />
                 <Route path="financeiro" element={<Financeiro />} />
                 <Route path="fluxo-de-caixa" element={<FluxoDeCaixa />} />
                 <Route path="relatorios" element={<Relatorios />} />

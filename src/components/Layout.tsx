@@ -77,6 +77,7 @@ export default function Layout() {
     '/admin/sobre': 'Página Sobre Nós',
     '/admin/categorias': 'Categorias de Produto',
     '/admin/avisos': 'Barra de Avisos',
+    '/admin/inicio': 'Página Inicial da Loja',
     '/admin/financeiro': 'Financeiro',
     '/admin/fluxo-de-caixa': 'Fluxo de Caixa',
     '/admin/relatorios': 'Relatórios',
@@ -173,7 +174,7 @@ export default function Layout() {
     // Seções com abas: um item no menu, ativo em qualquer uma das telas da seção
     {
       label: 'Loja virtual',
-      path: '/admin/banners',
+      path: '/admin/inicio',
       icon: Store,
       ativoEm: SECAO_LOJA_VIRTUAL.map((a) => a.caminho),
     },

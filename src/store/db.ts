@@ -90,6 +90,7 @@ const mapProduto = (r: Row): Produto => ({
   precoVenda: num(r.preco_venda),
   custo: num(r.custo),
   categoria: r.categoria,
+  outrasCategorias: Array.isArray(r.outras_categorias) ? r.outras_categorias : [],
   imagemUrl: opt(r.imagem_url),
   imagens: Array.isArray(r.imagens) ? (r.imagens as string[]) : [],
   ativo: r.ativo,
@@ -218,6 +219,9 @@ const mapConfig = (r: Row): LojaConfig => ({
   periodoPadraoDashboard: r.periodo_padrao_dashboard,
   barraAvisosAtiva: r.barra_avisos_ativa ?? false,
   barraAvisos: Array.isArray(r.barra_avisos) ? (r.barra_avisos as string[]) : [],
+  secoesInicio: Array.isArray(r.secoes_inicio)
+    ? (r.secoes_inicio as LojaConfig['secoesInicio'])
+    : [],
 })
 
 // ---------------- Mapeadores (app -> banco) ----------------
@@ -241,6 +245,10 @@ const produtoParaRow = (p: Produto) => ({
   preco_venda: p.precoVenda,
   custo: p.custo,
   categoria: p.categoria ?? '',
+  // Sem repetir a principal nem categorias iguais
+  outras_categorias: [
+    ...new Set((p.outrasCategorias ?? []).map((c) => c.trim()).filter(Boolean)),
+  ].filter((c) => c !== (p.categoria ?? '').trim()),
   imagem_url: p.imagens?.[0] || p.imagemUrl || null,
   imagens:
     p.imagens ?? (p.imagemUrl && !p.imagemUrl.endsWith('/placeholder.svg') ? [p.imagemUrl] : []),
@@ -303,6 +311,7 @@ const configParaRow = (c: LojaConfig) => ({
   periodo_padrao_dashboard: c.periodoPadraoDashboard,
   barra_avisos_ativa: c.barraAvisosAtiva,
   barra_avisos: c.barraAvisos.map((f) => f.trim()).filter(Boolean),
+  secoes_inicio: c.secoesInicio.slice(0, 3),
 })
 
 // ---------------- Leitura ----------------
@@ -734,7 +743,7 @@ export async function persistirAcao(
           p_linha: p.linha ?? null,
         }),
       )
-      return ['categoriasProduto', 'produtos', 'banners']
+      return ['categoriasProduto', 'produtos', 'banners', 'config']
 
     case 'EXCLUIR_CATEGORIA_PRODUTO':
       check(
@@ -743,7 +752,7 @@ export async function persistirAcao(
           p_mover_para: p.moverPara ?? null,
         }),
       )
-      return ['categoriasProduto', 'produtos', 'banners']
+      return ['categoriasProduto', 'produtos', 'banners', 'config']
 
     case 'ADICIONAR_CATEGORIA': {
       const nova = String(p).trim()

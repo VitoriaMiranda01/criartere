@@ -64,6 +64,23 @@ export const mapaDeLinhas = (lista: { nome: string; linha?: string | null }[]): 
     ]),
   )
 
+/** Todas as categorias do produto: a principal e as outras. */
+export const categoriasDoProduto = (p: { categoria: string; outrasCategorias?: string[] }) =>
+  [p.categoria, ...(p.outrasCategorias ?? [])].map((c) => c.trim()).filter(Boolean)
+
+/** O produto está nesta categoria (principal ou outra)? */
+export const produtoTemCategoria = (
+  p: { categoria: string; outrasCategorias?: string[] },
+  categoria: string,
+) => categoriasDoProduto(p).some((c) => c.toLowerCase() === categoria.trim().toLowerCase())
+
+/** O produto aparece nesta aba (por qualquer uma das suas categorias)? */
+export const produtoNaLinha = (
+  p: { categoria: string; outrasCategorias?: string[] },
+  linha: LinhaCatalogo,
+  mapa?: MapaLinhas,
+) => categoriasDoProduto(p).some((c) => produtoDaLinha(c, linha, mapa))
+
 /** O produto desta categoria aparece nesta aba? Usa o cadastro do painel; se a categoria
  *  não estiver lá (ou o cadastro não carregou), usa a divisão padrão. */
 export function produtoDaLinha(categoria: string, linha: LinhaCatalogo, mapa?: MapaLinhas) {
@@ -75,6 +92,7 @@ export function produtoDaLinha(categoria: string, linha: LinhaCatalogo, mapa?: M
 export interface ProdutoSeo {
   id: string
   nome: string
+  outrasCategorias?: string[]
   descricao: string
   preco: number
   categoria: string

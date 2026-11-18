@@ -3,7 +3,7 @@
    links antigos continuam funcionando e o menu lateral mostra um item só. */
 import { NavLink } from 'react-router-dom'
 import type { LucideIcon } from 'lucide-react'
-import { BookHeart, Images, Megaphone, Tags, Wallet, ArrowLeftRight } from 'lucide-react'
+import { BookHeart, Home, Images, Megaphone, Tags, Wallet, ArrowLeftRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export interface AbaSecao {
@@ -13,6 +13,7 @@ export interface AbaSecao {
 }
 
 export const SECAO_LOJA_VIRTUAL: AbaSecao[] = [
+  { rotulo: 'Página inicial', caminho: '/admin/inicio', icone: Home },
   { rotulo: 'Banners', caminho: '/admin/banners', icone: Images },
   { rotulo: 'Avisos', caminho: '/admin/avisos', icone: Megaphone },
   { rotulo: 'Sobre nós', caminho: '/admin/sobre', icone: BookHeart },

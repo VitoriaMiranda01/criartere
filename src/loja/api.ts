@@ -6,6 +6,7 @@
 import { supabase } from '@/lib/supabase'
 import { caminhoProduto } from './seo-dados'
 import { hojeISO } from '@/lib/datas'
+import type { SecaoInicio } from '@/types/criartere'
 
 export type Disponibilidade = 'pronta_entrega' | 'sob_encomenda'
 
@@ -15,7 +16,8 @@ export interface ProdutoVitrine {
   descricao: string
   preco: number // preço a pagar (já com a promoção, se houver)
   precoOriginal: number // preço cheio (igual a "preco" quando não há promoção)
-  categoria: string
+  categoria: string // principal
+  outrasCategorias: string[]
   imagemUrl?: string // foto principal
   imagens: string[] // todas as fotos (a primeira é a principal)
   disponibilidade: Disponibilidade
@@ -49,6 +51,9 @@ const mapProduto = (r: Row): ProdutoVitrine => {
     preco: Number(r.preco ?? 0),
     precoOriginal: Number(r.preco_original ?? r.preco ?? 0),
     categoria: String(r.categoria ?? ''),
+    outrasCategorias: Array.isArray(r.outras_categorias)
+      ? (r.outras_categorias as unknown[]).map(String)
+      : [],
     imagemUrl: imagens[0],
     imagens,
     disponibilidade: r.disponibilidade === 'pronta_entrega' ? 'pronta_entrega' : 'sob_encomenda',
@@ -128,6 +133,12 @@ export async function buscarAvisosLoja(): Promise<string[]> {
   const r = ((data ?? []) as Row[])[0]
   if (!r?.ativa || !Array.isArray(r.frases)) return []
   return (r.frases as unknown[]).map((f) => String(f).trim()).filter(Boolean)
+}
+
+/** Seções configuradas para a página inicial (até 3). */
+export async function buscarSecoesInicio(): Promise<SecaoInicio[]> {
+  const data = check(await supabase.rpc('vitrine_inicio'))
+  return Array.isArray(data) ? (data as SecaoInicio[]).slice(0, 3) : []
 }
 
 export async function buscarContatoLoja(): Promise<ContatoLoja | null> {

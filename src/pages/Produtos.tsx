@@ -9,6 +9,7 @@ import { useCriartere } from '@/store/CriartereContext'
 import { Produto } from '@/types/criartere'
 import { formatBRL, formatDataBR } from '@/store/periodUtils'
 import { percentualDesconto, precoPromocional } from '@/lib/descontos'
+import { categoriasDoProduto, produtoTemCategoria } from '@/loja/seo-dados'
 import {
   Package,
   Plus,
@@ -79,6 +80,8 @@ export default function Produtos() {
   const [precoVendaStr, setPrecoVendaStr] = useState('')
   const [custoStr, setCustoStr] = useState('')
   const [categoria, setCategoria] = useState('Impressão 3D')
+  // Outras categorias em que o produto também aparece (filtros, abas e seções da home)
+  const [outrasCategorias, setOutrasCategorias] = useState<string[]>([])
   // Fotos do produto, em ordem (a primeira é a principal). Fotos novas ainda não foram enviadas.
   const [fotos, setFotos] = useState<FotoForm[]>([])
   const [fotoSelecionada, setFotoSelecionada] = useState<string | null>(null)
@@ -102,7 +105,7 @@ export default function Produtos() {
   const categoriasDisponiveis = [
     ...new Set([
       ...state.categoriasProduto.map((c) => c.nome),
-      ...state.produtos.map((p) => p.categoria.trim()).filter(Boolean),
+      ...state.produtos.flatMap(categoriasDoProduto),
     ]),
   ]
 
@@ -154,6 +157,7 @@ export default function Produtos() {
     setPrecoVendaStr('')
     setCustoStr('')
     setCategoria(categoriasDisponiveis[0] ?? 'Impressão 3D')
+    setOutrasCategorias([])
     fecharNovaCategoria()
     limparFotos([])
     setAtivo(true)
@@ -175,6 +179,7 @@ export default function Produtos() {
     setPrecoVendaStr(prod.precoVenda.toString())
     setCustoStr(prod.custo ? prod.custo.toString() : '')
     setCategoria(prod.categoria)
+    setOutrasCategorias(prod.outrasCategorias ?? [])
     fecharNovaCategoria()
     limparFotos(
       (prod.imagens?.length
@@ -312,6 +317,7 @@ export default function Produtos() {
       precoVenda,
       custo,
       categoria,
+      outrasCategorias: outrasCategorias.filter((c) => c !== categoria),
       imagemUrl: urls[0] || '/placeholder.svg',
       imagens: urls,
       ativo,
@@ -349,7 +355,7 @@ export default function Produtos() {
       }
     }
 
-    if (categoriaFiltro !== 'todas' && p.categoria !== categoriaFiltro) {
+    if (categoriaFiltro !== 'todas' && !produtoTemCategoria(p, categoriaFiltro)) {
       return false
     }
 
@@ -963,6 +969,49 @@ export default function Produtos() {
                       className="h-10 text-xs border-[#DFC3AE]"
                     />
                   </div>
+
+                  {/* Outras categorias */}
+                  {categoriasDisponiveis.length > 1 && (
+                    <div className="col-span-2 space-y-1.5">
+                      <p className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider flex items-center gap-1">
+                        Também aparece em
+                        <Opcional />
+                        <DicaAjuda titulo="Mais de uma categoria">
+                          <p>
+                            A categoria principal aparece no card do produto. Marque aqui outras
+                            categorias em que ele também deve aparecer: filtros, abas da loja e
+                            seções da página inicial.
+                          </p>
+                        </DicaAjuda>
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {categoriasDisponiveis
+                          .filter((c) => c !== categoria)
+                          .map((c) => {
+                            const marcada = outrasCategorias.includes(c)
+                            return (
+                              <button
+                                key={c}
+                                type="button"
+                                aria-pressed={marcada}
+                                onClick={() =>
+                                  setOutrasCategorias((l) =>
+                                    marcada ? l.filter((x) => x !== c) : [...l, c],
+                                  )
+                                }
+                                className={`h-7 px-2.5 rounded-full text-[11px] font-semibold border transition-colors ${
+                                  marcada
+                                    ? 'bg-[#A5683F] text-white border-[#A5683F]'
+                                    : 'bg-white text-[#6B4B36] border-[#DFC3AE] hover:border-[#C48864]'
+                                }`}
+                              >
+                                {c}
+                              </button>
+                            )
+                          })}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Desconto do próprio produto */}
                   <div className="col-span-2 rounded-xl border border-[#DFC3AE]/70 bg-[#F7F3EA]/60 p-3 space-y-3">

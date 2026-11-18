@@ -14,6 +14,7 @@ export const CONFIG_PADRAO: LojaConfig = {
   periodoPadraoDashboard: 'mes_atual',
   barraAvisosAtiva: false,
   barraAvisos: [],
+  secoesInicio: [],
 }
 
 // Mesma divisão por aba usada pela loja (definida em um lugar só: LINHAS_CATALOGO)

@@ -16,6 +16,7 @@ import {
   BookHeart,
   Tags,
   Megaphone,
+  Home,
   Search,
   Settings,
   ShoppingBag,
@@ -226,6 +227,7 @@ const TOPICOS: Topico[] = [
         subtitulo: 'Como usar',
         passos: [
           'Cadastre nome, preço de venda e categoria. Custo e estoque são opcionais, mas ajudam a ver a margem.',
+          'Em "Também aparece em", marque outras categorias para o produto aparecer nelas também (filtros, abas e seções da home). A categoria principal é a que aparece no card.',
           'Produtos cadastrados aparecem para escolha rápida em pedidos e orçamentos (o preço já vem preenchido).',
           'Desmarque "Produto Ativo no Catálogo" para tirar um produto da lista sem apagar o histórico.',
         ],
@@ -252,6 +254,25 @@ const TOPICOS: Topico[] = [
         passos: [
           'No cadastro do produto, ligue "Desconto neste produto" e informe o valor em % ou R$ (período opcional).',
           'A loja mostra a etiqueta (ex.: -15%) e o preço antigo riscado, e o pedido já entra com o preço com desconto.',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'pagina-inicial',
+    titulo: 'Página Inicial da Loja',
+    icone: Home,
+    resumo: 'Até 3 seções de produtos na home da loja, abaixo dos banners.',
+    rota: '/admin/inicio',
+    secoes: [
+      {
+        subtitulo: 'Como usar',
+        passos: [
+          'Fica em Loja virtual → Página inicial. Clique em "Adicionar seção" (até 3).',
+          '"Uma categoria": os produtos da categoria entram sozinhos, na ordem escolhida (novidades, promoção, preço), e a seção ganha o link "Ver todos".',
+          '"Produtos escolhidos": busque e adicione os produtos (até 12) e ajuste a ordem com as setas. Bom para vitrines como "Mais vendidos".',
+          'O título é opcional (sem ele, aparece o nome da categoria). Use as setas da seção para mudar a ordem na home e clique em "Salvar".',
+          'Sem nenhuma seção definida, a loja mostra as 3 categorias com mais produtos.',
         ],
       },
     ],

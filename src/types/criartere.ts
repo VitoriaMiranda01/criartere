@@ -44,7 +44,8 @@ export interface Produto {
   descricao: string
   precoVenda: number
   custo: number
-  categoria: string
+  categoria: string // categoria principal (aparece no card)
+  outrasCategorias?: string[] // onde mais o produto aparece (filtros, abas e seções da home)
   imagemUrl?: string // foto principal (sempre igual à primeira de `imagens`)
   imagens?: string[] // todas as fotos, em ordem; a primeira é a principal
   ativo: boolean
@@ -200,7 +201,19 @@ export interface LojaConfig {
   periodoPadraoDashboard: PeriodoFiltro
   barraAvisosAtiva: boolean // letreiro no topo da loja
   barraAvisos: string[] // frases do letreiro, na ordem
+  secoesInicio: SecaoInicio[] // até 3 seções da página inicial da loja
 }
+
+/** Seção da página inicial da loja: uma categoria (automática) ou produtos escolhidos. */
+export interface SecaoInicio {
+  tipo: 'categoria' | 'produtos'
+  categoria?: string
+  produtoIds?: string[] // na ordem em que aparecem
+  titulo?: string // vazio = nome da categoria
+  ordem?: OrdemSecao // só para seção por categoria
+}
+
+export type OrdemSecao = 'novidades' | 'promocao' | 'menor_preco' | 'maior_preco' | 'nome'
 
 export type PeriodoFiltro = 'hoje' | 'ultimos_7' | 'mes_atual' | 'mes_anterior' | 'personalizado'
 

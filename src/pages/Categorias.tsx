@@ -70,6 +70,11 @@ export default function Categorias() {
     return m
   }, [state.produtos])
   const qtd = (c: string) => contagem.get(c.trim().toLowerCase()) ?? 0
+  // Produtos que estão na categoria como "também aparece em"
+  const qtdOutras = (c: string) =>
+    state.produtos.filter((p) =>
+      (p.outrasCategorias ?? []).some((x) => x.trim().toLowerCase() === c.trim().toLowerCase()),
+    ).length
 
   const bannersDaCategoria = (c: string) =>
     state.banners.filter((b) => b.destinoTipo === 'categoria' && b.destinoValor === c).length
@@ -192,6 +197,7 @@ export default function Categorias() {
                     <p className="font-semibold text-sm text-[#0C1014] truncate">{c.nome}</p>
                     <p className="text-[11px] text-[#6B4B36]">
                       {n === 0 ? 'Nenhum produto' : n === 1 ? '1 produto' : `${n} produtos`}
+                      {qtdOutras(c.nome) > 0 && ` • +${qtdOutras(c.nome)} também aparecem aqui`}
                     </p>
                   </div>
                   <span
