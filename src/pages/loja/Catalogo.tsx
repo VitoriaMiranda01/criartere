@@ -64,7 +64,7 @@ export default function Catalogo({
   const infoLinha = linha ? LINHAS_CATALOGO[linha] : null
   // Aba à qual a categoria da tela pertence (para o caminho "Início › Catálogo 3D › ...")
   const linhaDaCategoria = categoriaFixa
-    ? (linhasCategorias.get(categoriaFixa.toLowerCase()) ?? null)
+    ? (linhasCategorias?.get(categoriaFixa.toLowerCase()) ?? null)
     : null
   const produtos = useMemo(
     () =>
@@ -174,62 +174,43 @@ export default function Catalogo({
 
   return (
     <div className="space-y-8">
-      {/* Aba de uma linha: título simples. Início: banners ou apresentação padrão */}
+      {/* Aba ou categoria: só o título. Início: banners ou apresentação padrão */}
       {infoLinha ? (
-        <section className="relative overflow-hidden rounded-3xl bg-white border border-[#DFC3AE]/60 px-6 py-8 sm:px-10 sm:py-10">
-          <div
-            className="absolute -top-24 -right-16 w-72 h-72 rounded-full bg-[#DFC3AE] opacity-40 blur-3xl pointer-events-none"
-            aria-hidden="true"
-          />
-          <div className="relative max-w-2xl">
-            <p className="text-[11px] uppercase tracking-[0.25em] text-[#A5683F] font-bold mb-2">
-              Criartere
-            </p>
-            <h1 className="font-serif text-3xl sm:text-4xl font-semibold leading-tight text-[#0C1014]">
-              {infoLinha.titulo}
-            </h1>
-            <p className="text-sm sm:text-base text-[#6B4B36] mt-3 leading-relaxed">
-              {infoLinha.descricao}
-            </p>
-          </div>
-        </section>
+        // Aba da loja: só o título no topo
+        <h1 className="font-serif text-3xl sm:text-4xl font-semibold leading-tight text-[#0C1014]">
+          {infoLinha.titulo}
+        </h1>
       ) : categoriaFixa ? (
-        // Tela própria da categoria
-        <section className="relative overflow-hidden rounded-3xl bg-white border border-[#DFC3AE]/60 px-6 py-8 sm:px-10 sm:py-10">
-          <div
-            className="absolute -top-24 -right-16 w-72 h-72 rounded-full bg-[#DFC3AE] opacity-40 blur-3xl pointer-events-none"
-            aria-hidden="true"
-          />
-          <div className="relative max-w-2xl">
-            <nav aria-label="Você está em" className="mb-2">
-              <ol className="flex flex-wrap items-center gap-1 text-xs font-semibold text-[#A5683F]">
-                <li>
-                  <Link to="/" className="hover:underline underline-offset-4">
-                    Início
+        // Tela própria da categoria: caminho e título no topo
+        <div>
+          <nav aria-label="Você está em" className="mb-1.5">
+            <ol className="flex flex-wrap items-center gap-1 text-xs font-semibold text-[#A5683F]">
+              <li>
+                <Link to="/" className="hover:underline underline-offset-4">
+                  Início
+                </Link>
+              </li>
+              {linhaDaCategoria && (
+                <li className="flex items-center gap-1">
+                  <ChevronRight className="w-3.5 h-3.5 text-[#C48864]" aria-hidden="true" />
+                  <Link
+                    to={LINHAS_CATALOGO[linhaDaCategoria].caminho}
+                    className="hover:underline underline-offset-4"
+                  >
+                    {LINHAS_CATALOGO[linhaDaCategoria].menu}
                   </Link>
                 </li>
-                {linhaDaCategoria && (
-                  <li className="flex items-center gap-1">
-                    <ChevronRight className="w-3.5 h-3.5 text-[#C48864]" aria-hidden="true" />
-                    <Link
-                      to={LINHAS_CATALOGO[linhaDaCategoria].caminho}
-                      className="hover:underline underline-offset-4"
-                    >
-                      {LINHAS_CATALOGO[linhaDaCategoria].menu}
-                    </Link>
-                  </li>
-                )}
-                <li className="flex items-center gap-1 text-[#6B4B36]" aria-current="page">
-                  <ChevronRight className="w-3.5 h-3.5 text-[#C48864]" aria-hidden="true" />
-                  {categoriaFixa}
-                </li>
-              </ol>
-            </nav>
-            <h1 className="font-serif text-3xl sm:text-4xl font-semibold leading-tight text-[#0C1014]">
-              {categoriaFixa}
-            </h1>
-          </div>
-        </section>
+              )}
+              <li className="flex items-center gap-1 text-[#6B4B36]" aria-current="page">
+                <ChevronRight className="w-3.5 h-3.5 text-[#C48864]" aria-hidden="true" />
+                {categoriaFixa}
+              </li>
+            </ol>
+          </nav>
+          <h1 className="font-serif text-3xl sm:text-4xl font-semibold leading-tight text-[#0C1014]">
+            {categoriaFixa}
+          </h1>
+        </div>
       ) : carregandoBanners ? (
         <div
           className="rounded-3xl bg-white border border-[#DFC3AE]/60 aspect-square sm:aspect-[16/5] animate-pulse"
