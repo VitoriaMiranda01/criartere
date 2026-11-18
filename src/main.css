@@ -330,27 +330,40 @@ html[data-area='loja'] {
   accent-color: #a5683f;
   caret-color: #a5683f;
   -webkit-tap-highlight-color: transparent;
-  scrollbar-color: #dfc3ae #f7f3ea;
 }
 html[data-area='loja'] ::selection {
   background: #dfc3ae;
   color: #0c1014;
 }
-/* Barra de rolagem (Chrome, Edge, Safari) */
-html[data-area='loja'] ::-webkit-scrollbar {
+/* Barras de rolagem no estilo da Criartere (loja e painel, inclusive dentro de
+   janelas e listas). Chrome, Edge e Safari usam as regras ::-webkit-scrollbar
+   (sem as setinhas nativas); o Firefox usa scrollbar-color/width. */
+::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
-html[data-area='loja'] ::-webkit-scrollbar-track {
-  background: #f7f3ea;
+::-webkit-scrollbar-button {
+  display: none;
 }
-html[data-area='loja'] ::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
   background: #dfc3ae;
   border-radius: 999px;
-  border: 2px solid #f7f3ea;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
-html[data-area='loja'] ::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-thumb:hover {
   background: #c48864;
+  background-clip: padding-box;
+}
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #dfc3ae transparent;
+  }
 }
 /* Faixas de rolagem horizontal (ex.: categorias no celular) sem barra visível */
 .sem-barra {
