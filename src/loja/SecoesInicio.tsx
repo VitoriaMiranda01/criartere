@@ -7,7 +7,7 @@ import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { OrdemSecao, SecaoInicio } from '@/types/criartere'
 import type { ProdutoVitrine } from './api'
 import { CardProduto } from './componentes'
-import { caminhoCategoria, MapaLinhas, produtoTemCategoria } from './seo-dados'
+import { caminhoCategoria, produtoTemCategoria } from './seo-dados'
 import { cn } from '@/lib/utils'
 
 const MAX_POR_SECAO = 12
@@ -39,7 +39,6 @@ function ordenar(lista: ProdutoVitrine[], ordem: OrdemSecao = 'novidades') {
 export function montarSecoes(
   secoes: SecaoInicio[],
   produtos: ProdutoVitrine[],
-  mapa?: MapaLinhas,
 ): SecaoMontada[] {
   let config = secoes.slice(0, 3)
   if (config.length === 0) {
@@ -71,7 +70,7 @@ export function montarSecoes(
         chave: `s${i}`,
         titulo: s.titulo?.trim() || s.categoria,
         produtos: ordenar(daCategoria, s.ordem).slice(0, MAX_POR_SECAO),
-        verTodos: caminhoCategoria(s.categoria, mapa),
+        verTodos: caminhoCategoria(s.categoria),
       }
     })
     .filter((s): s is SecaoMontada => s !== null)
@@ -80,13 +79,11 @@ export function montarSecoes(
 export function SecoesInicio({
   secoes,
   produtos,
-  mapa,
 }: {
   secoes: SecaoInicio[]
   produtos: ProdutoVitrine[]
-  mapa?: MapaLinhas
 }) {
-  const montadas = montarSecoes(secoes, produtos, mapa)
+  const montadas = montarSecoes(secoes, produtos)
   return (
     <div className="space-y-10 sm:space-y-12">
       {montadas.map((s) => (
@@ -145,7 +142,6 @@ function FaixaProdutos({ titulo, produtos, verTodos }: SecaoMontada) {
         {verTodos && (
           <Link
             to={verTodos}
-            state={{ rolarParaProdutos: true }}
             className="shrink-0 inline-flex items-center gap-1 text-sm font-semibold text-[#A5683F] hover:text-[#8C5636] hover:underline underline-offset-4"
           >
             Ver todos <ArrowRight className="w-4 h-4" />

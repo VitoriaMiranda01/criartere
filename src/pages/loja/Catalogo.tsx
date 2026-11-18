@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useLocation, useSearchParams } from 'react-router-dom'
-import { Search, PackageSearch, RefreshCw, X, ArrowUpDown, ArrowLeft } from 'lucide-react'
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { Search, PackageSearch, RefreshCw, X, ArrowUpDown, ChevronRight } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -11,6 +11,8 @@ import {
 import { useSeo } from '@/lib/seo'
 import {
   DESCRICAO_LOJA,
+  caminhoCategoria,
+  descricaoCategoria,
   jsonLdCatalogo,
   LINHAS_CATALOGO,
   LinhaCatalogo,
@@ -37,10 +39,16 @@ const OPCOES_ORDEM = [
   { valor: 'maior', rotulo: 'Maior preço' },
 ] as const
 
-/** Sem `linha`: página inicial com os banners e as seções escolhidas no painel
- *  (com ?categoria=..., mostra a lista daquela categoria).
- *  Com `linha`: aba "Catálogo 3D" ou "Catálogo Papelaria", só com as categorias dela. */
-export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
+/** Sem `linha`: página inicial com os banners e as seções escolhidas no painel.
+ *  Com `linha`: aba "Catálogo 3D" ou "Catálogo Papelaria", só com as categorias dela.
+ *  Com `categoriaFixa`: tela própria de uma categoria (/categoria/<nome>). */
+export default function Catalogo({
+  linha,
+  categoriaFixa,
+}: {
+  linha?: LinhaCatalogo
+  categoriaFixa?: string
+}) {
   const {
     produtos: todosProdutos,
     carregandoProdutos,
@@ -54,35 +62,59 @@ export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
     secoesInicio,
   } = useLoja()
   const infoLinha = linha ? LINHAS_CATALOGO[linha] : null
+  // Aba à qual a categoria da tela pertence (para o caminho "Início › Catálogo 3D › ...")
+  const linhaDaCategoria = categoriaFixa
+    ? (linhasCategorias.get(categoriaFixa.toLowerCase()) ?? null)
+    : null
   const produtos = useMemo(
     () =>
-      linha
-        ? todosProdutos.filter((p) => produtoNaLinha(p, linha, linhasCategorias))
-        : todosProdutos,
-    [todosProdutos, linha, linhasCategorias],
+      categoriaFixa
+        ? todosProdutos.filter((p) => produtoTemCategoria(p, categoriaFixa))
+        : linha
+          ? todosProdutos.filter((p) => produtoNaLinha(p, linha, linhasCategorias))
+          : todosProdutos,
+    [todosProdutos, linha, linhasCategorias, categoriaFixa],
   )
+  const paginaCategoria = categoriaFixa
+    ? {
+        nome: categoriaFixa,
+        caminho: caminhoCategoria(categoriaFixa),
+        descricao: descricaoCategoria(categoriaFixa),
+      }
+    : null
+  const paginaSeo =
+    paginaCategoria ??
+    (infoLinha
+      ? { nome: infoLinha.titulo, caminho: infoLinha.caminho, descricao: infoLinha.descricao }
+      : undefined)
   useSeo({
-    titulo: infoLinha?.tituloSeo ?? 'Loja virtual: impressão 3D, papelaria e personalizados',
-    descricao: infoLinha?.descricao ?? DESCRICAO_LOJA,
-    caminho: infoLinha?.caminho ?? '/',
+    titulo:
+      paginaCategoria?.nome ??
+      infoLinha?.tituloSeo ??
+      'Loja virtual: impressão 3D, papelaria e personalizados',
+    descricao: paginaSeo?.descricao ?? DESCRICAO_LOJA,
+    caminho: paginaSeo?.caminho ?? '/',
     indexar: true,
-    jsonLd: produtos.length
-      ? jsonLdCatalogo(
-          produtos,
-          contato ?? undefined,
-          infoLinha
-            ? { nome: infoLinha.titulo, caminho: infoLinha.caminho, descricao: infoLinha.descricao }
-            : undefined,
-        )
-      : undefined,
+    jsonLd: produtos.length ? jsonLdCatalogo(produtos, contato ?? undefined, paginaSeo) : undefined,
     ativo: !carregandoProdutos && !erroProdutos,
   })
+  const navigate = useNavigate()
   const [busca, setBusca] = useState('')
   // Categoria fica no endereço (?categoria=...) para os banners poderem abrir uma categoria
   const [parametros, setParametros] = useSearchParams()
-  const categoria = parametros.get('categoria') ?? ''
+  const categoriaNoEndereco = parametros.get('categoria') ?? ''
+  const categoria = categoriaFixa ?? categoriaNoEndereco
   const setCategoria = (c: string) =>
-    setParametros(
+    categoriaFixa
+      ? // Na tela de uma categoria, as outras categorias abrem as telas delas
+        navigate(
+          c
+            ? caminhoCategoria(c)
+            : linhaDaCategoria
+              ? LINHAS_CATALOGO[linhaDaCategoria].caminho
+              : '/',
+        )
+      : setParametros(
       (atuais) => {
         const novos = new URLSearchParams(atuais)
         if (c) novos.set('categoria', c)
@@ -105,8 +137,11 @@ export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
   // Categorias cadastradas no painel (na ordem do cadastro; numa aba, só as dela),
   // mais qualquer categoria usada em produtos que não esteja no cadastro
   const categorias = useMemo(() => {
+    // Na tela de uma categoria: as categorias da mesma aba
+    const daAba = categoriaFixa ? linhaDaCategoria : linha
+    if (categoriaFixa && !daAba) return []
     const cadastradas = categoriasLoja
-      .filter((c) => !linha || c.linha === linha)
+      .filter((c) => !daAba || c.linha === daAba)
       .map((c) => c.nome.trim())
       .filter(Boolean)
     const conhecidas = new Set(cadastradas.map((c) => c.toLowerCase()))
@@ -114,7 +149,7 @@ export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
       .filter((c) => !conhecidas.has(c.toLowerCase()))
       .sort((a, b) => a.localeCompare(b, 'pt-BR'))
     return [...cadastradas, ...extras]
-  }, [categoriasLoja, linha, produtos])
+  }, [categoriasLoja, linha, produtos, categoriaFixa, linhaDaCategoria])
 
   const lista = useMemo(() => {
     const termo = normalizar(busca.trim())
@@ -132,6 +167,10 @@ export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
       return a.nome.localeCompare(b.nome, 'pt-BR')
     })
   }, [produtos, busca, categoria, ordem])
+
+  // Endereços antigos (/?categoria=...) → tela própria da categoria
+  if (!linha && !categoriaFixa && categoriaNoEndereco)
+    return <Navigate to={caminhoCategoria(categoriaNoEndereco)} replace />
 
   return (
     <div className="space-y-8">
@@ -154,22 +193,40 @@ export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
             </p>
           </div>
         </section>
-      ) : categoria ? (
-        // Categoria sem aba própria: tela da categoria (sem os banners da home)
+      ) : categoriaFixa ? (
+        // Tela própria da categoria
         <section className="relative overflow-hidden rounded-3xl bg-white border border-[#DFC3AE]/60 px-6 py-8 sm:px-10 sm:py-10">
           <div
             className="absolute -top-24 -right-16 w-72 h-72 rounded-full bg-[#DFC3AE] opacity-40 blur-3xl pointer-events-none"
             aria-hidden="true"
           />
           <div className="relative max-w-2xl">
-            <Link
-              to="/"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-[#A5683F] hover:underline underline-offset-4 mb-2"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" /> Início
-            </Link>
+            <nav aria-label="Você está em" className="mb-2">
+              <ol className="flex flex-wrap items-center gap-1 text-xs font-semibold text-[#A5683F]">
+                <li>
+                  <Link to="/" className="hover:underline underline-offset-4">
+                    Início
+                  </Link>
+                </li>
+                {linhaDaCategoria && (
+                  <li className="flex items-center gap-1">
+                    <ChevronRight className="w-3.5 h-3.5 text-[#C48864]" aria-hidden="true" />
+                    <Link
+                      to={LINHAS_CATALOGO[linhaDaCategoria].caminho}
+                      className="hover:underline underline-offset-4"
+                    >
+                      {LINHAS_CATALOGO[linhaDaCategoria].menu}
+                    </Link>
+                  </li>
+                )}
+                <li className="flex items-center gap-1 text-[#6B4B36]" aria-current="page">
+                  <ChevronRight className="w-3.5 h-3.5 text-[#C48864]" aria-hidden="true" />
+                  {categoriaFixa}
+                </li>
+              </ol>
+            </nav>
             <h1 className="font-serif text-3xl sm:text-4xl font-semibold leading-tight text-[#0C1014]">
-              {categoria}
+              {categoriaFixa}
             </h1>
           </div>
         </section>
@@ -181,7 +238,7 @@ export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
       ) : banners.length > 0 ? (
         <>
           <h1 className="sr-only">Criartere: criações feitas com carinho, camada por camada</h1>
-          <CarrosselBanners banners={banners} produtos={produtos} mapa={linhasCategorias} />
+          <CarrosselBanners banners={banners} produtos={produtos} />
         </>
       ) : (
         <section className="relative overflow-hidden rounded-3xl bg-white border border-[#DFC3AE]/60 px-6 py-10 sm:px-12 sm:py-14">
@@ -228,7 +285,7 @@ export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
             }
           />
         ) : (
-          <SecoesInicio secoes={secoesInicio} produtos={todosProdutos} mapa={linhasCategorias} />
+          <SecoesInicio secoes={secoesInicio} produtos={todosProdutos} />
         )
       ) : (
         <>
@@ -283,15 +340,15 @@ export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
 
             {(categorias.length > 1 || (linha && categorias.length > 0)) && (
               <div className="flex gap-2 overflow-x-auto sem-barra pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
-                {['', ...categorias].map((c) => (
+                {(categoriaFixa ? categorias : ['', ...categorias]).map((c) => (
                   <button
                     key={c || 'todas'}
                     type="button"
                     onClick={() => setCategoria(c)}
-                    aria-pressed={categoria === c}
+                    aria-pressed={categoria.toLowerCase() === c.toLowerCase()}
                     className={cn(
                       'shrink-0 h-9 px-4 rounded-full text-sm font-semibold border transition-colors',
-                      categoria === c
+                      categoria.toLowerCase() === c.toLowerCase()
                         ? 'bg-[#0C1014] text-white border-[#0C1014]'
                         : 'bg-white text-[#6B4B36] border-[#DFC3AE] hover:border-[#C48864] hover:text-[#0C1014]',
                     )}
@@ -325,21 +382,32 @@ export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
             <EstadoVazio
               icone={PackageSearch}
               titulo={
-                produtos.length === 0
-                  ? 'Novidades em breve'
+                produtos.length === 0 && categoriaFixa
+                  ? `Ainda não há produtos em ${categoriaFixa}`
+                  : produtos.length === 0
+                    ? 'Novidades em breve'
                   : categoria && !busca.trim()
                     ? `Ainda não há produtos em ${categoria}`
                     : 'Nenhum produto encontrado'
               }
               texto={
-                produtos.length === 0
-                  ? 'Nosso catálogo está sendo preparado com carinho. Volte em breve!'
+                produtos.length === 0 && categoriaFixa
+                  ? 'Estamos preparando novidades para esta categoria. Veja as outras enquanto isso!'
+                  : produtos.length === 0
+                    ? 'Nosso catálogo está sendo preparado com carinho. Volte em breve!'
                   : categoria && !busca.trim()
                     ? 'Estamos preparando novidades para esta categoria. Veja as outras enquanto isso!'
                     : 'Tente buscar por outro nome ou escolha outra categoria.'
               }
               acao={
-                produtos.length > 0 ? (
+                categoriaFixa && produtos.length === 0 ? (
+                  <Link
+                    to="/"
+                    className="inline-flex items-center h-10 px-5 rounded-lg border border-[#DFC3AE] bg-white text-sm font-semibold text-[#6B4B36] hover:text-[#0C1014]"
+                  >
+                    Ver a loja
+                  </Link>
+                ) : produtos.length > 0 ? (
                   <button
                     type="button"
                     onClick={() => {

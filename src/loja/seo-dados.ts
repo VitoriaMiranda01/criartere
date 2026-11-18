@@ -64,12 +64,21 @@ export const mapaDeLinhas = (lista: { nome: string; linha?: string | null }[]): 
     ]),
   )
 
-/** Tela de uma categoria: a aba dela (Catálogo 3D / Papelaria) já filtrada; categoria
- *  sem aba abre no início da loja, também filtrada. */
-export function caminhoCategoria(categoria: string, mapa?: MapaLinhas) {
-  const linha = mapa?.get(categoria.trim().toLowerCase())
-  const base = linha ? LINHAS_CATALOGO[linha].caminho : '/'
-  return `${base}?categoria=${encodeURIComponent(categoria)}`
+/** Tela própria de cada categoria: /categoria/chaveiros, /categoria/natal... */
+export const caminhoCategoria = (categoria: string) => `/categoria/${slug(categoria)}`
+
+/** Descrição da tela de uma categoria (buscadores e prévias de link). */
+export const descricaoCategoria = (categoria: string) =>
+  `${categoria} na Criartere: peças feitas com carinho em impressão 3D e papelaria personalizada. ` +
+  'Veja preços e encomende pelo WhatsApp.'
+
+/** Categoria cujo endereço é este (procura nas categorias cadastradas e nas dos produtos). */
+export function categoriaDoSlug(
+  parametro: string | undefined,
+  candidatas: string[],
+): string | undefined {
+  const alvo = (parametro || '').toLowerCase()
+  return candidatas.map((c) => c.trim()).find((c) => c && slug(c) === alvo)
 }
 
 /** Todas as categorias do produto: a principal e as outras. */

@@ -31,7 +31,7 @@ import { cn } from '@/lib/utils'
 import { LojaProvider, useLoja } from './LojaContext'
 import { CarregandoLoja } from './componentes'
 import { numeroWhatsApp } from './api'
-import { LINHAS_CATALOGO, LinhaCatalogo, PAGINA_SOBRE } from './seo-dados'
+import { caminhoCategoria, LINHAS_CATALOGO, LinhaCatalogo, PAGINA_SOBRE } from './seo-dados'
 import { BarraAvisos } from './BarraAvisos'
 
 export default function LojaLayout() {
@@ -77,8 +77,6 @@ function LojaEstrutura() {
       ? cadastradas
       : LINHAS_CATALOGO[linha].categorias
   }
-  const linkCategoria = (linha: LinhaCatalogo, categoria: string) =>
-    `${LINHAS_CATALOGO[linha].caminho}?categoria=${encodeURIComponent(categoria)}`
   // Telas de entrar/criar conta e de finalizar pedido: ocupam só a altura da tela
   // (sem rodapé, sem rolagem)
   const local = useLocation()
@@ -156,7 +154,6 @@ function LojaEstrutura() {
                 key={linha}
                 linha={linha}
                 categorias={categoriasDaLinha(linha)}
-                linkCategoria={linkCategoria}
                 linkNav={linkNav}
               />
             ))}
@@ -296,8 +293,7 @@ function LojaEstrutura() {
                     {categorias.map((categoria) => (
                       <Link
                         key={categoria}
-                        to={linkCategoria(linha, categoria)}
-                        state={{ rolarParaProdutos: true }}
+                        to={caminhoCategoria(categoria)}
                         onClick={() => setMenuAberto(false)}
                         className="pl-3 py-2 text-[13px] text-[#6B4B36] hover:text-[#0C1014]"
                       >
@@ -405,12 +401,10 @@ function LojaEstrutura() {
 function MenuCatalogo({
   linha,
   categorias,
-  linkCategoria,
   linkNav,
 }: {
   linha: LinhaCatalogo
   categorias: string[]
-  linkCategoria: (linha: LinhaCatalogo, categoria: string) => string
   linkNav: (estado: { isActive: boolean }) => string
 }) {
   const [aberto, setAberto] = useState(false)
@@ -460,8 +454,7 @@ function MenuCatalogo({
             {categorias.map((categoria) => (
               <Link
                 key={categoria}
-                to={linkCategoria(linha, categoria)}
-                state={{ rolarParaProdutos: true }}
+                to={caminhoCategoria(categoria)}
                 onClick={() => setAberto(false)}
                 className={cn(itemLista, 'text-[#6B4B36] hover:text-[#0C1014]')}
               >

@@ -30,6 +30,7 @@ const Ajuda = lazy(() => import('./pages/Ajuda'))
 const LojaLayout = lazy(() => import('./loja/LojaLayout'))
 const LojaCatalogo = lazy(() => import('./pages/loja/Catalogo'))
 const LojaProduto = lazy(() => import('./pages/loja/ProdutoDetalhe'))
+const LojaCategoria = lazy(() => import('./pages/loja/Categoria'))
 const LojaFavoritos = lazy(() => import('./pages/loja/Favoritos'))
 const LojaCarrinho = lazy(() => import('./pages/loja/Carrinho'))
 const LojaEntrar = lazy(() => import('./pages/loja/Entrar'))
@@ -83,6 +84,7 @@ const App = () => (
                   element={<LojaCatalogo key="papelaria" linha="papelaria" />}
                 />
                 <Route path="produto/:id" element={<LojaProduto />} />
+                <Route path="categoria/:slug" element={<LojaCategoria />} />
                 <Route path="sobre" element={<LojaSobre />} />
                 <Route path="favoritos" element={<LojaFavoritos />} />
                 <Route path="carrinho" element={<LojaCarrinho />} />

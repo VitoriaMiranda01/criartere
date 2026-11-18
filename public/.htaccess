@@ -23,7 +23,7 @@
   RewriteCond %{REQUEST_URI} ^/(impressao-3d|papelaria|sobre)/?$
   RewriteCond %{DOCUMENT_ROOT}/_paginas/%1.html -f
   RewriteRule ^ /_paginas/%1.html [L]
-  RewriteCond %{REQUEST_URI} ^/(produto/[a-z0-9-]+)/?$
+  RewriteCond %{REQUEST_URI} ^/((produto|categoria)/[a-z0-9-]+)/?$
   RewriteCond %{DOCUMENT_ROOT}/_paginas/%1.html -f
   RewriteRule ^ /_paginas/%1.html [L]
   RewriteCond %{REQUEST_FILENAME} !-f

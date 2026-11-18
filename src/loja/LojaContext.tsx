@@ -46,6 +46,8 @@ interface LojaContextValue {
   linhasCategorias: MapaLinhas | undefined
   categoriasLoja: { nome: string; linha: string | null }[]
   carregandoBanners: boolean
+  /** Lista de categorias ainda carregando (a tela de uma categoria espera por ela) */
+  carregandoCategorias: boolean
   carregandoProdutos: boolean
   erroProdutos: boolean
   contato: ContatoLoja | null
@@ -83,6 +85,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
   const [linhasCategorias, setLinhasCategorias] = useState<MapaLinhas | undefined>()
   const [categoriasLoja, setCategoriasLoja] = useState<{ nome: string; linha: string | null }[]>([])
   const [carregandoBanners, setCarregandoBanners] = useState(true)
+  const [carregandoCategorias, setCarregandoCategorias] = useState(true)
   const [favoritos, setFavoritos] = useState<Set<string>>(new Set())
   const [carrinho, setCarrinho] = useState<ItemCarrinho[]>([])
   const [carregandoConta, setCarregandoConta] = useState(false)
@@ -143,6 +146,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
         setLinhasCategorias(mapaDeLinhas(lista))
       })
       .catch(() => undefined)
+      .finally(() => setCarregandoCategorias(false))
   }, [recarregarVitrine])
 
   // Sessão (mesmo login do Supabase Auth usado no painel)
@@ -329,6 +333,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
         linhasCategorias,
         categoriasLoja,
         carregandoBanners,
+        carregandoCategorias,
         carregandoProdutos,
         erroProdutos,
         contato,

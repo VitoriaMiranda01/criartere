@@ -6,6 +6,7 @@
    (pela mesma vitrine pública que a loja usa) e grava:
      - dist/index.html (catálogo)                  → / (também é a base do app)
      - dist/_paginas/produto/<nome-id>.html        → /produto/<nome-id>
+     - dist/_paginas/categoria/<nome>.html         → /categoria/<nome>
      - dist/sitemap.xml                            → todas as páginas públicas
    Cada página é o próprio index.html com título, descrição, prévia (foto do
    produto) e dados estruturados corretos; o app abre normalmente em seguida.
@@ -32,6 +33,10 @@ import {
   mapaDeLinhas,
   MapaLinhas,
   PAGINA_SOBRE,
+  caminhoCategoria,
+  descricaoCategoria,
+  produtoTemCategoria,
+  categoriasDoProduto,
 } from '../src/loja/seo-dados'
 
 const esc = (t: string) =>
@@ -106,17 +111,21 @@ ${produtos.map((p) => `<li><a href="${esc(caminhoProduto(p))}">${esc(p.nome)}</a
 </ul>
 </main>`
 
-/** Categorias de produto e a aba da loja de cada uma. */
-async function buscarLinhas(url: string, chave: string): Promise<MapaLinhas | undefined> {
+/** Categorias de produto cadastradas no painel e a aba da loja de cada uma. */
+async function buscarCategorias(
+  url: string,
+  chave: string,
+): Promise<{ nomes: string[]; linhas?: MapaLinhas }> {
   try {
     const resp = await fetch(`${url}/rest/v1/categorias_produto?select=nome,linha`, {
       headers: { apikey: chave },
       signal: AbortSignal.timeout(15000),
     })
-    if (!resp.ok) return undefined
-    return mapaDeLinhas((await resp.json()) as { nome: string; linha: string | null }[])
+    if (!resp.ok) return { nomes: [] }
+    const lista = (await resp.json()) as { nome: string; linha: string | null }[]
+    return { nomes: lista.map((c) => c.nome), linhas: mapaDeLinhas(lista) }
   } catch {
-    return undefined
+    return { nomes: [] }
   }
 }
 
@@ -240,6 +249,7 @@ export function seoPrerender(opcoes: { supabaseUrl: string; chave: string }) {
         console.warn(`[SEO] Produtos não carregados; páginas da loja não pré-geradas. ${String(e)}`)
       }
 
+      const paginasCategoria: string[] = []
       const pastaPaginas = path.join(pastaSaida, '_paginas')
       fs.rmSync(pastaPaginas, { recursive: true, force: true })
       const gravar = (caminho: string, html: string) => {
@@ -262,7 +272,8 @@ export function seoPrerender(opcoes: { supabaseUrl: string; chave: string }) {
           }),
         )
         // Abas "Catálogo 3D" e "Catálogo Papelaria"
-        const linhas = await buscarLinhas(opcoes.supabaseUrl, opcoes.chave)
+        const cadastro = await buscarCategorias(opcoes.supabaseUrl, opcoes.chave)
+        const linhas = cadastro.linhas
         for (const [linha, info] of Object.entries(LINHAS_CATALOGO)) {
           const daLinha = produtos.filter((p) => produtoNaLinha(p, linha as LinhaCatalogo, linhas))
           gravar(
@@ -280,6 +291,28 @@ export function seoPrerender(opcoes: { supabaseUrl: string; chave: string }) {
               conteudo: conteudoCatalogo(daLinha, info.titulo, info.descricao),
             }),
           )
+        }
+        // Uma tela para cada categoria (cadastradas no painel e usadas nos produtos)
+        const vistas = new Set<string>()
+        for (const nome of [...cadastro.nomes, ...produtos.flatMap(categoriasDoProduto)]) {
+          const caminho = caminhoCategoria(nome.trim())
+          if (!nome.trim() || vistas.has(caminho)) continue
+          vistas.add(caminho)
+          const daCategoria = produtos.filter((p) => produtoTemCategoria(p, nome))
+          const descricao = descricaoCategoria(nome.trim())
+          gravar(
+            caminho,
+            montarHtml(modelo, {
+              titulo: nome.trim(),
+              descricao,
+              caminho,
+              imagem: daCategoria[0]?.imagemUrl,
+              tipo: 'website',
+              jsonLd: jsonLdCatalogo(daCategoria, contato, { nome: nome.trim(), caminho, descricao }),
+              conteudo: conteudoCatalogo(daCategoria, nome.trim(), descricao),
+            }),
+          )
+          if (daCategoria.length) paginasCategoria.push(caminho)
         }
         for (const p of produtos) {
           gravar(
@@ -345,6 +378,11 @@ ${sobre.fotos.map((f) => `<img src="${esc(f.url)}" alt="${esc(f.legenda)}" style
             prioridade: '0.9',
             frequencia: 'daily',
           })),
+          ...paginasCategoria.map((caminho) => ({
+            caminho,
+            prioridade: '0.8',
+            frequencia: 'daily',
+          })),
           ...produtos.map((p) => ({
             caminho: caminhoProduto(p),
             prioridade: '0.8',
@@ -354,7 +392,9 @@ ${sobre.fotos.map((f) => `<img src="${esc(f.url)}" alt="${esc(f.legenda)}" style
           })),
         ]),
       )
-      console.log(`[SEO] ${produtos.length} páginas de produto pré-geradas e sitemap atualizado.`)
+      console.log(
+        `[SEO] ${produtos.length} páginas de produto e ${paginasCategoria.length} de categoria pré-geradas; sitemap atualizado.`,
+      )
     },
   }
 }
