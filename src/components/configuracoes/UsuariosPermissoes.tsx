@@ -267,7 +267,7 @@ export function UsuariosPermissoes() {
                 ? 'A pessoa terá acesso completo a pedidos, clientes, finanças e configurações, inclusive para mudar o papel de outras contas.'
                 : alterando?.papel === 'desenvolvedor'
                   ? 'A pessoa vai usar o sistema com dados fictícios, sem ver clientes, pedidos ou finanças reais, e não poderá salvar nada.'
-                  : 'A pessoa não conseguirá mais entrar no sistema de gestão.'}
+                  : 'A pessoa não conseguirá mais entrar no painel administrativo.'}
               {alterando && ehVoce(alterando.usuario) && alterando.papel !== 'admin'
                 ? ' Você perderá o acesso aos dados reais assim que sair ou recarregar a página.'
                 : ''}

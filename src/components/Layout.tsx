@@ -1,6 +1,6 @@
 import { useTituloPagina } from '@/hooks/use-titulo-pagina'
 import React, { useMemo, useState, Suspense } from 'react'
-import { NavLink, Navigate, useNavigate, useLocation, Outlet } from 'react-router-dom'
+import { Link, NavLink, Navigate, useNavigate, useLocation, Outlet } from 'react-router-dom'
 import { useCriartere } from '@/store/CriartereContext'
 import { ErroTela } from '@/components/common/ErroTela'
 import { EspacosCabecalho } from '@/components/common/CabecalhoPagina'
@@ -84,7 +84,7 @@ export default function Layout() {
     '/admin/configuracoes': 'Configurações',
     '/admin/ajuda': 'Ajuda',
   }
-  useTituloPagina(titulos[location.pathname] ?? 'Sistema de Gestão')
+  useTituloPagina(titulos[location.pathname] ?? 'Painel administrativo')
 
   // Aguarda a verificação da sessão
   if (!state.sessaoVerificada) {
@@ -254,15 +254,14 @@ export default function Layout() {
           </button>
 
           {/* Brand Block */}
-          <div
-            className={`border-b border-[#DFC3AE]/40 ${menuRecolhido ? 'px-0 py-5 flex justify-center' : 'p-6 pb-4'}`}
+          <Link
+            to="/"
+            title="Ir para a loja"
+            aria-label="Criartere — ir para a página inicial da loja"
+            className={`block border-b border-[#DFC3AE]/40 rounded-t-none hover:bg-[#F7F3EA]/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C48864] ${menuRecolhido ? 'px-0 py-5 flex justify-center' : 'p-6 pb-4'}`}
           >
             <div className="flex items-center gap-2.5">
-              <img
-                src="/logo.png"
-                alt={menuRecolhido ? 'Criartere' : ''}
-                className="w-9 h-9 shrink-0"
-              />
+              <img src="/logo.png" alt="" className="w-9 h-9 shrink-0" />
               {!menuRecolhido && (
                 <span className="font-serif text-2xl font-bold tracking-tight text-[#0C1014]">
                   Criartere
@@ -271,10 +270,10 @@ export default function Layout() {
             </div>
             {!menuRecolhido && (
               <p className="text-[10px] uppercase tracking-widest text-[#6B4B36] font-semibold mt-0.5">
-                Sistema de Gestão
+                Painel administrativo
               </p>
             )}
-          </div>
+          </Link>
 
           {/* Navigation Menu */}
           <nav className="flex-1 p-3 space-y-1 overflow-y-auto overflow-x-hidden">
@@ -424,12 +423,16 @@ export default function Layout() {
             >
               <Menu className="w-5 h-5" />
             </Button>
-            <div className="flex items-center gap-2">
+            <Link
+              to="/"
+              aria-label="Criartere — ir para a página inicial da loja"
+              className="flex items-center gap-2"
+            >
               <img src="/logo.png" alt="" className="w-7 h-7 shrink-0" />
               <span className="font-serif text-xl font-bold tracking-tight text-[#0C1014]">
                 Criartere
               </span>
-            </div>
+            </Link>
           </div>
 
           <button
@@ -458,10 +461,15 @@ export default function Layout() {
             {/* Drawer Content */}
             <div className="relative flex flex-col w-4/5 max-w-xs bg-white h-full z-10 shadow-xl border-r border-[#DFC3AE]/70">
               <div className="p-4 flex items-center justify-between border-b border-[#DFC3AE]/50">
-                <div className="flex items-center gap-2">
+                <Link
+                  to="/"
+                  onClick={() => setMobileMenuAberto(false)}
+                  aria-label="Criartere — ir para a página inicial da loja"
+                  className="flex items-center gap-2"
+                >
                   <img src="/logo.png" alt="" className="w-8 h-8 shrink-0" />
                   <span className="font-serif text-xl font-bold text-[#0C1014]">Criartere</span>
-                </div>
+                </Link>
                 <Button
                   aria-label="Fechar menu"
                   variant="ghost"

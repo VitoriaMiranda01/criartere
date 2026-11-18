@@ -133,7 +133,7 @@ export default function Login() {
             </p>
             <div className="mt-3 pt-3 sm:mt-4 sm:pt-4 border-t border-[#DFC3AE]/40">
               <h1 className="font-serif text-lg sm:text-xl font-semibold text-[#0C1014]">
-                Sistema de Gestão
+                Painel administrativo
               </h1>
               <p className="text-xs text-[#6B4B36] mt-1">
                 Acesse o painel administrativo e financeiro da loja
@@ -261,7 +261,7 @@ export default function Login() {
         <div className="text-center mt-4 sm:mt-6 text-xs text-[#6B4B36]/90 flex items-center justify-center gap-2">
           <span>Criartere &copy; {new Date().getFullYear()}</span>
           <span>&bull;</span>
-          <span>Sistema de Gestão</span>
+          <span>Painel administrativo</span>
         </div>
       </div>
     </div>
