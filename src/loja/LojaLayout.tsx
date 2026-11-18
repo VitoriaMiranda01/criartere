@@ -81,7 +81,15 @@ function LojaEstrutura() {
     `${LINHAS_CATALOGO[linha].caminho}?categoria=${encodeURIComponent(categoria)}`
   // Telas de entrar/criar conta e de finalizar pedido: ocupam só a altura da tela
   // (sem rodapé, sem rolagem)
-  const caminho = useLocation().pathname
+  const local = useLocation()
+  const caminho = local.pathname
+  // Ao abrir outra página da loja, começa do topo (links "Ver todos" e de categoria descem
+  // até os produtos por conta própria)
+  useEffect(() => {
+    const estado = local.state as { rolarParaProdutos?: boolean } | null
+    if (!estado?.rolarParaProdutos && !local.hash) window.scrollTo({ top: 0 })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [caminho])
   const telaFocada = caminho === '/entrar' || caminho === '/finalizar'
   const [menuAberto, setMenuAberto] = useState(false)
   const ehAdmin = usuario?.papel === 'admin' || usuario?.papel === 'desenvolvedor'

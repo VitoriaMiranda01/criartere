@@ -64,6 +64,14 @@ export const mapaDeLinhas = (lista: { nome: string; linha?: string | null }[]): 
     ]),
   )
 
+/** Tela de uma categoria: a aba dela (Catálogo 3D / Papelaria) já filtrada; categoria
+ *  sem aba abre no início da loja, também filtrada. */
+export function caminhoCategoria(categoria: string, mapa?: MapaLinhas) {
+  const linha = mapa?.get(categoria.trim().toLowerCase())
+  const base = linha ? LINHAS_CATALOGO[linha].caminho : '/'
+  return `${base}?categoria=${encodeURIComponent(categoria)}`
+}
+
 /** Todas as categorias do produto: a principal e as outras. */
 export const categoriasDoProduto = (p: { categoria: string; outrasCategorias?: string[] }) =>
   [p.categoria, ...(p.outrasCategorias ?? [])].map((c) => c.trim()).filter(Boolean)

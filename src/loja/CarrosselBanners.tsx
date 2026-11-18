@@ -7,13 +7,16 @@ import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { BannerLoja, ProdutoVitrine } from './api'
-import { caminhoProduto } from './seo-dados'
+import { caminhoCategoria, caminhoProduto, MapaLinhas } from './seo-dados'
 
 const INTERVALO = 6000
 
-function destinoDoBanner(b: BannerLoja, produtos: ProdutoVitrine[]): string | null {
-  if (b.destinoTipo === 'categoria' && b.destinoValor)
-    return `/?categoria=${encodeURIComponent(b.destinoValor)}`
+function destinoDoBanner(
+  b: BannerLoja,
+  produtos: ProdutoVitrine[],
+  mapa?: MapaLinhas,
+): string | null {
+  if (b.destinoTipo === 'categoria' && b.destinoValor) return caminhoCategoria(b.destinoValor, mapa)
   if (b.destinoTipo === 'produto' && b.destinoValor) {
     const p = produtos.find((x) => x.id === b.destinoValor)
     return p ? caminhoProduto(p) : `/produto/${b.destinoValor}`
@@ -24,9 +27,12 @@ function destinoDoBanner(b: BannerLoja, produtos: ProdutoVitrine[]): string | nu
 export function CarrosselBanners({
   banners,
   produtos,
+  mapa,
 }: {
   banners: BannerLoja[]
   produtos: ProdutoVitrine[]
+  /** Categoria → aba da loja, para o banner abrir a tela certa da categoria */
+  mapa?: MapaLinhas
 }) {
   const [atual, setAtual] = useState(0)
   const [pausado, setPausado] = useState(false)
@@ -93,7 +99,7 @@ export function CarrosselBanners({
         style={{ transform: `translateX(-${atual * 100}%)` }}
       >
         {banners.map((b, i) => {
-          const destino = destinoDoBanner(b, produtos)
+          const destino = destinoDoBanner(b, produtos, mapa)
           const visivel = i === atual
           const imagem = (
             <picture>
@@ -121,7 +127,6 @@ export function CarrosselBanners({
               {destino ? (
                 <Link
                   to={destino}
-                  state={b.destinoTipo === 'categoria' ? { rolarParaProdutos: true } : undefined}
                   onClick={(e) => {
                     // Um arraste no celular não deve abrir o link
                     if (arrastou.current) {

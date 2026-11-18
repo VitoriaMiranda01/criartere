@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation, useSearchParams } from 'react-router-dom'
-import { Search, PackageSearch, RefreshCw, X, ArrowUpDown } from 'lucide-react'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
+import { Search, PackageSearch, RefreshCw, X, ArrowUpDown, ArrowLeft } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -154,6 +154,25 @@ export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
             </p>
           </div>
         </section>
+      ) : categoria ? (
+        // Categoria sem aba própria: tela da categoria (sem os banners da home)
+        <section className="relative overflow-hidden rounded-3xl bg-white border border-[#DFC3AE]/60 px-6 py-8 sm:px-10 sm:py-10">
+          <div
+            className="absolute -top-24 -right-16 w-72 h-72 rounded-full bg-[#DFC3AE] opacity-40 blur-3xl pointer-events-none"
+            aria-hidden="true"
+          />
+          <div className="relative max-w-2xl">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-[#A5683F] hover:underline underline-offset-4 mb-2"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" /> Início
+            </Link>
+            <h1 className="font-serif text-3xl sm:text-4xl font-semibold leading-tight text-[#0C1014]">
+              {categoria}
+            </h1>
+          </div>
+        </section>
       ) : carregandoBanners ? (
         <div
           className="rounded-3xl bg-white border border-[#DFC3AE]/60 aspect-square sm:aspect-[16/5] animate-pulse"
@@ -162,7 +181,7 @@ export default function Catalogo({ linha }: { linha?: LinhaCatalogo }) {
       ) : banners.length > 0 ? (
         <>
           <h1 className="sr-only">Criartere: criações feitas com carinho, camada por camada</h1>
-          <CarrosselBanners banners={banners} produtos={produtos} />
+          <CarrosselBanners banners={banners} produtos={produtos} mapa={linhasCategorias} />
         </>
       ) : (
         <section className="relative overflow-hidden rounded-3xl bg-white border border-[#DFC3AE]/60 px-6 py-10 sm:px-12 sm:py-14">

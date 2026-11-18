@@ -7,7 +7,7 @@ import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { OrdemSecao, SecaoInicio } from '@/types/criartere'
 import type { ProdutoVitrine } from './api'
 import { CardProduto } from './componentes'
-import { LINHAS_CATALOGO, MapaLinhas, produtoTemCategoria } from './seo-dados'
+import { caminhoCategoria, MapaLinhas, produtoTemCategoria } from './seo-dados'
 import { cn } from '@/lib/utils'
 
 const MAX_POR_SECAO = 12
@@ -32,13 +32,6 @@ function ordenar(lista: ProdutoVitrine[], ordem: OrdemSecao = 'novidades') {
     }
     return b.criadoEm.localeCompare(a.criadoEm)
   })
-}
-
-/** Endereço do "Ver todos": a aba da categoria (3D ou Papelaria) ou o início, filtrado. */
-function enderecoCategoria(categoria: string, mapa?: MapaLinhas) {
-  const linha = mapa?.get(categoria.trim().toLowerCase())
-  const base = linha ? LINHAS_CATALOGO[linha].caminho : '/'
-  return `${base}?categoria=${encodeURIComponent(categoria)}`
 }
 
 /** Transforma a configuração em seções prontas (as vazias não aparecem). Sem configuração,
@@ -78,7 +71,7 @@ export function montarSecoes(
         chave: `s${i}`,
         titulo: s.titulo?.trim() || s.categoria,
         produtos: ordenar(daCategoria, s.ordem).slice(0, MAX_POR_SECAO),
-        verTodos: enderecoCategoria(s.categoria, mapa),
+        verTodos: caminhoCategoria(s.categoria, mapa),
       }
     })
     .filter((s): s is SecaoMontada => s !== null)
