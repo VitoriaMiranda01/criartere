@@ -26,6 +26,7 @@ import { useLoja } from '@/loja/LojaContext'
 import { CardProduto, CarregandoLoja, EstadoVazio } from '@/loja/componentes'
 import { CarrosselBanners } from '@/loja/CarrosselBanners'
 import { SecoesInicio } from '@/loja/SecoesInicio'
+import { CarrosselCategorias } from '@/loja/CarrosselCategorias'
 
 const normalizar = (t: string) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
 
@@ -141,6 +142,8 @@ export default function Catalogo({
   const [ordem, setOrdem] = useState<'nome' | 'menor' | 'maior' | 'novos'>('nome')
   // Página inicial sem categoria escolhida: vitrine com as seções do painel
   const vitrineInicio = !linha && !categoria
+  // Página inicial (sem aba nem categoria): categorias em cards com foto
+  const ehInicio = !linha && !categoriaFixa
 
   // Categorias cadastradas no painel (na ordem do cadastro; numa aba, só as dela),
   // mais qualquer categoria usada em produtos que não esteja no cadastro
@@ -256,6 +259,11 @@ export default function Catalogo({
         </section>
       )}
 
+      {/* Página inicial: categorias em cards com foto (logo abaixo dos banners) */}
+      {ehInicio && !carregandoProdutos && !erroProdutos && (
+        <CarrosselCategorias categoriasLoja={categoriasLoja} produtos={todosProdutos} />
+      )}
+
       <>
         {/* Busca e filtros */}
         <section
@@ -314,7 +322,7 @@ export default function Catalogo({
             )}
           </div>
 
-          {(categorias.length > 1 || (linha && categorias.length > 0)) && (
+          {!ehInicio && (categorias.length > 1 || (linha && categorias.length > 0)) && (
             <nav
               ref={chipsRef}
               aria-label="Categorias"

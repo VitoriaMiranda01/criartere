@@ -98,32 +98,38 @@ export async function listarBannersLoja(): Promise<BannerLoja[]> {
   return (
     ((data ?? []) as Row[])
       .filter(noPeriodo)
-      .map(
-        (r): BannerLoja => ({
-          id: String(r.id),
-          titulo: String(r.titulo ?? ''),
-          imagemComputador: String(r.imagem_computador ?? ''),
-          imagemCelular: String(r.imagem_celular ?? ''),
-          destinoTipo:
-            r.destino_tipo === 'categoria' || r.destino_tipo === 'produto'
-              ? r.destino_tipo
-              : 'nenhum',
-          destinoValor: String(r.destino_valor ?? ''),
-        }),
-      )
+      .map((r): BannerLoja => ({
+        id: String(r.id),
+        titulo: String(r.titulo ?? ''),
+        imagemComputador: String(r.imagem_computador ?? ''),
+        imagemCelular: String(r.imagem_celular ?? ''),
+        destinoTipo:
+          r.destino_tipo === 'categoria' || r.destino_tipo === 'produto'
+            ? r.destino_tipo
+            : 'nenhum',
+        destinoValor: String(r.destino_valor ?? ''),
+      }))
       // Banner só entra no ar com as duas imagens (computador e celular)
       .filter((b) => b.imagemComputador && b.imagemCelular)
   )
 }
 
 /** Categorias de produto e a aba da loja de cada uma (leitura pública). */
-export async function listarCategoriasLoja(): Promise<{ nome: string; linha: string | null }[]> {
+export interface CategoriaLoja {
+  nome: string
+  linha: string | null
+  /** Foto do card da categoria (cadastrada no painel) */
+  imagemUrl?: string
+}
+
+export async function listarCategoriasLoja(): Promise<CategoriaLoja[]> {
   const data = check(
-    await supabase.from('categorias_produto').select('nome, linha').order('criado_em'),
+    await supabase.from('categorias_produto').select('nome, linha, imagem_url').order('criado_em'),
   )
   return ((data ?? []) as Row[]).map((r) => ({
     nome: String(r.nome ?? ''),
     linha: r.linha ? String(r.linha) : null,
+    imagemUrl: r.imagem_url ? String(r.imagem_url) : undefined,
   }))
 }
 

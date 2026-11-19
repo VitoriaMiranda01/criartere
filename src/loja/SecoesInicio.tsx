@@ -1,14 +1,13 @@
 /* Página inicial da loja: até 3 seções escolhidas no painel (Loja virtual → Página inicial).
    Cada seção é uma faixa horizontal de produtos: desliza com o dedo no celular e tem setas
    no computador. Seção por categoria termina com "Ver todos" (abre a categoria completa). */
-import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import type { OrdemSecao, SecaoInicio } from '@/types/criartere'
 import type { ProdutoVitrine } from './api'
 import { CardProduto } from './componentes'
+import { FaixaComSetas } from './FaixaComSetas'
 import { caminhoCategoria, produtoTemCategoria } from './seo-dados'
-import { cn } from '@/lib/utils'
 
 const MAX_POR_SECAO = 12
 
@@ -36,10 +35,7 @@ function ordenar(lista: ProdutoVitrine[], ordem: OrdemSecao = 'novidades') {
 
 /** Transforma a configuração em seções prontas (as vazias não aparecem). Sem configuração,
  *  mostra as 3 categorias com mais produtos. */
-export function montarSecoes(
-  secoes: SecaoInicio[],
-  produtos: ProdutoVitrine[],
-): SecaoMontada[] {
+export function montarSecoes(secoes: SecaoInicio[], produtos: ProdutoVitrine[]): SecaoMontada[] {
   let config = secoes.slice(0, 3)
   if (config.length === 0) {
     const contagem = new Map<string, number>()
@@ -98,46 +94,7 @@ export function SecoesInicio({
 
 /** Faixa horizontal de produtos com setas (computador) e arraste (celular). */
 function FaixaProdutos({ chave, titulo, produtos, verTodos }: SecaoMontada) {
-  const faixa = useRef<HTMLDivElement>(null)
-  const [podeVoltar, setPodeVoltar] = useState(false)
-  const [podeAvancar, setPodeAvancar] = useState(false)
   const idTitulo = `secao-inicio-${chave}`
-
-  const atualizarSetas = () => {
-    const el = faixa.current
-    if (!el) return
-    setPodeVoltar(el.scrollLeft > 4)
-    setPodeAvancar(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
-  }
-  useEffect(() => {
-    atualizarSetas()
-    window.addEventListener('resize', atualizarSetas)
-    return () => window.removeEventListener('resize', atualizarSetas)
-  }, [produtos.length])
-
-  const rolar = (direcao: -1 | 1) =>
-    faixa.current?.scrollBy({
-      left: direcao * faixa.current.clientWidth * 0.85,
-      behavior: 'smooth',
-    })
-
-  const seta = (direcao: -1 | 1, visivel: boolean) => (
-    <button
-      type="button"
-      onClick={() => rolar(direcao)}
-      // Seta escondida também sai da navegação pelo teclado
-      disabled={!visivel}
-      aria-label={direcao < 0 ? `Produtos anteriores de ${titulo}` : `Mais produtos de ${titulo}`}
-      className={cn(
-        'hidden sm:flex absolute top-[38%] -translate-y-1/2 z-10 w-10 h-10 items-center justify-center rounded-full bg-white border border-[#DFC3AE] text-[#0C1014] shadow-md transition-opacity hover:border-[#C48864]',
-        direcao < 0 ? '-left-4' : '-right-4',
-        visivel ? 'opacity-100' : 'opacity-0 pointer-events-none',
-      )}
-    >
-      {direcao < 0 ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-    </button>
-  )
-
   return (
     <section aria-labelledby={idTitulo} className="space-y-4">
       <div className="flex items-end justify-between gap-3">
@@ -154,26 +111,23 @@ function FaixaProdutos({ chave, titulo, produtos, verTodos }: SecaoMontada) {
           </Link>
         )}
       </div>
-      <div className="relative">
-        {seta(-1, podeVoltar)}
-        <div
-          ref={faixa}
-          onScroll={atualizarSetas}
-          className="flex gap-4 sm:gap-5 overflow-x-auto snap-x snap-mandatory sem-barra -mx-4 px-4 sm:mx-0 sm:px-0 pb-2"
-        >
-          {produtos.map((p) => (
-            <div
-              key={p.id}
-              className="shrink-0 snap-start w-[72%] min-[440px]:w-[46%] sm:w-[260px] xl:w-[280px] flex"
-            >
-              <div className="w-full flex flex-col [&>article]:flex-1">
-                <CardProduto produto={p} />
-              </div>
+      <FaixaComSetas
+        quantidade={produtos.length}
+        rotuloVoltar={`Produtos anteriores de ${titulo}`}
+        rotuloAvancar={`Mais produtos de ${titulo}`}
+        alturaSetas="top-[38%]"
+      >
+        {produtos.map((p) => (
+          <div
+            key={p.id}
+            className="shrink-0 snap-start w-[72%] min-[440px]:w-[46%] sm:w-[260px] xl:w-[280px] flex"
+          >
+            <div className="w-full flex flex-col [&>article]:flex-1">
+              <CardProduto produto={p} />
             </div>
-          ))}
-        </div>
-        {seta(1, podeAvancar)}
-      </div>
+          </div>
+        ))}
+      </FaixaComSetas>
     </section>
   )
 }

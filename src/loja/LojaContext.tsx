@@ -25,6 +25,7 @@ import {
   buscarPapel,
   salvarNomeConta,
   mensagemErroLoja,
+  type CategoriaLoja,
 } from './api'
 import { mapaDeLinhas, MapaLinhas } from './seo-dados'
 import type { SecaoInicio } from '@/types/criartere'
@@ -44,7 +45,7 @@ interface LojaContextValue {
   produtos: ProdutoVitrine[]
   banners: BannerLoja[]
   linhasCategorias: MapaLinhas | undefined
-  categoriasLoja: { nome: string; linha: string | null }[]
+  categoriasLoja: CategoriaLoja[]
   carregandoBanners: boolean
   /** Lista de categorias ainda carregando (a tela de uma categoria espera por ela) */
   carregandoCategorias: boolean
@@ -83,7 +84,7 @@ export function LojaProvider({ children }: { children: React.ReactNode }) {
   const [secoesInicio, setSecoesInicio] = useState<SecaoInicio[]>([])
   const [banners, setBanners] = useState<BannerLoja[]>([])
   const [linhasCategorias, setLinhasCategorias] = useState<MapaLinhas | undefined>()
-  const [categoriasLoja, setCategoriasLoja] = useState<{ nome: string; linha: string | null }[]>([])
+  const [categoriasLoja, setCategoriasLoja] = useState<CategoriaLoja[]>([])
   const [carregandoBanners, setCarregandoBanners] = useState(true)
   const [carregandoCategorias, setCarregandoCategorias] = useState(true)
   const [favoritos, setFavoritos] = useState<Set<string>>(new Set())

@@ -14,6 +14,12 @@ export function prepararFotoPerfil(arquivo: File): Promise<ImagemPreparada> {
   return prepararImagem(arquivo, { lado: TAMANHO, quadrada: true })
 }
 
+/** Foto do card de categoria: mantém a proporção, lado maior com até 1000 px
+ *  (o card recorta no formato retrato). */
+export function prepararFotoCategoria(arquivo: File): Promise<ImagemPreparada> {
+  return prepararImagem(arquivo, { lado: 1000, quadrada: false })
+}
+
 /** Imagem de produto: mantém a proporção, lado maior com até 1000 px. */
 export function prepararImagemProduto(arquivo: File): Promise<ImagemPreparada> {
   return prepararImagem(arquivo, { lado: 1000, quadrada: false })

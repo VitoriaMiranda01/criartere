@@ -349,15 +349,13 @@ export async function carregarFatias(fatias: Fatia[]): Promise<Partial<Criartere
                 .from('etapas_pedido')
                 .select('chave, nome, cor, ordem, fixa')
                 .order('ordem'),
-            ).map(
-              (r: Row): EtapaPedido => ({
-                chave: r.chave,
-                nome: r.nome,
-                cor: r.cor,
-                ordem: r.ordem,
-                fixa: r.fixa,
-              }),
-            ),
+            ).map((r: Row): EtapaPedido => ({
+              chave: r.chave,
+              nome: r.nome,
+              cor: r.cor,
+              ordem: r.ordem,
+              fixa: r.fixa,
+            })),
           }
         case 'orcamentos':
           return {
@@ -399,8 +397,15 @@ export async function carregarFatias(fatias: Fatia[]): Promise<Partial<Criartere
         case 'categoriasProduto':
           return {
             categoriasProduto: check(
-              await supabase.from('categorias_produto').select('nome, linha').order('criado_em'),
-            ).map((r: Row): CategoriaProduto => ({ nome: r.nome, linha: opt(r.linha) })),
+              await supabase
+                .from('categorias_produto')
+                .select('nome, linha, imagem_url')
+                .order('criado_em'),
+            ).map((r: Row): CategoriaProduto => ({
+              nome: r.nome,
+              linha: opt(r.linha),
+              imagemUrl: opt(r.imagem_url),
+            })),
           }
         case 'categoriasDespesa':
           return {
@@ -549,6 +554,40 @@ async function limparImagensBanner(bannerId: string, urlsEmUso: string[]) {
     .map((f) => `${bannerId}/${f.name}`)
     .filter((caminho) => !urlsEmUso.some((url) => url.endsWith(caminho)))
   if (apagar.length) await supabase.storage.from('banners').remove(apagar)
+}
+
+/** Envia a foto do card de uma categoria e devolve o endereço público. */
+export async function enviarFotoCategoria(imagem: {
+  blob: Blob
+  extensao: string
+}): Promise<string> {
+  const caminho = `fotos/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${imagem.extensao}`
+  const { error } = await supabase.storage.from('categorias').upload(caminho, imagem.blob, {
+    contentType: imagem.blob.type,
+    cacheControl: '31536000',
+    upsert: false,
+  })
+  if (error) throw new Error(error.message)
+  return supabase.storage.from('categorias').getPublicUrl(caminho).data.publicUrl
+}
+
+async function gravarFotoCategoria(nome: string, imagemUrl: string | null) {
+  check(
+    await supabase
+      .from('categorias_produto')
+      .update({ imagem_url: imagemUrl })
+      .eq('nome', nome.trim().replace(/\s+/g, ' ')),
+  )
+}
+
+/** Apaga as fotos de categoria que nenhuma categoria usa mais. */
+async function limparFotosCategorias(categorias: CategoriaProduto[]) {
+  const emUso = categorias.map((c) => c.imagemUrl).filter((u): u is string => Boolean(u))
+  const { data } = await supabase.storage.from('categorias').list('fotos', { limit: 500 })
+  const apagar = (data ?? [])
+    .map((f) => `fotos/${f.name}`)
+    .filter((caminho) => !emUso.some((url) => url.endsWith(caminho)))
+  if (apagar.length) await supabase.storage.from('categorias').remove(apagar)
 }
 
 /** Atualiza nome e foto do próprio usuário. */
@@ -732,10 +771,11 @@ export async function persistirAcao(
           p_linha: c.linha ?? null,
         }),
       )
+      if (c.imagemUrl) await gravarFotoCategoria(c.nome, c.imagemUrl)
       return ['categoriasProduto']
     }
 
-    case 'SALVAR_CATEGORIA_PRODUTO':
+    case 'SALVAR_CATEGORIA_PRODUTO': {
       check(
         await supabase.rpc('salvar_categoria_produto', {
           p_antiga: p.antiga,
@@ -743,7 +783,14 @@ export async function persistirAcao(
           p_linha: p.linha ?? null,
         }),
       )
+      const antes = anterior.categoriasProduto.find((c) => c.nome === p.antiga)
+      if ((antes?.imagemUrl ?? null) !== (p.imagemUrl ?? null)) {
+        await gravarFotoCategoria(p.nome, p.imagemUrl ?? null)
+        // A foto antiga deixa de ser usada: sai do armazenamento
+        await limparFotosCategorias(proximo.categoriasProduto).catch(() => undefined)
+      }
       return ['categoriasProduto', 'produtos', 'banners', 'config']
+    }
 
     case 'EXCLUIR_CATEGORIA_PRODUTO':
       check(
@@ -752,6 +799,7 @@ export async function persistirAcao(
           p_mover_para: p.moverPara ?? null,
         }),
       )
+      await limparFotosCategorias(proximo.categoriasProduto).catch(() => undefined)
       return ['categoriasProduto', 'produtos', 'banners', 'config']
 
     case 'ADICIONAR_CATEGORIA': {

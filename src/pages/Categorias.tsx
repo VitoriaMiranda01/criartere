@@ -1,11 +1,24 @@
 import { CabecalhoPagina } from '@/components/common/CabecalhoPagina'
 import { AbasSecao, SECAO_LOJA_VIRTUAL } from '@/components/common/AbasSecao'
 import { DicaAjuda } from '@/components/common/DicaAjuda'
-import { Obrigatorio } from '@/components/common/MarcadorCampo'
-import React, { useMemo, useState } from 'react'
+import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
+import { prepararFotoCategoria, ImagemPreparada } from '@/lib/imagem'
+import { enviarFotoCategoria, mensagemErro } from '@/store/db'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
 import { CategoriaProduto } from '@/types/criartere'
-import { AlertTriangle, Box, Edit, Home, PenTool, Plus, Tags, Trash2 } from 'lucide-react'
+import {
+  AlertTriangle,
+  Box,
+  Edit,
+  Home,
+  ImageIcon,
+  ImagePlus,
+  PenTool,
+  Plus,
+  Tags,
+  Trash2,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -56,6 +69,18 @@ export default function Categorias() {
   const [nome, setNome] = useState('')
   const [linha, setLinha] = useState<Linha>('3d')
   const [erro, setErro] = useState('')
+  // Foto do card na loja: a atual (url), uma nova escolhida (ainda não enviada) e a prévia
+  const [foto, setFoto] = useState<{ url?: string; nova?: ImagemPreparada; previa?: string }>({})
+  const [preparandoFoto, setPreparandoFoto] = useState(false)
+  const [salvando, setSalvando] = useState(false)
+  const arquivoRef = useRef<HTMLInputElement>(null)
+  // Libera a prévia local quando ela deixa de ser usada
+  useEffect(() => {
+    const previa = foto.previa
+    return () => {
+      if (previa) URL.revokeObjectURL(previa)
+    }
+  }, [foto.previa])
 
   const [paraExcluir, setParaExcluir] = useState<CategoriaProduto | null>(null)
   const [moverPara, setMoverPara] = useState('')
@@ -70,6 +95,17 @@ export default function Categorias() {
     return m
   }, [state.produtos])
   const qtd = (c: string) => contagem.get(c.trim().toLowerCase()) ?? 0
+  // Prévia da foto usada na loja quando a categoria não tem foto própria (a de um produto dela)
+  const fotoDosProdutos = (c: string) =>
+    state.produtos.find(
+      (p) =>
+        p.ativo &&
+        p.publicadoLoja !== false &&
+        p.imagemUrl &&
+        [p.categoria, ...(p.outrasCategorias ?? [])].some(
+          (x) => x.trim().toLowerCase() === c.trim().toLowerCase(),
+        ),
+    )?.imagemUrl
   // Produtos que estão na categoria como "também aparece em"
   const qtdOutras = (c: string) =>
     state.produtos.filter((p) =>
@@ -83,12 +119,30 @@ export default function Categorias() {
     setEditando(c)
     setNome(c?.nome ?? '')
     setLinha(c ? (c.linha ?? 'nenhuma') : '3d')
+    setFoto({ url: c?.imagemUrl })
     setErro('')
     setModalAberto(true)
   }
 
-  const salvar = (e: React.FormEvent) => {
+  const escolherFoto = async (arquivo: File | undefined) => {
+    if (!arquivo) return
+    setPreparandoFoto(true)
+    setErro('')
+    try {
+      const nova = await prepararFotoCategoria(arquivo)
+      setFoto((f) => ({ url: f.url, nova, previa: URL.createObjectURL(nova.blob) }))
+    } catch (err) {
+      setErro(mensagemErro(err))
+    } finally {
+      setPreparandoFoto(false)
+      if (arquivoRef.current) arquivoRef.current.value = ''
+    }
+  }
+  const fotoNaTela = foto.previa ?? foto.url
+
+  const salvar = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (salvando) return
     setErro('')
     const nomeFinal = nome.trim().replace(/\s+/g, ' ')
     if (!nomeFinal) return setErro('Informe o nome da categoria.')
@@ -99,10 +153,25 @@ export default function Categorias() {
     if (repetida) return setErro(`Já existe uma categoria chamada "${nomeFinal}".`)
 
     const linhaFinal = linha === 'nenhuma' ? undefined : linha
+    // Envia a foto nova antes de gravar a categoria
+    let imagemUrl = foto.url
+    if (foto.nova) {
+      setSalvando(true)
+      try {
+        // No modo desenvolvedor a foto fica só neste aparelho (não é enviada)
+        imagemUrl = state.modoDemo
+          ? URL.createObjectURL(foto.nova.blob)
+          : await enviarFotoCategoria(foto.nova)
+      } catch (err) {
+        setSalvando(false)
+        return setErro(`Não foi possível enviar a foto. ${mensagemErro(err)}`)
+      }
+      setSalvando(false)
+    }
     if (editando) {
       dispatch({
         type: 'SALVAR_CATEGORIA_PRODUTO',
-        payload: { antiga: editando.nome, nome: nomeFinal, linha: linhaFinal },
+        payload: { antiga: editando.nome, nome: nomeFinal, linha: linhaFinal, imagemUrl },
       })
       const renomeou = nomeFinal !== editando.nome
       const n = qtd(editando.nome)
@@ -114,7 +183,7 @@ export default function Categorias() {
     } else {
       dispatch({
         type: 'ADICIONAR_CATEGORIA_PRODUTO',
-        payload: { nome: nomeFinal, linha: linhaFinal },
+        payload: { nome: nomeFinal, linha: linhaFinal, imagemUrl },
       })
       toast.success(`Categoria "${nomeFinal}" criada!`)
     }
@@ -193,12 +262,18 @@ export default function Categorias() {
                   key={c.nome}
                   className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-4 py-3 hover:bg-[#F7F3EA]/50"
                 >
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-[#0C1014] truncate">{c.nome}</p>
-                    <p className="text-[11px] text-[#6B4B36]">
-                      {n === 0 ? 'Nenhum produto' : n === 1 ? '1 produto' : `${n} produtos`}
-                      {qtdOutras(c.nome) > 0 && ` • +${qtdOutras(c.nome)} também aparecem aqui`}
-                    </p>
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <MiniaturaCategoria
+                      propria={c.imagemUrl}
+                      reserva={c.imagemUrl ? undefined : fotoDosProdutos(c.nome)}
+                    />
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm text-[#0C1014] truncate">{c.nome}</p>
+                      <p className="text-[11px] text-[#6B4B36]">
+                        {n === 0 ? 'Nenhum produto' : n === 1 ? '1 produto' : `${n} produtos`}
+                        {qtdOutras(c.nome) > 0 && ` • +${qtdOutras(c.nome)} também aparecem aqui`}
+                      </p>
+                    </div>
                   </div>
                   <span
                     className={`self-start sm:self-auto inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full ${aba.classe}`}
@@ -286,6 +361,66 @@ export default function Categorias() {
               </p>
             </div>
 
+            <div className="space-y-1.5">
+              <p className={lbl}>
+                Foto do card na loja
+                <Opcional />
+              </p>
+              <div className="flex gap-3 items-start">
+                <div className="w-[84px] aspect-[3/4] rounded-xl overflow-hidden border border-[#DFC3AE] bg-[#F7F3EA] shrink-0 relative">
+                  {fotoNaTela ? (
+                    <img src={fotoNaTela} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[#C48864]">
+                      <ImageIcon className="w-6 h-6" aria-hidden="true" />
+                    </div>
+                  )}
+                  {preparandoFoto && (
+                    <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
+                      <span className="w-5 h-5 border-2 border-[#A5683F] border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-2 min-w-0">
+                  <input
+                    ref={arquivoRef}
+                    id="cat-foto"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="sr-only"
+                    onChange={(e) => escolherFoto(e.target.files?.[0])}
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={preparandoFoto}
+                      onClick={() => arquivoRef.current?.click()}
+                      className="h-9 text-xs border-[#DFC3AE] text-[#6B4B36]"
+                    >
+                      <ImagePlus className="w-3.5 h-3.5 mr-1.5" />
+                      {fotoNaTela ? 'Trocar foto' : 'Escolher foto'}
+                    </Button>
+                    {fotoNaTela && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => setFoto({})}
+                        className="h-9 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                        Remover
+                      </Button>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-[#6B4B36]/90 leading-relaxed">
+                    Aparece nos cards de categoria da página inicial. Prefira foto em pé (retrato),
+                    com o produto no centro. Sem foto, usamos a do produto mais recente.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {erro && (
               <div className="p-2.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 font-medium">
                 {erro}
@@ -303,9 +438,10 @@ export default function Categorias() {
               </Button>
               <Button
                 type="submit"
+                disabled={salvando || preparandoFoto}
                 className="bg-[#A5683F] hover:bg-[#8C5636] text-white h-10 text-xs font-semibold"
               >
-                Salvar Categoria
+                {salvando ? 'Enviando foto...' : 'Salvar Categoria'}
               </Button>
             </DialogFooter>
           </form>
@@ -377,6 +513,32 @@ export default function Categorias() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </div>
+  )
+}
+
+/** Miniatura da lista: a foto da categoria ou, sem ela, a do produto (mais clara, com aviso). */
+function MiniaturaCategoria({ propria, reserva }: { propria?: string; reserva?: string }) {
+  const url = propria ?? reserva
+  return (
+    <div
+      className="w-10 h-[52px] rounded-lg overflow-hidden border border-[#DFC3AE]/70 bg-[#F7F3EA] shrink-0 relative"
+      title={
+        propria ? 'Foto da categoria' : reserva ? 'Sem foto própria: usa a do produto' : 'Sem foto'
+      }
+    >
+      {url ? (
+        <img
+          src={url}
+          alt=""
+          loading="lazy"
+          className={`w-full h-full object-cover ${propria ? '' : 'opacity-60'}`}
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center text-[#C48864]/70">
+          <ImageIcon className="w-4 h-4" aria-hidden="true" />
+        </div>
+      )}
     </div>
   )
 }
