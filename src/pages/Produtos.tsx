@@ -2,7 +2,7 @@ import { CabecalhoPagina } from '@/components/common/CabecalhoPagina'
 import { DicaAjuda } from '@/components/common/DicaAjuda'
 import { Obrigatorio, Opcional } from '@/components/common/MarcadorCampo'
 import { novoId } from '@/lib/supabase'
-import { prepararImagemProduto, ImagemPreparada } from '@/lib/imagem'
+import { prepararImagemProduto, ImagemPreparada, LADO_MINIMO_FOTO_PRODUTO } from '@/lib/imagem'
 import { enviarImagemProduto, mensagemErro } from '@/store/db'
 import React, { useEffect, useRef, useState } from 'react'
 import { useCriartere } from '@/store/CriartereContext'
@@ -85,6 +85,18 @@ export default function Produtos() {
   // Fotos do produto, em ordem (a primeira é a principal). Fotos novas ainda não foram enviadas.
   const [fotos, setFotos] = useState<FotoForm[]>([])
   const [fotoSelecionada, setFotoSelecionada] = useState<string | null>(null)
+  // Fotos pequenas demais (ficam borradas na loja): detectadas ao carregar a miniatura
+  const [fotosPequenas, setFotosPequenas] = useState<Set<string>>(new Set())
+  const medirFoto = (chave: string, img: HTMLImageElement) => {
+    const pequena = Math.max(img.naturalWidth, img.naturalHeight) < LADO_MINIMO_FOTO_PRODUTO
+    setFotosPequenas((atual) => {
+      if (atual.has(chave) === pequena) return atual
+      const novo = new Set(atual)
+      if (pequena) novo.add(chave)
+      else novo.delete(chave)
+      return novo
+    })
+  }
   const selecionada = fotos.find((f) => f.chave === fotoSelecionada) ?? fotos[0]
   const indiceSelecionada = selecionada ? fotos.indexOf(selecionada) : -1
   const [arrastando, setArrastando] = useState(false)
@@ -706,7 +718,7 @@ export default function Produtos() {
                             key={foto.chave}
                             type="button"
                             onClick={() => setFotoSelecionada(foto.chave)}
-                            aria-label={`Selecionar foto ${i + 1}${i === 0 ? ' (principal)' : ''}`}
+                            aria-label={`Selecionar foto ${i + 1}${i === 0 ? ' (principal)' : ''}${fotosPequenas.has(foto.chave) ? ' (foto pequena)' : ''}`}
                             aria-pressed={selecionada?.chave === foto.chave}
                             className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
                               selecionada?.chave === foto.chave
@@ -716,11 +728,20 @@ export default function Produtos() {
                           >
                             <img
                               src={foto.previa || foto.url}
-                              alt={`Foto ${i + 1}`}
+                              alt=""
+                              onLoad={(e) => medirFoto(foto.chave, e.currentTarget)}
                               className="w-full h-full object-cover"
                             />
                             {i === 0 && (
                               <Star className="absolute top-0.5 left-0.5 w-3 h-3 fill-[#C48864] text-white drop-shadow" />
+                            )}
+                            {fotosPequenas.has(foto.chave) && (
+                              <span
+                                className="absolute bottom-0.5 right-0.5 w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center shadow"
+                                title="Foto pequena: vai aparecer borrada na loja"
+                              >
+                                <AlertTriangle className="w-2.5 h-2.5" aria-hidden="true" />
+                              </span>
                             )}
                           </button>
                         ))}
@@ -782,6 +803,27 @@ export default function Produtos() {
                         {fotos.length} de {MAX_FOTOS} fotos · toque numa miniatura para mudar a
                         ordem, escolher a principal ou remover.
                       </p>
+                      {fotos.some((f) => fotosPequenas.has(f.chave)) && (
+                        <p
+                          role="status"
+                          className="flex gap-1.5 rounded-lg border border-amber-200 bg-amber-50 p-2 text-[10px] leading-snug text-amber-900"
+                        >
+                          <AlertTriangle
+                            className="w-3.5 h-3.5 shrink-0 text-amber-600"
+                            aria-hidden="true"
+                          />
+                          <span>
+                            {(() => {
+                              const n = fotos.filter((f) => fotosPequenas.has(f.chave)).length
+                              return n === 1
+                                ? 'Uma foto é pequena e vai aparecer borrada na loja.'
+                                : `${n} fotos são pequenas e vão aparecer borradas na loja.`
+                            })()}{' '}
+                            Use o arquivo original da câmera do celular, e não fotos baixadas da
+                            internet ou recebidas pelo WhatsApp.
+                          </span>
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>

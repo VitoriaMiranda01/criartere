@@ -20,10 +20,14 @@ export function prepararFotoCategoria(arquivo: File): Promise<ImagemPreparada> {
   return prepararImagem(arquivo, { lado: 1000, quadrada: false })
 }
 
-/** Imagem de produto: mantém a proporção, lado maior com até 1000 px. */
+/** Imagem de produto: mantém a proporção, lado maior com até 1600 px (nítida na foto
+ *  grande da página do produto, inclusive em telas de alta definição). */
 export function prepararImagemProduto(arquivo: File): Promise<ImagemPreparada> {
-  return prepararImagem(arquivo, { lado: 1000, quadrada: false })
+  return prepararImagem(arquivo, { lado: 1600, quadrada: false })
 }
+
+/** Abaixo disso a foto do produto aparece borrada na loja (o sistema não aumenta fotos). */
+export const LADO_MINIMO_FOTO_PRODUTO = 800
 
 /** Foto da página "Sobre nós": mantém a proporção, lado maior com até 1600 px. */
 export function prepararFotoSobre(arquivo: File): Promise<ImagemPreparada> {
