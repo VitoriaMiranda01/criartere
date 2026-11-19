@@ -17,6 +17,12 @@ import {
   SeletorQuantidade,
 } from '@/loja/componentes'
 import { ProdutoVitrine } from '@/loja/api'
+import { resumoNotas } from '@/lib/avaliacoes'
+import {
+  AvaliacoesProduto,
+  ResumoAvaliacoesTopo,
+  useAvaliacoesProduto,
+} from '@/loja/AvaliacoesProduto'
 
 export default function ProdutoDetalhe() {
   const { id: parametro } = useParams()
@@ -24,6 +30,7 @@ export default function ProdutoDetalhe() {
   const id = idDoCaminho(parametro)
   const { produtos, carregandoProdutos, erroProdutos, adicionarCarrinho } = useLoja()
   const produto = produtos.find((p) => p.id === id)
+  const avaliacoes = useAvaliacoesProduto(produto?.id)
   useSeo(
     produto
       ? {
@@ -33,7 +40,7 @@ export default function ProdutoDetalhe() {
           imagem: produto.imagemUrl,
           tipo: 'product',
           indexar: true,
-          jsonLd: jsonLdProduto(produto),
+          jsonLd: jsonLdProduto(produto, resumoNotas(avaliacoes.lista)),
         }
       : {
           titulo: 'Produto indisponível',
@@ -114,6 +121,7 @@ export default function ProdutoDetalhe() {
               <PrecoProduto produto={produto} tamanho="lg" />
               <EtiquetaDesconto produto={produto} />
             </div>
+            <ResumoAvaliacoesTopo lista={avaliacoes.lista} />
           </div>
 
           {produto.descricao && (
@@ -151,6 +159,8 @@ export default function ProdutoDetalhe() {
           </div>
         </div>
       </article>
+
+      <AvaliacoesProduto produtoId={produto.id} {...avaliacoes} />
 
       {relacionados.length > 0 && (
         <section aria-labelledby="relacionados" className="space-y-4">

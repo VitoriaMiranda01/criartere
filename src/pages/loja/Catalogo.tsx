@@ -27,6 +27,7 @@ import { CardProduto, CarregandoLoja, EstadoVazio } from '@/loja/componentes'
 import { CarrosselBanners } from '@/loja/CarrosselBanners'
 import { SecoesInicio } from '@/loja/SecoesInicio'
 import { produtoCombina } from '@/loja/BuscaLoja'
+import { Depoimentos } from '@/loja/Depoimentos'
 import { CarrosselCategorias } from '@/loja/CarrosselCategorias'
 
 const OPCOES_ORDEM = [
@@ -414,7 +415,11 @@ export default function Catalogo({
               }
             />
           ) : (
-            <SecoesInicio secoes={secoesInicio} produtos={todosProdutos} />
+            <>
+              <SecoesInicio secoes={secoesInicio} produtos={todosProdutos} />
+              {/* Depoimentos reais (avaliações publicadas); sem nenhuma, não aparece */}
+              <Depoimentos produtos={todosProdutos} />
+            </>
           )
         ) : (
           <>

@@ -210,7 +210,7 @@ export function jsonLdLoja(contato?: ContatoSeo) {
   }
 }
 
-export function jsonLdProduto(p: ProdutoSeo) {
+export function jsonLdProduto(p: ProdutoSeo, notas?: { media: number; total: number } | null) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -221,6 +221,18 @@ export function jsonLdProduto(p: ProdutoSeo) {
     sku: p.id,
     ...(p.categoria ? { category: p.categoria } : {}),
     brand: { '@type': 'Brand', name: NOME_LOJA },
+    // Nota média real das avaliações publicadas (nunca um valor fixo)
+    ...(notas && notas.total > 0
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: notas.media.toFixed(1),
+            reviewCount: notas.total,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }
+      : {}),
     offers: {
       '@type': 'Offer',
       url: `${SITE}${caminhoProduto(p)}`,

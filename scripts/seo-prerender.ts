@@ -132,6 +132,31 @@ async function buscarCategorias(
   }
 }
 
+/** Nota média e quantidade das avaliações PUBLICADAS de cada produto (leitura pública). */
+async function buscarNotas(
+  url: string,
+  chave: string,
+): Promise<Map<string, { media: number; total: number }>> {
+  const notas = new Map<string, { media: number; total: number }>()
+  try {
+    const resp = await fetch(
+      `${url}/rest/v1/avaliacoes_produto?status=eq.publicada&select=produto_id,nota&limit=10000`,
+      { headers: { apikey: chave }, signal: AbortSignal.timeout(15000) },
+    )
+    if (!resp.ok) return notas
+    const soma = new Map<string, { soma: number; total: number }>()
+    for (const r of (await resp.json()) as { produto_id: string; nota: number }[]) {
+      const s = soma.get(r.produto_id) ?? { soma: 0, total: 0 }
+      soma.set(r.produto_id, { soma: s.soma + Number(r.nota), total: s.total + 1 })
+    }
+    for (const [id, s] of soma)
+      notas.set(id, { media: Math.round((s.soma / s.total) * 10) / 10, total: s.total })
+  } catch {
+    // sem as notas, as páginas saem sem a nota média (nunca com valor inventado)
+  }
+  return notas
+}
+
 /** Página "Sobre nós" (leitura pública da tabela pagina_sobre). */
 async function buscarSobre(url: string, chave: string) {
   const resp = await fetch(
@@ -323,6 +348,7 @@ export function seoPrerender(opcoes: { supabaseUrl: string; chave: string }) {
           )
           if (daCategoria.length) paginasCategoria.push(caminho)
         }
+        const notas = await buscarNotas(opcoes.supabaseUrl, opcoes.chave)
         for (const p of produtos) {
           gravar(
             caminhoProduto(p),
@@ -332,7 +358,7 @@ export function seoPrerender(opcoes: { supabaseUrl: string; chave: string }) {
               caminho: caminhoProduto(p),
               imagem: p.imagemUrl,
               tipo: 'product',
-              jsonLd: jsonLdProduto(p),
+              jsonLd: jsonLdProduto(p, notas.get(p.id)),
               conteudo: conteudoProduto(p),
             }),
           )

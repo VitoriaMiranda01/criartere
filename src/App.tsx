@@ -15,6 +15,7 @@ const Orcamentos = lazy(() => import('./pages/Orcamentos'))
 const Clientes = lazy(() => import('./pages/Clientes'))
 const Produtos = lazy(() => import('./pages/Produtos'))
 const Descontos = lazy(() => import('./pages/Descontos'))
+const Avaliacoes = lazy(() => import('./pages/Avaliacoes'))
 const Banners = lazy(() => import('./pages/Banners'))
 const SobreNos = lazy(() => import('./pages/SobreNos'))
 const Categorias = lazy(() => import('./pages/Categorias'))
@@ -109,6 +110,7 @@ const App = () => (
                 <Route path="clientes" element={<Clientes />} />
                 <Route path="produtos" element={<Produtos />} />
                 <Route path="descontos" element={<Descontos />} />
+                <Route path="avaliacoes" element={<Avaliacoes />} />
                 <Route path="banners" element={<Banners />} />
                 <Route path="sobre" element={<SobreNos />} />
                 <Route path="categorias" element={<Categorias />} />

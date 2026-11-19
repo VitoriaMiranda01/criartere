@@ -1,11 +1,12 @@
 import { useTituloPagina } from '@/hooks/use-titulo-pagina'
-import React, { useMemo, useState, Suspense } from 'react'
+import React, { useEffect, useMemo, useState, Suspense } from 'react'
 import { Link, NavLink, Navigate, useNavigate, useLocation, Outlet } from 'react-router-dom'
 import { useCriartere } from '@/store/CriartereContext'
 import { ErroTela } from '@/components/common/ErroTela'
 import { EspacosCabecalho } from '@/components/common/CabecalhoPagina'
 import { SECAO_FINANCEIRO, SECAO_LOJA_VIRTUAL } from '@/components/common/AbasSecao'
 import { AvisoPedidosSite } from '@/components/AvisoPedidosSite'
+import { contarPendentes } from '@/lib/avaliacoes'
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -13,6 +14,7 @@ import {
   Users,
   Package,
   Ticket,
+  MessageSquareHeart,
   Wallet,
   BarChart3,
   Settings,
@@ -73,6 +75,7 @@ export default function Layout() {
     '/admin/clientes': 'Clientes',
     '/admin/produtos': 'Produtos',
     '/admin/descontos': 'Cupons',
+    '/admin/avaliacoes': 'Avaliações',
     '/admin/banners': 'Banners da Loja',
     '/admin/sobre': 'Página Sobre Nós',
     '/admin/categorias': 'Categorias de Produto',
@@ -85,6 +88,19 @@ export default function Layout() {
     '/admin/ajuda': 'Ajuda',
   }
   useTituloPagina(titulos[location.pathname] ?? 'Painel administrativo')
+
+  // Avaliações aguardando aprovação (número no menu); atualiza ao trocar de tela
+  const [avaliacoesPendentes, setAvaliacoesPendentes] = useState(0)
+  useEffect(() => {
+    if (!state.autorizado || state.modoDemo) return
+    let ativo = true
+    contarPendentes()
+      .then((n) => ativo && setAvaliacoesPendentes(n))
+      .catch(() => undefined)
+    return () => {
+      ativo = false
+    }
+  }, [state.autorizado, state.modoDemo, location.pathname])
 
   // Aguarda a verificação da sessão
   if (!state.sessaoVerificada) {
@@ -171,6 +187,12 @@ export default function Layout() {
     { label: 'Clientes', path: '/admin/clientes', icon: Users },
     { label: 'Produtos', path: '/admin/produtos', icon: Package },
     { label: 'Cupons', path: '/admin/descontos', icon: Ticket },
+    {
+      label: 'Avaliações',
+      path: '/admin/avaliacoes',
+      icon: MessageSquareHeart,
+      badge: avaliacoesPendentes > 0 ? avaliacoesPendentes : undefined,
+    },
     // Seções com abas: um item no menu, ativo em qualquer uma das telas da seção
     {
       label: 'Loja virtual',

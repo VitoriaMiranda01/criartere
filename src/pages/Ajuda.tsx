@@ -16,6 +16,7 @@ import {
   BookHeart,
   Tags,
   Megaphone,
+  MessageSquareHeart,
   Home,
   Search,
   Settings,
@@ -345,6 +346,25 @@ const TOPICOS: Topico[] = [
           'Edite direto na lista, use as setas para mudar a ordem e a lixeira para remover.',
           'Ligue "Mostrar a barra de avisos na loja" e clique em "Salvar". A prévia mostra como fica.',
           'Na loja, as frases passam em sequência; o cliente pausa passando o mouse e fecha no ✕.',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'avaliacoes',
+    titulo: 'Avaliações',
+    icone: MessageSquareHeart,
+    resumo: 'Avaliações reais das clientes nos produtos, publicadas só depois da sua aprovação.',
+    rota: '/admin/avaliacoes',
+    secoes: [
+      {
+        subtitulo: 'Como funciona',
+        passos: [
+          'Só quem tem um pedido Entregue com aquele produto consegue avaliar (nota de 1 a 5 e comentário opcional).',
+          'Toda avaliação chega como Aguardando e não aparece na loja até ser publicada. O número no menu mostra quantas esperam.',
+          'Use Publicar ou Recusar. Excluir apaga de vez.',
+          'Nas publicadas, ligue "Destacar na página inicial" para a avaliação aparecer em "O que nossas clientes dizem".',
+          'O nome da cliente aparece abreviado na loja (ex.: Maria L.).',
         ],
       },
     ],
