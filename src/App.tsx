@@ -85,6 +85,7 @@ const App = () => (
                 />
                 <Route path="produto/:id" element={<LojaProduto />} />
                 <Route path="categoria/:slug" element={<LojaCategoria />} />
+                <Route path="busca" element={<LojaCatalogo key="busca" modoBusca />} />
                 <Route path="sobre" element={<LojaSobre />} />
                 <Route path="favoritos" element={<LojaFavoritos />} />
                 <Route path="carrinho" element={<LojaCarrinho />} />

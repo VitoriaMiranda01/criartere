@@ -26,9 +26,8 @@ import { useLoja } from '@/loja/LojaContext'
 import { CardProduto, CarregandoLoja, EstadoVazio } from '@/loja/componentes'
 import { CarrosselBanners } from '@/loja/CarrosselBanners'
 import { SecoesInicio } from '@/loja/SecoesInicio'
+import { produtoCombina } from '@/loja/BuscaLoja'
 import { CarrosselCategorias } from '@/loja/CarrosselCategorias'
-
-const normalizar = (t: string) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
 
 const OPCOES_ORDEM = [
   { valor: 'nome', rotulo: 'Ordem alfabética' },
@@ -39,13 +38,16 @@ const OPCOES_ORDEM = [
 
 /** Sem `linha`: página inicial com os banners e as seções escolhidas no painel.
  *  Com `linha`: aba "Catálogo 3D" ou "Catálogo Papelaria", só com as categorias dela.
- *  Com `categoriaFixa`: tela própria de uma categoria (/categoria/<nome>). */
+ *  Com `categoriaFixa`: tela própria de uma categoria (/categoria/<nome>).
+ *  Com `modoBusca`: resultados da busca do cabeçalho (/busca?q=...). */
 export default function Catalogo({
   linha,
   categoriaFixa,
+  modoBusca = false,
 }: {
   linha?: LinhaCatalogo
   categoriaFixa?: string
+  modoBusca?: boolean
 }) {
   const {
     produtos: todosProdutos,
@@ -90,21 +92,42 @@ export default function Catalogo({
           descricao: infoLinha.descricao,
         }
       : undefined)
+  const [parametros, setParametros] = useSearchParams()
+  const termoNoEndereco = parametros.get('q') ?? ''
   useSeo({
-    titulo:
-      paginaCategoria?.nome ??
-      infoLinha?.tituloSeo ??
-      'Loja virtual: impressão 3D, papelaria e personalizados',
+    titulo: modoBusca
+      ? termoNoEndereco.trim()
+        ? `Busca: ${termoNoEndereco.trim()}`
+        : 'Buscar produtos'
+      : (paginaCategoria?.nome ??
+        infoLinha?.tituloSeo ??
+        'Loja virtual: impressão 3D, papelaria e personalizados'),
     descricao: paginaSeo?.descricao ?? DESCRICAO_LOJA,
-    caminho: paginaSeo?.caminho ?? '/',
-    // Categoria ainda sem produtos não vai para os buscadores (página vazia)
-    indexar: !categoriaFixa || carregandoProdutos || produtos.length > 0,
-    jsonLd: produtos.length ? jsonLdCatalogo(produtos, contato ?? undefined, paginaSeo) : undefined,
+    caminho: modoBusca ? '/busca' : (paginaSeo?.caminho ?? '/'),
+    // Resultados de busca e categoria ainda sem produtos não vão para os buscadores
+    indexar: !modoBusca && (!categoriaFixa || carregandoProdutos || produtos.length > 0),
+    jsonLd:
+      produtos.length && !modoBusca
+        ? jsonLdCatalogo(produtos, contato ?? undefined, paginaSeo)
+        : undefined,
     ativo: !carregandoProdutos && !erroProdutos,
   })
-  const [busca, setBusca] = useState('')
+  // Na página de busca o termo fica no endereço (?q=...); nas outras, só na tela
+  const [buscaLocal, setBuscaLocal] = useState('')
+  const busca = modoBusca ? termoNoEndereco : buscaLocal
+  const setBusca = (v: string) =>
+    modoBusca
+      ? setParametros(
+          (atuais) => {
+            const novos = new URLSearchParams(atuais)
+            if (v) novos.set('q', v)
+            else novos.delete('q')
+            return novos
+          },
+          { replace: true, preventScrollReset: true },
+        )
+      : setBuscaLocal(v)
   // Nas abas, o filtro de categoria fica no endereço (?categoria=...)
-  const [parametros, setParametros] = useSearchParams()
   const categoriaNoEndereco = parametros.get('categoria') ?? ''
   const categoria = categoriaFixa ?? categoriaNoEndereco
   // No início e na tela de uma categoria, os botões de categoria são links para as telas delas
@@ -140,10 +163,10 @@ export default function Catalogo({
     fila.scrollLeft += desvio - (fila.clientWidth - ativa.offsetWidth) / 2
   }, [categoria, categoriasLoja])
   const [ordem, setOrdem] = useState<'nome' | 'menor' | 'maior' | 'novos'>('nome')
-  // Página inicial sem categoria escolhida: vitrine com as seções do painel
-  const vitrineInicio = !linha && !categoria
-  // Página inicial (sem aba nem categoria): categorias em cards com foto
-  const ehInicio = !linha && !categoriaFixa
+  // Página inicial: banners, cards de categoria e as seções do painel (sem busca nem filtros;
+  // a busca fica na lupa do cabeçalho)
+  const vitrineInicio = !linha && !categoria && !modoBusca
+  const ehInicio = vitrineInicio
 
   // Categorias cadastradas no painel (na ordem do cadastro; numa aba, só as dela),
   // mais qualquer categoria usada em produtos que não esteja no cadastro
@@ -163,14 +186,9 @@ export default function Catalogo({
   }, [categoriasLoja, linha, produtos, categoriaFixa, linhaDaCategoria])
 
   const lista = useMemo(() => {
-    const termo = normalizar(busca.trim())
-    const filtrados = produtos.filter((p) => {
-      if (categoria && !produtoTemCategoria(p, categoria)) return false
-      if (!termo) return true
-      return normalizar(`${p.nome} ${p.descricao} ${categoriasDoProduto(p).join(' ')}`).includes(
-        termo,
-      )
-    })
+    const filtrados = produtos.filter(
+      (p) => (!categoria || produtoTemCategoria(p, categoria)) && produtoCombina(p, busca),
+    )
     return [...filtrados].sort((a, b) => {
       if (ordem === 'menor') return a.preco - b.preco
       if (ordem === 'maior') return b.preco - a.preco
@@ -186,7 +204,17 @@ export default function Catalogo({
   return (
     <div className="space-y-8">
       {/* Aba ou categoria: só o título. Início: banners ou apresentação padrão */}
-      {infoLinha ? (
+      {modoBusca ? (
+        <h1 className="font-serif text-3xl sm:text-4xl font-semibold leading-tight text-[#0C1014]">
+          {busca.trim() ? (
+            <>
+              Resultados para <span className="text-[#A5683F]">“{busca.trim()}”</span>
+            </>
+          ) : (
+            'Buscar produtos'
+          )}
+        </h1>
+      ) : infoLinha ? (
         // Aba da loja: só o título no topo
         <h1 className="font-serif text-3xl sm:text-4xl font-semibold leading-tight text-[#0C1014]">
           {infoLinha.titulo}
@@ -270,7 +298,10 @@ export default function Catalogo({
           ref={filtrosRef}
           aria-label="Filtros"
           // Categoria ainda vazia: sem busca nem ordem (não há o que filtrar)
-          hidden={Boolean(categoriaFixa) && !carregandoProdutos && produtos.length === 0}
+          hidden={
+            vitrineInicio ||
+            (Boolean(categoriaFixa) && !carregandoProdutos && produtos.length === 0)
+          }
           className="space-y-4 scroll-mt-24"
         >
           <div className="flex flex-col sm:flex-row gap-3">
@@ -298,7 +329,7 @@ export default function Catalogo({
                 </button>
               )}
             </div>
-            {(!vitrineInicio || busca.trim()) && (
+            {!vitrineInicio && (
               <Select value={ordem} onValueChange={(v) => setOrdem(v as typeof ordem)}>
                 <SelectTrigger
                   aria-label="Ordenar produtos"
@@ -322,47 +353,49 @@ export default function Catalogo({
             )}
           </div>
 
-          {!ehInicio && (categorias.length > 1 || (linha && categorias.length > 0)) && (
-            <nav
-              ref={chipsRef}
-              aria-label="Categorias"
-              className="flex gap-2 overflow-x-auto sem-barra pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap"
-            >
-              {(categoriaFixa ? categorias : ['', ...categorias]).map((c) => {
-                const ativa = categoria.toLowerCase() === c.toLowerCase()
-                const estilo = cn(
-                  'shrink-0 inline-flex items-center h-9 px-4 rounded-full text-sm font-semibold border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C48864] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F7F3EA]',
-                  ativa
-                    ? 'bg-[#0C1014] text-white border-[#0C1014]'
-                    : 'bg-white text-[#6B4B36] border-[#DFC3AE] hover:border-[#C48864] hover:text-[#0C1014]',
-                )
-                return chipsSaoLinks ? (
-                  <Link
-                    key={c || 'todas'}
-                    to={c ? caminhoCategoria(c) : '/'}
-                    aria-current={ativa ? 'page' : undefined}
-                    className={estilo}
-                  >
-                    {c || 'Todos'}
-                  </Link>
-                ) : (
-                  <button
-                    key={c || 'todas'}
-                    type="button"
-                    onClick={() => setCategoria(c)}
-                    aria-pressed={ativa}
-                    className={estilo}
-                  >
-                    {c || 'Todos'}
-                  </button>
-                )
-              })}
-            </nav>
-          )}
+          {!ehInicio &&
+            !modoBusca &&
+            (categorias.length > 1 || (linha && categorias.length > 0)) && (
+              <nav
+                ref={chipsRef}
+                aria-label="Categorias"
+                className="flex gap-2 overflow-x-auto sem-barra pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap"
+              >
+                {(categoriaFixa ? categorias : ['', ...categorias]).map((c) => {
+                  const ativa = categoria.toLowerCase() === c.toLowerCase()
+                  const estilo = cn(
+                    'shrink-0 inline-flex items-center h-9 px-4 rounded-full text-sm font-semibold border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C48864] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F7F3EA]',
+                    ativa
+                      ? 'bg-[#0C1014] text-white border-[#0C1014]'
+                      : 'bg-white text-[#6B4B36] border-[#DFC3AE] hover:border-[#C48864] hover:text-[#0C1014]',
+                  )
+                  return chipsSaoLinks ? (
+                    <Link
+                      key={c || 'todas'}
+                      to={c ? caminhoCategoria(c) : '/'}
+                      aria-current={ativa ? 'page' : undefined}
+                      className={estilo}
+                    >
+                      {c || 'Todos'}
+                    </Link>
+                  ) : (
+                    <button
+                      key={c || 'todas'}
+                      type="button"
+                      onClick={() => setCategoria(c)}
+                      aria-pressed={ativa}
+                      className={estilo}
+                    >
+                      {c || 'Todos'}
+                    </button>
+                  )
+                })}
+              </nav>
+            )}
         </section>
 
-        {/* Início sem busca: seções escolhidas no painel. Com busca: os resultados */}
-        {vitrineInicio && !busca.trim() ? (
+        {/* Início: seções escolhidas no painel. Nas outras páginas: a lista de produtos */}
+        {vitrineInicio ? (
           carregandoProdutos ? (
             <CarregandoLoja />
           ) : erroProdutos ? (

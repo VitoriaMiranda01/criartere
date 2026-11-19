@@ -33,6 +33,7 @@ import { CarregandoLoja } from './componentes'
 import { numeroWhatsApp } from './api'
 import { caminhoCategoria, LINHAS_CATALOGO, LinhaCatalogo, PAGINA_SOBRE } from './seo-dados'
 import { BarraAvisos } from './BarraAvisos'
+import { BuscaCabecalho } from './BuscaLoja'
 
 export default function LojaLayout() {
   // Ativa os estilos da loja (avisos, barras de rolagem, seleção de texto, preenchimento automático)
@@ -120,7 +121,7 @@ function LojaEstrutura() {
       {!telaFocada && <BarraAvisos frases={avisos} />}
 
       <header className="sticky top-0 z-40 bg-[#F7F3EA]/90 backdrop-blur border-b border-[#DFC3AE]/60">
-        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 h-16 flex items-center gap-4">
+        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 h-16 flex items-center gap-2 sm:gap-4">
           <button
             type="button"
             className="lg:hidden -ml-1 p-2 rounded-lg text-[#6B4B36] hover:bg-white"
@@ -162,7 +163,8 @@ function LojaEstrutura() {
             </NavLink>
           </nav>
 
-          <div className="ml-auto flex items-center gap-1 sm:gap-2">
+          <div className="ml-auto flex items-center gap-0.5 sm:gap-2">
+            <BuscaCabecalho />
             <Link
               to="/favoritos"
               className="relative p-2 rounded-full text-[#6B4B36] hover:bg-white hover:text-[#0C1014]"
