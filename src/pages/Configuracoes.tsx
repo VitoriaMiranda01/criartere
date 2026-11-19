@@ -36,6 +36,7 @@ export default function Configuracoes() {
   const [whatsappLoja, setWhatsappLoja] = useState(state.config.whatsapp)
   const [enderecoLoja, setEnderecoLoja] = useState(state.config.endereco)
   const [instagramLoja, setInstagramLoja] = useState(state.config.instagram)
+  const [tiktokLoja, setTiktokLoja] = useState(state.config.tiktok ?? '')
   const [chavePix, setChavePix] = useState(state.config.chavePix)
 
   // Preferências
@@ -60,6 +61,11 @@ export default function Configuracoes() {
       toast.error('Informe o nome da loja.')
       return
     }
+    // Links das redes: só o @ ou o endereço, sem espaços
+    if (/\s/.test(instagramLoja.trim()) || /\s/.test(tiktokLoja.trim())) {
+      toast.error('Use só o @ ou o link das redes sociais, sem espaços.')
+      return
+    }
     dispatch({
       type: 'ATUALIZAR_CONFIG',
       payload: {
@@ -68,7 +74,8 @@ export default function Configuracoes() {
         telefone: telefoneLoja,
         whatsapp: whatsappLoja,
         endereco: enderecoLoja,
-        instagram: instagramLoja,
+        instagram: instagramLoja.trim(),
+        tiktok: tiktokLoja.trim(),
         chavePix: chavePix.trim(),
         incluirAguardandoNoFaturamento: incluirAguardando,
         periodoPadraoDashboard: periodoPadrao,
@@ -237,12 +244,40 @@ export default function Configuracoes() {
                   className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
                 >
                   Instagram
+                  <DicaAjuda>
+                    <p>Aparece como ícone no topo e no rodapé da loja. Sem link, o ícone some.</p>
+                  </DicaAjuda>
                   <Opcional />
                 </Label>
                 <Input
                   id="configuracoe-campo-6"
                   value={instagramLoja}
                   onChange={(e) => setInstagramLoja(e.target.value)}
+                  placeholder="@criartere ou o link do perfil"
+                  autoComplete="off"
+                  spellCheck={false}
+                  className="h-10 text-xs border-[#DFC3AE]"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="configuracoe-campo-tiktok"
+                  className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
+                >
+                  TikTok
+                  <DicaAjuda>
+                    <p>Aparece como ícone no topo e no rodapé da loja. Sem link, o ícone some.</p>
+                  </DicaAjuda>
+                  <Opcional />
+                </Label>
+                <Input
+                  id="configuracoe-campo-tiktok"
+                  value={tiktokLoja}
+                  onChange={(e) => setTiktokLoja(e.target.value)}
+                  placeholder="@criartere ou o link do perfil"
+                  autoComplete="off"
+                  spellCheck={false}
                   className="h-10 text-xs border-[#DFC3AE]"
                 />
               </div>

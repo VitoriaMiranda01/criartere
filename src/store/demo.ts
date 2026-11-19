@@ -211,6 +211,7 @@ export function dadosDemo(): Partial<CriartereState> {
       telefone: '(11) 90000-0000',
       whatsapp: '(11) 90000-0000',
       instagram: '@exemplo',
+      tiktok: '@exemplo',
     },
   }
 }

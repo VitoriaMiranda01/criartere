@@ -132,6 +132,7 @@ export interface ProdutoSeo {
 export interface ContatoSeo {
   whatsapp?: string
   instagram?: string
+  tiktok?: string
 }
 
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -186,16 +187,30 @@ const numeroTelefone = (bruto?: string) => {
   return '+' + (d.length === 10 || d.length === 11 ? '55' + d : d)
 }
 
-const linkInstagram = (bruto?: string) => {
-  const i = (bruto || '').replace(/^@/, '').trim()
+/** Aceita "@criartere", "criartere", "instagram.com/criartere" ou o link completo. */
+export function linkInstagram(bruto?: string): string | undefined {
+  const i = (bruto || '').trim()
   if (!i) return undefined
-  return i.startsWith('http') ? i : `https://instagram.com/${i}`
+  if (/^https?:\/\//i.test(i)) return i
+  if (/instagram\.com\//i.test(i)) return `https://${i.replace(/^\/+/, '')}`
+  return `https://www.instagram.com/${i.replace(/^@/, '')}`
+}
+
+/** Aceita "@criartere", "criartere", "tiktok.com/@criartere" ou o link completo. */
+export function linkTiktok(bruto?: string): string | undefined {
+  const t = (bruto || '').trim()
+  if (!t) return undefined
+  if (/^https?:\/\//i.test(t)) return t
+  if (/tiktok\.com\//i.test(t)) return `https://${t.replace(/^\/+/, '')}`
+  return `https://www.tiktok.com/@${t.replace(/^@/, '')}`
 }
 
 /** Dados estruturados da loja (Google: nome, logo, contatos) */
 export function jsonLdLoja(contato?: ContatoSeo) {
   const telefone = numeroTelefone(contato?.whatsapp)
-  const instagram = linkInstagram(contato?.instagram)
+  const redes = [linkInstagram(contato?.instagram), linkTiktok(contato?.tiktok)].filter(
+    (l): l is string => Boolean(l),
+  )
   return {
     '@type': 'Store',
     '@id': `${SITE}/#loja`,
@@ -206,7 +221,7 @@ export function jsonLdLoja(contato?: ContatoSeo) {
     image: IMAGEM_PADRAO,
     currenciesAccepted: 'BRL',
     ...(telefone ? { telephone: telefone } : {}),
-    ...(instagram ? { sameAs: [instagram] } : {}),
+    ...(redes.length ? { sameAs: redes } : {}),
   }
 }
 

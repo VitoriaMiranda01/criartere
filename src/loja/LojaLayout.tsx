@@ -2,7 +2,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import * as PopoverPrimitive from '@radix-ui/react-popover'
-import { FaWhatsapp, FaInstagram } from 'react-icons/fa'
+import { FaWhatsapp, FaInstagram, FaTiktok } from 'react-icons/fa'
 import {
   Heart,
   ShoppingBag,
@@ -31,7 +31,14 @@ import { cn } from '@/lib/utils'
 import { LojaProvider, useLoja } from './LojaContext'
 import { CarregandoLoja } from './componentes'
 import { numeroWhatsApp } from './api'
-import { caminhoCategoria, LINHAS_CATALOGO, LinhaCatalogo, PAGINA_SOBRE } from './seo-dados'
+import {
+  caminhoCategoria,
+  LINHAS_CATALOGO,
+  LinhaCatalogo,
+  linkInstagram,
+  linkTiktok,
+  PAGINA_SOBRE,
+} from './seo-dados'
 import { BarraAvisos } from './BarraAvisos'
 import { BuscaCabecalho } from './BuscaLoja'
 
@@ -93,12 +100,11 @@ function LojaEstrutura() {
   const [menuAberto, setMenuAberto] = useState(false)
   const ehAdmin = usuario?.papel === 'admin' || usuario?.papel === 'desenvolvedor'
   const whatsapp = numeroWhatsApp(contato?.whatsapp ?? '')
-  const instagram = (contato?.instagram ?? '').replace(/^@/, '').trim()
-  const linkInstagram = instagram
-    ? instagram.startsWith('http')
-      ? instagram
-      : `https://instagram.com/${instagram}`
-    : ''
+  // Redes sociais (links em Configurações; sem link, o ícone não aparece)
+  const redes = [
+    { nome: 'Instagram', url: linkInstagram(contato?.instagram), Icone: FaInstagram },
+    { nome: 'TikTok', url: linkTiktok(contato?.tiktok), Icone: FaTiktok },
+  ].filter((r): r is { nome: string; url: string; Icone: typeof FaInstagram } => Boolean(r.url))
 
   const linkNav = ({ isActive }: { isActive: boolean }) =>
     cn(
@@ -164,6 +170,23 @@ function LojaEstrutura() {
           </nav>
 
           <div className="ml-auto flex items-center gap-0.5 sm:gap-2">
+            {redes.length > 0 && (
+              <div className="hidden lg:flex items-center gap-0.5 pr-2 mr-1 border-r border-[#DFC3AE]/70">
+                {redes.map((r) => (
+                  <a
+                    key={r.nome}
+                    href={r.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${r.nome} da Criartere (abre em nova aba)`}
+                    title={r.nome}
+                    className="p-2 rounded-full text-[#6B4B36] hover:bg-white hover:text-[#A5683F]"
+                  >
+                    <r.Icone className="w-[18px] h-[18px]" aria-hidden="true" />
+                  </a>
+                ))}
+              </div>
+            )}
             <BuscaCabecalho />
             <Link
               to="/favoritos"
@@ -305,6 +328,23 @@ function LojaEstrutura() {
                   </div>,
                 ]
               })}
+            {redes.length > 0 && (
+              <div className="flex items-center gap-2 px-2 pt-3 pb-2 mt-1 border-t border-[#DFC3AE]/60">
+                <span className="text-xs font-semibold text-[#6B4B36] mr-1">Siga a gente</span>
+                {redes.map((r) => (
+                  <a
+                    key={r.nome}
+                    href={r.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${r.nome} da Criartere (abre em nova aba)`}
+                    className="w-10 h-10 rounded-full bg-white border border-[#DFC3AE] flex items-center justify-center text-[#A5683F] hover:border-[#C48864]"
+                  >
+                    <r.Icone className="w-[18px] h-[18px]" aria-hidden="true" />
+                  </a>
+                ))}
+              </div>
+            )}
           </nav>
         )}
       </header>
@@ -352,16 +392,19 @@ function LojaEstrutura() {
                 <FaWhatsapp className="w-4 h-4 text-[#25D366]" aria-hidden="true" /> WhatsApp
               </a>
             )}
-            {linkInstagram && (
+            {redes.map((r) => (
               <a
-                href={linkInstagram}
+                key={r.nome}
+                href={r.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 h-9 px-3 rounded-full border border-[#DFC3AE] bg-white text-sm text-[#0C1014] hover:border-[#C48864]"
+                aria-label={`${r.nome} da Criartere (abre em nova aba)`}
+                title={r.nome}
+                className="w-9 h-9 rounded-full border border-[#DFC3AE] bg-white flex items-center justify-center text-[#A5683F] hover:border-[#C48864] hover:text-[#8C5636]"
               >
-                <FaInstagram className="w-4 h-4 text-[#A5683F]" aria-hidden="true" /> Instagram
+                <r.Icone className="w-4 h-4" aria-hidden="true" />
               </a>
-            )}
+            ))}
           </div>
         </div>
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 pb-6 flex flex-wrap items-center justify-between gap-2 text-xs text-[#6B4B36]/90">

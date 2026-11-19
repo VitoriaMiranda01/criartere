@@ -272,7 +272,11 @@ export function seoPrerender(opcoes: { supabaseUrl: string; chave: string }) {
           .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
         const c = contatos[0]
         if (c)
-          contato = { whatsapp: String(c.whatsapp ?? ''), instagram: String(c.instagram ?? '') }
+          contato = {
+            whatsapp: String(c.whatsapp ?? ''),
+            instagram: String(c.instagram ?? ''),
+            tiktok: String(c.tiktok ?? ''),
+          }
       } catch (e) {
         console.warn(`[SEO] Produtos não carregados; páginas da loja não pré-geradas. ${String(e)}`)
       }

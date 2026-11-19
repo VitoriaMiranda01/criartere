@@ -10,6 +10,7 @@ export const CONFIG_PADRAO: LojaConfig = {
   whatsapp: '',
   endereco: '',
   instagram: '',
+  tiktok: '',
   incluirAguardandoNoFaturamento: true,
   periodoPadraoDashboard: 'mes_atual',
   barraAvisosAtiva: false,

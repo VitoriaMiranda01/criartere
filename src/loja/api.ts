@@ -28,6 +28,7 @@ export interface ContatoLoja {
   nome: string
   whatsapp: string
   instagram: string
+  tiktok: string
 }
 
 export interface ItemCarrinho {
@@ -161,6 +162,7 @@ export async function buscarContatoLoja(): Promise<ContatoLoja | null> {
     nome: String(r.nome ?? 'Criartere'),
     whatsapp: String(r.whatsapp ?? ''),
     instagram: String(r.instagram ?? ''),
+    tiktok: String(r.tiktok ?? ''),
   }
 }
 

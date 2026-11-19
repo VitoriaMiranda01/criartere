@@ -199,6 +199,7 @@ export interface LojaConfig {
   whatsapp: string
   endereco: string
   instagram: string
+  tiktok: string
   incluirAguardandoNoFaturamento: boolean
   periodoPadraoDashboard: PeriodoFiltro
   barraAvisosAtiva: boolean // letreiro no topo da loja
