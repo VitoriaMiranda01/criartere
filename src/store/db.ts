@@ -399,12 +399,13 @@ export async function carregarFatias(fatias: Fatia[]): Promise<Partial<Criartere
             categoriasProduto: check(
               await supabase
                 .from('categorias_produto')
-                .select('nome, linha, imagem_url')
+                .select('nome, linha, imagem_url, mostrar_na_inicio')
                 .order('criado_em'),
             ).map((r: Row): CategoriaProduto => ({
               nome: r.nome,
               linha: opt(r.linha),
               imagemUrl: opt(r.imagem_url),
+              mostrarNaInicio: r.mostrar_na_inicio !== false,
             })),
           }
         case 'categoriasDespesa':
@@ -571,12 +572,13 @@ export async function enviarFotoCategoria(imagem: {
   return supabase.storage.from('categorias').getPublicUrl(caminho).data.publicUrl
 }
 
-async function gravarFotoCategoria(nome: string, imagemUrl: string | null) {
+/** Grava a foto e a opção "mostrar na página inicial" da categoria. */
+async function gravarCardCategoria(c: CategoriaProduto) {
   check(
     await supabase
       .from('categorias_produto')
-      .update({ imagem_url: imagemUrl })
-      .eq('nome', nome.trim().replace(/\s+/g, ' ')),
+      .update({ imagem_url: c.imagemUrl ?? null, mostrar_na_inicio: c.mostrarNaInicio !== false })
+      .eq('nome', c.nome.trim().replace(/\s+/g, ' ')),
   )
 }
 
@@ -771,7 +773,7 @@ export async function persistirAcao(
           p_linha: c.linha ?? null,
         }),
       )
-      if (c.imagemUrl) await gravarFotoCategoria(c.nome, c.imagemUrl)
+      if (c.imagemUrl || c.mostrarNaInicio === false) await gravarCardCategoria(c)
       return ['categoriasProduto']
     }
 
@@ -784,11 +786,11 @@ export async function persistirAcao(
         }),
       )
       const antes = anterior.categoriasProduto.find((c) => c.nome === p.antiga)
-      if ((antes?.imagemUrl ?? null) !== (p.imagemUrl ?? null)) {
-        await gravarFotoCategoria(p.nome, p.imagemUrl ?? null)
-        // A foto antiga deixa de ser usada: sai do armazenamento
-        await limparFotosCategorias(proximo.categoriasProduto).catch(() => undefined)
-      }
+      const trocouFoto = (antes?.imagemUrl ?? null) !== (p.imagemUrl ?? null)
+      if (trocouFoto || (antes?.mostrarNaInicio !== false) !== (p.mostrarNaInicio !== false))
+        await gravarCardCategoria(p)
+      // A foto antiga deixa de ser usada: sai do armazenamento
+      if (trocouFoto) await limparFotosCategorias(proximo.categoriasProduto).catch(() => undefined)
       return ['categoriasProduto', 'produtos', 'banners', 'config']
     }
 

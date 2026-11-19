@@ -37,6 +37,7 @@ export interface CategoriaProduto {
   nome: string
   linha?: '3d' | 'papelaria' // Catálogo 3D, Catálogo Papelaria (vazio = só no início da loja)
   imagemUrl?: string // foto do card da categoria na loja (sem foto: a do produto mais recente)
+  mostrarNaInicio?: boolean // aparece nos cards de categoria da página inicial (padrão: sim)
 }
 
 export interface Produto {

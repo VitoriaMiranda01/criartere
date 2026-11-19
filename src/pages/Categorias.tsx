@@ -13,6 +13,7 @@ import {
   Edit,
   Home,
   ImageIcon,
+  LayoutGrid,
   ImagePlus,
   PenTool,
   Plus,
@@ -22,6 +23,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 import {
   Dialog,
   DialogContent,
@@ -72,6 +74,8 @@ export default function Categorias() {
   // Foto do card na loja: a atual (url), uma nova escolhida (ainda não enviada) e a prévia
   const [foto, setFoto] = useState<{ url?: string; nova?: ImagemPreparada; previa?: string }>({})
   const [preparandoFoto, setPreparandoFoto] = useState(false)
+  // Aparece nos cards de categoria da página inicial da loja
+  const [naInicio, setNaInicio] = useState(true)
   const [salvando, setSalvando] = useState(false)
   const arquivoRef = useRef<HTMLInputElement>(null)
   // Libera a prévia local quando ela deixa de ser usada
@@ -120,6 +124,7 @@ export default function Categorias() {
     setNome(c?.nome ?? '')
     setLinha(c ? (c.linha ?? 'nenhuma') : '3d')
     setFoto({ url: c?.imagemUrl })
+    setNaInicio(c ? c.mostrarNaInicio !== false : true)
     setErro('')
     setModalAberto(true)
   }
@@ -171,7 +176,13 @@ export default function Categorias() {
     if (editando) {
       dispatch({
         type: 'SALVAR_CATEGORIA_PRODUTO',
-        payload: { antiga: editando.nome, nome: nomeFinal, linha: linhaFinal, imagemUrl },
+        payload: {
+          antiga: editando.nome,
+          nome: nomeFinal,
+          linha: linhaFinal,
+          imagemUrl,
+          mostrarNaInicio: naInicio,
+        },
       })
       const renomeou = nomeFinal !== editando.nome
       const n = qtd(editando.nome)
@@ -183,7 +194,7 @@ export default function Categorias() {
     } else {
       dispatch({
         type: 'ADICIONAR_CATEGORIA_PRODUTO',
-        payload: { nome: nomeFinal, linha: linhaFinal, imagemUrl },
+        payload: { nome: nomeFinal, linha: linhaFinal, imagemUrl, mostrarNaInicio: naInicio },
       })
       toast.success(`Categoria "${nomeFinal}" criada!`)
     }
@@ -275,6 +286,15 @@ export default function Categorias() {
                       </p>
                     </div>
                   </div>
+                  {c.mostrarNaInicio !== false && (
+                    <span
+                      className="self-start sm:self-auto inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#A5683F]/10 text-[#8C5636]"
+                      title="Aparece nos cards de categoria da página inicial"
+                    >
+                      <LayoutGrid className="w-3.5 h-3.5" aria-hidden="true" />
+                      Card na página inicial
+                    </span>
+                  )}
                   <span
                     className={`self-start sm:self-auto inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full ${aba.classe}`}
                   >
@@ -359,6 +379,18 @@ export default function Categorias() {
               <p className="text-[10px] text-[#6B4B36]/90">
                 Todos os produtos aparecem na página inicial; aqui você escolhe também a aba.
               </p>
+            </div>
+
+            <div className="flex items-start justify-between gap-3 rounded-xl border border-[#DFC3AE]/70 bg-[#F7F3EA]/50 p-3">
+              <div>
+                <Label htmlFor="cat-inicio" className="text-sm font-semibold text-[#0C1014]">
+                  Mostrar nos cards da página inicial
+                </Label>
+                <p className="text-[11px] text-[#6B4B36] mt-0.5">
+                  A categoria aparece na faixa de categorias com foto, logo abaixo dos banners.
+                </p>
+              </div>
+              <Switch id="cat-inicio" checked={naInicio} onCheckedChange={setNaInicio} />
             </div>
 
             <div className="space-y-1.5">

@@ -120,16 +120,22 @@ export interface CategoriaLoja {
   linha: string | null
   /** Foto do card da categoria (cadastrada no painel) */
   imagemUrl?: string
+  /** Aparece nos cards de categoria da página inicial */
+  mostrarNaInicio: boolean
 }
 
 export async function listarCategoriasLoja(): Promise<CategoriaLoja[]> {
   const data = check(
-    await supabase.from('categorias_produto').select('nome, linha, imagem_url').order('criado_em'),
+    await supabase
+      .from('categorias_produto')
+      .select('nome, linha, imagem_url, mostrar_na_inicio')
+      .order('criado_em'),
   )
   return ((data ?? []) as Row[]).map((r) => ({
     nome: String(r.nome ?? ''),
     linha: r.linha ? String(r.linha) : null,
     imagemUrl: r.imagem_url ? String(r.imagem_url) : undefined,
+    mostrarNaInicio: r.mostrar_na_inicio !== false,
   }))
 }
 

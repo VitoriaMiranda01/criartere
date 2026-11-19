@@ -467,7 +467,14 @@ function criartereReducer(state: CriartereState, action: Action): CriartereState
       return {
         ...state,
         categoriasProduto: state.categoriasProduto.map((c) =>
-          c.nome === antiga ? { nome, linha: cat.linha, imagemUrl: cat.imagemUrl } : c,
+          c.nome === antiga
+            ? {
+                nome,
+                linha: cat.linha,
+                imagemUrl: cat.imagemUrl,
+                mostrarNaInicio: cat.mostrarNaInicio,
+              }
+            : c,
         ),
         produtos: renomeou
           ? state.produtos.map((p) => ({

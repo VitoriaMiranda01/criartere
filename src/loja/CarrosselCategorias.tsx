@@ -1,12 +1,13 @@
 /* Cards de categoria da página inicial: foto em pé com o nome por cima.
-   A foto é a cadastrada no painel (Categorias); sem ela, a do produto mais recente
-   da categoria. Só aparecem categorias com produtos na loja. */
+   Aparecem as categorias marcadas no painel ("Mostrar nos cards da página inicial"),
+   na ordem do cadastro, e só se tiverem produtos na loja. A foto é a cadastrada no
+   painel; sem ela, a do produto mais recente da categoria. */
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import type { ProdutoVitrine } from './api'
 import { FaixaComSetas } from './FaixaComSetas'
-import { caminhoCategoria, categoriasDoProduto, produtoTemCategoria } from './seo-dados'
+import { caminhoCategoria, produtoTemCategoria } from './seo-dados'
 
 interface CardCategoria {
   nome: string
@@ -15,36 +16,29 @@ interface CardCategoria {
 }
 
 export function montarCardsCategorias(
-  categoriasLoja: { nome: string; imagemUrl?: string }[],
+  categoriasLoja: { nome: string; imagemUrl?: string; mostrarNaInicio: boolean }[],
   produtos: ProdutoVitrine[],
 ): CardCategoria[] {
-  // Cadastradas no painel (na ordem do cadastro) e as que só existem nos produtos
-  const conhecidas = new Set(categoriasLoja.map((c) => c.nome.trim().toLowerCase()))
-  const extras = [...new Set(produtos.flatMap(categoriasDoProduto))]
-    .filter((c) => !conhecidas.has(c.toLowerCase()))
-    .sort((a, b) => a.localeCompare(b, 'pt-BR'))
-  const todas = [
-    ...categoriasLoja.map((c) => ({ nome: c.nome.trim(), imagemUrl: c.imagemUrl })),
-    ...extras.map((nome) => ({ nome, imagemUrl: undefined })),
-  ]
   const recentes = [...produtos].sort((a, b) => b.criadoEm.localeCompare(a.criadoEm))
-  return todas
+  return categoriasLoja
+    .filter((c) => c.mostrarNaInicio && c.nome.trim())
     .map((c) => {
-      const daCategoria = recentes.filter((p) => produtoTemCategoria(p, c.nome))
+      const nome = c.nome.trim()
+      const daCategoria = recentes.filter((p) => produtoTemCategoria(p, nome))
       return {
-        nome: c.nome,
+        nome,
         foto: c.imagemUrl || daCategoria.find((p) => p.imagemUrl)?.imagemUrl,
         quantidade: daCategoria.length,
       }
     })
-    .filter((c) => c.nome && c.quantidade > 0)
+    .filter((c) => c.quantidade > 0)
 }
 
 export function CarrosselCategorias({
   categoriasLoja,
   produtos,
 }: {
-  categoriasLoja: { nome: string; imagemUrl?: string }[]
+  categoriasLoja: { nome: string; imagemUrl?: string; mostrarNaInicio: boolean }[]
   produtos: ProdutoVitrine[]
 }) {
   const cards = useMemo(
