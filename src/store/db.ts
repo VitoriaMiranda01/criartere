@@ -88,6 +88,7 @@ const mapProduto = (r: Row): Produto => ({
   nome: r.nome,
   descricao: r.descricao,
   precoVenda: num(r.preco_venda),
+  precoAPartirDe: Boolean(r.preco_a_partir_de),
   custo: num(r.custo),
   categoria: r.categoria,
   outrasCategorias: Array.isArray(r.outras_categorias) ? r.outras_categorias : [],
@@ -244,6 +245,7 @@ const produtoParaRow = (p: Produto) => ({
   nome: p.nome,
   descricao: p.descricao ?? '',
   preco_venda: p.precoVenda,
+  preco_a_partir_de: Boolean(p.precoAPartirDe),
   custo: p.custo,
   categoria: p.categoria ?? '',
   // Sem repetir a principal nem categorias iguais

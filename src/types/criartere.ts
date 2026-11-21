@@ -45,6 +45,7 @@ export interface Produto {
   nome: string
   descricao: string
   precoVenda: number
+  precoAPartirDe?: boolean // a loja mostra "a partir de" (valor varia)
   custo: number
   categoria: string // categoria principal (aparece no card)
   outrasCategorias?: string[] // onde mais o produto aparece (filtros, abas e seções da home)

@@ -118,6 +118,7 @@ export default function Finalizar() {
   const subtotal = linhas.reduce((s, l) => s + l.produto!.preco * l.item.quantidade, 0)
   const desconto = cupom ? Math.min(cupom.desconto, subtotal) : 0
   const total = subtotal - desconto
+  const temAPartirDe = linhas.some((l) => l.produto!.precoAPartirDe)
   const qtdItens = linhas.reduce((s, l) => s + l.item.quantidade, 0)
 
   const aplicarCupom = async () => {
@@ -396,7 +397,8 @@ export default function Finalizar() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold truncate">{produto!.nome}</p>
                   <p className="text-xs text-[#6B4B36]">
-                    {item.quantidade} × {formatarPreco(produto!.preco)}
+                    {item.quantidade} × {produto!.precoAPartirDe && 'a partir de '}
+                    {formatarPreco(produto!.preco)}
                   </p>
                 </div>
                 <span className="text-sm font-semibold">
@@ -495,9 +497,19 @@ export default function Finalizar() {
             <div className="flex justify-between items-baseline pt-2">
               <span className="font-semibold">Total</span>
               <span className="font-serif text-2xl font-bold text-[#A5683F]" aria-live="polite">
+                {temAPartirDe && (
+                  <span className="font-sans text-xs font-semibold text-[#6B4B36] mr-1.5">
+                    a partir de
+                  </span>
+                )}
                 {formatarPreco(total)}
               </span>
             </div>
+            {temAPartirDe && (
+              <p className="text-xs text-[#6B4B36]">
+                Alguns itens têm valor “a partir de”: o valor final é confirmado pelo WhatsApp.
+              </p>
+            )}
           </div>
 
           {erro && (

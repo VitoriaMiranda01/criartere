@@ -166,6 +166,11 @@ export function BuscaCabecalho() {
                             </span>
                           </span>
                           <span className="text-sm font-semibold text-[#A5683F] shrink-0">
+                            {p.precoAPartirDe && (
+                              <span className="block text-[10px] font-medium text-[#6B4B36] text-right">
+                                a partir de
+                              </span>
+                            )}
                             {formatarPreco(p.preco)}
                           </span>
                         </Link>

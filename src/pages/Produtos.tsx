@@ -78,6 +78,8 @@ export default function Produtos() {
   const [nome, setNome] = useState('')
   const [descricao, setDescricao] = useState('')
   const [precoVendaStr, setPrecoVendaStr] = useState('')
+  // Valor varia (tamanho, personalização...): a loja mostra "a partir de"
+  const [precoAPartirDe, setPrecoAPartirDe] = useState(false)
   const [custoStr, setCustoStr] = useState('')
   const [categoria, setCategoria] = useState('Impressão 3D')
   // Outras categorias em que o produto também aparece (filtros, abas e seções da home)
@@ -167,6 +169,7 @@ export default function Produtos() {
     setNome('')
     setDescricao('')
     setPrecoVendaStr('')
+    setPrecoAPartirDe(false)
     setCustoStr('')
     setCategoria(categoriasDisponiveis[0] ?? 'Impressão 3D')
     setOutrasCategorias([])
@@ -189,6 +192,7 @@ export default function Produtos() {
     setNome(prod.nome)
     setDescricao(prod.descricao)
     setPrecoVendaStr(prod.precoVenda.toString())
+    setPrecoAPartirDe(Boolean(prod.precoAPartirDe))
     setCustoStr(prod.custo ? prod.custo.toString() : '')
     setCategoria(prod.categoria)
     setOutrasCategorias(prod.outrasCategorias ?? [])
@@ -327,6 +331,7 @@ export default function Produtos() {
       nome: nome.trim(),
       descricao: descricao.trim(),
       precoVenda,
+      precoAPartirDe,
       custo,
       categoria,
       outrasCategorias: outrasCategorias.filter((c) => c !== categoria),
@@ -552,6 +557,11 @@ export default function Produtos() {
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] text-[#6B4B36]">Preço de Venda:</span>
                       <span className="font-serif font-bold text-base text-[#94603D]">
+                        {prod.precoAPartirDe && (
+                          <span className="font-sans font-semibold text-[10px] text-[#6B4B36] mr-1">
+                            a partir de
+                          </span>
+                        )}
                         {formatBRL(prod.precoVenda)}
                       </span>
                     </div>
@@ -912,7 +922,7 @@ export default function Produtos() {
                       htmlFor="preco"
                       className="text-xs font-semibold text-[#6B4B36] uppercase tracking-wider"
                     >
-                      Preço de venda (R$)
+                      {precoAPartirDe ? 'Preço mínimo (R$)' : 'Preço de venda (R$)'}
                       <Obrigatorio />
                     </Label>
                     <Input
@@ -946,6 +956,30 @@ export default function Produtos() {
                       className="h-10 text-xs border-[#DFC3AE]"
                     />
                   </div>
+                  <label
+                    htmlFor="preco-a-partir-de"
+                    className="col-span-2 flex items-start gap-2.5 rounded-xl border border-[#DFC3AE]/70 bg-[#F7F3EA]/60 p-2.5 cursor-pointer"
+                  >
+                    <input
+                      id="preco-a-partir-de"
+                      type="checkbox"
+                      checked={precoAPartirDe}
+                      onChange={(e) => setPrecoAPartirDe(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 accent-[#A5683F] shrink-0"
+                    />
+                    <span className="text-xs text-[#0C1014]">
+                      <span className="font-semibold">Valor varia: mostrar "a partir de"</span>
+                      <span className="block text-[11px] text-[#6B4B36] mt-0.5">
+                        Para produtos com preço que muda conforme tamanho ou personalização. Na
+                        loja aparece "a partir de{' '}
+                        {(() => {
+                          const v = parseFloat(precoVendaStr.replace(',', '.'))
+                          return v > 0 ? formatBRL(v) : 'R$ 0,00'
+                        })()}
+                        " e o valor final é combinado pelo WhatsApp.
+                      </span>
+                    </span>
+                  </label>
                   <div className="space-y-1.5">
                     <Label
                       htmlFor="produtos-campo-1"

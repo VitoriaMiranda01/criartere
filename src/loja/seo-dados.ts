@@ -127,6 +127,8 @@ export interface ProdutoSeo {
   imagemUrl?: string
   imagens?: string[]
   disponibilidade: 'pronta_entrega' | 'sob_encomenda'
+  /** Valor varia: o preço informado é o mínimo */
+  precoAPartirDe?: boolean
 }
 
 export interface ContatoSeo {
@@ -173,12 +175,16 @@ const limitar = (t: string, n: number) => {
   return limpo.length <= n ? limpo : limpo.slice(0, n - 1).replace(/\s+\S*$/, '') + '…'
 }
 
+/** "R$ 25,00" ou "A partir de R$ 25,00" */
+export const textoPrecoSeo = (p: Pick<ProdutoSeo, 'preco' | 'precoAPartirDe'>) =>
+  `${p.precoAPartirDe ? 'A partir de ' : ''}${formatarPrecoSeo(p.preco)}`
+
 export function descricaoProduto(p: ProdutoSeo): string {
   const base = p.descricao
     ? limitar(p.descricao, 110)
     : `${p.nome}${p.categoria ? ` — ${p.categoria}` : ''}.`
   const disp = p.disponibilidade === 'pronta_entrega' ? 'Pronta entrega' : 'Sob encomenda'
-  return limitar(`${base} ${formatarPrecoSeo(p.preco)} · ${disp} · Criartere.`, 160)
+  return limitar(`${base} ${textoPrecoSeo(p)} · ${disp} · Criartere.`, 160)
 }
 
 const numeroTelefone = (bruto?: string) => {
@@ -248,11 +254,13 @@ export function jsonLdProduto(p: ProdutoSeo, notas?: { media: number; total: num
           },
         }
       : {}),
+    // Valor que varia ("a partir de"): oferta com preço mínimo
     offers: {
-      '@type': 'Offer',
+      ...(p.precoAPartirDe
+        ? { '@type': 'AggregateOffer', lowPrice: (p.preco || 0).toFixed(2), offerCount: 1 }
+        : { '@type': 'Offer', price: (p.preco || 0).toFixed(2) }),
       url: `${SITE}${caminhoProduto(p)}`,
       priceCurrency: 'BRL',
-      price: (p.preco || 0).toFixed(2),
       availability:
         p.disponibilidade === 'pronta_entrega'
           ? 'https://schema.org/InStock'

@@ -16,6 +16,8 @@ export interface ProdutoVitrine {
   descricao: string
   preco: number // preço a pagar (já com a promoção, se houver)
   precoOriginal: number // preço cheio (igual a "preco" quando não há promoção)
+  /** O valor varia: "preco" é o mínimo e a loja mostra "a partir de" */
+  precoAPartirDe: boolean
   categoria: string // principal
   outrasCategorias: string[]
   imagemUrl?: string // foto principal
@@ -51,6 +53,7 @@ const mapProduto = (r: Row): ProdutoVitrine => {
     descricao: String(r.descricao ?? ''),
     preco: Number(r.preco ?? 0),
     precoOriginal: Number(r.preco_original ?? r.preco ?? 0),
+    precoAPartirDe: r.preco_a_partir_de === true,
     categoria: String(r.categoria ?? ''),
     outrasCategorias: Array.isArray(r.outras_categorias)
       ? (r.outras_categorias as unknown[]).map(String)

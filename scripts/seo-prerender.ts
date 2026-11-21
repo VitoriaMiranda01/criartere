@@ -27,6 +27,7 @@ import {
   jsonLdCatalogo,
   jsonSeguro,
   formatarPrecoSeo,
+  textoPrecoSeo,
   LINHAS_CATALOGO,
   LinhaCatalogo,
   produtoNaLinha,
@@ -99,7 +100,7 @@ const conteudoProduto = (p: ProdutoSeo) => `<main class="conteudo-estatico">
 <h1>${esc(p.nome)}</h1>
 ${p.imagemUrl ? `<img src="${esc(p.imagemUrl)}" alt="${esc(p.nome)}" width="480" height="480" style="max-width:100%;height:auto" />` : ''}
 ${p.descricao ? `<p>${esc(p.descricao)}</p>` : ''}
-<p>Preço: <strong>${formatarPrecoSeo(p.preco)}</strong> · ${p.disponibilidade === 'pronta_entrega' ? 'Pronta entrega' : 'Sob encomenda'}</p>
+<p>Preço: <strong>${textoPrecoSeo(p)}</strong> · ${p.disponibilidade === 'pronta_entrega' ? 'Pronta entrega' : 'Sob encomenda'}</p>
 </main>`
 
 const conteudoCatalogo = (
@@ -110,7 +111,7 @@ const conteudoCatalogo = (
 <h1>${esc(titulo)}</h1>
 <p>${esc(descricao)}</p>
 <ul>
-${produtos.map((p) => `<li><a href="${esc(caminhoProduto(p))}">${esc(p.nome)}</a> — ${formatarPrecoSeo(p.preco)}</li>`).join('\n')}
+${produtos.map((p) => `<li><a href="${esc(caminhoProduto(p))}">${esc(p.nome)}</a> — ${textoPrecoSeo(p)}</li>`).join('\n')}
 </ul>
 </main>`
 
@@ -257,6 +258,7 @@ export function seoPrerender(opcoes: { supabaseUrl: string; chave: string }) {
             nome: String(r.nome ?? ''),
             descricao: String(r.descricao ?? ''),
             preco: Number(r.preco ?? 0),
+            precoAPartirDe: r.preco_a_partir_de === true,
             categoria: String(r.categoria ?? ''),
             outrasCategorias: Array.isArray(r.outras_categorias)
               ? (r.outras_categorias as unknown[]).map(String)

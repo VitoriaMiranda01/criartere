@@ -44,6 +44,8 @@ export default function Carrinho() {
   }))
   const disponiveis = linhas.filter((l) => l.produto)
   const total = disponiveis.reduce((s, l) => s + l.produto!.preco * l.item.quantidade, 0)
+  // Itens com valor que varia: o total é o mínimo e o valor final é combinado
+  const temAPartirDe = disponiveis.some((l) => l.produto!.precoAPartirDe)
   const quantidadeTotal = disponiveis.reduce((s, l) => s + l.item.quantidade, 0)
 
   if (carrinho.length === 0) {
@@ -112,6 +114,7 @@ export default function Carrinho() {
                     <p className="text-xs text-[#6B4B36] mt-0.5">
                       {produto ? (
                         <>
+                          {produto.precoAPartirDe && 'A partir de '}
                           {produto.precoOriginal > produto.preco && (
                             <span className="line-through mr-1.5">
                               {formatarPreco(produto.precoOriginal)}
@@ -178,9 +181,19 @@ export default function Carrinho() {
           <div className="border-t border-[#DFC3AE]/60 pt-4 flex items-center justify-between">
             <span className="font-semibold">Total</span>
             <span className="font-serif text-2xl font-bold text-[#A5683F]">
+              {temAPartirDe && (
+                <span className="font-sans text-xs font-semibold text-[#6B4B36] mr-1.5">
+                  a partir de
+                </span>
+              )}
               {formatarPreco(total)}
             </span>
           </div>
+          {temAPartirDe && (
+            <p className="text-xs text-[#6B4B36] -mt-2">
+              Alguns itens têm valor “a partir de”: o valor final é confirmado pelo WhatsApp.
+            </p>
+          )}
           <Link
             to="/finalizar"
             aria-disabled={disponiveis.length === 0}

@@ -247,6 +247,16 @@ export function PrecoProduto({
   const emPromocao = descontoDoProduto(produto) > 0
   return (
     <p className={cn('flex items-baseline flex-wrap gap-x-2', className)}>
+      {produto.precoAPartirDe && (
+        <span
+          className={cn(
+            'font-semibold text-[#6B4B36]',
+            tamanho === 'lg' ? 'text-sm' : 'text-xs',
+          )}
+        >
+          a partir de
+        </span>
+      )}
       {emPromocao && (
         <span
           className={cn(
